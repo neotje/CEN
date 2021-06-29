@@ -46,7 +46,7 @@ uint8_t I2CSensorModuleBase::_send_request(int cmd, int data, int size)
 bool I2CSensorModuleBase::is_connected()
 {
     _wire->beginTransmission(_addr);
-    _wire->write(IS_CONNECTED);
+    _wire->write(CMD_IS_CONNECTED);
     _wire->endTransmission();
 
     _wire->requestFrom(_addr, 1);

@@ -2,9 +2,6 @@
 
 #include "I2C_sm_base.h"
 
-#define PARKING_ADDR 2
-#define GET_DISTANCE 3
-
 class ParkingModule : public I2CSensorModuleBase
 {
 private:

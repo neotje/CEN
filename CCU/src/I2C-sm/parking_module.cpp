@@ -4,14 +4,14 @@ ParkingModule ParkingSensor;
 
 ParkingModule::ParkingModule()
 {
-    _addr = PARKING_ADDR;
+    _addr = PARKING_ADDRESS;
     _wire = &Wire2;
 }
 
 int32_t ParkingModule::get_distance(uint8_t i)
 {
     _wire->beginTransmission(_addr);
-    _wire->write(GET_DISTANCE);
+    _wire->write(CMD_PARKING_GET_DISTANCE);
     _wire->write(i);
     _wire->endTransmission();
 

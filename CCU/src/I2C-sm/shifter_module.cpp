@@ -4,13 +4,13 @@ ShifterModule ShifterSensor;
 
 ShifterModule::ShifterModule()
 {
-    _addr = SHIFTER_ADDR;
+    _addr = SHIFTER_ADDRESS;
     _wire = &Wire2;
 }
 
 bool ShifterModule::calibrate(uint8_t gear_num)
 {
-    _send_request(CALIBRATE, gear_num, 1);
+    _send_request(CMD_SHIFTER_CALIBRATE, gear_num, 1);
 
     return _buffer[0];
 }

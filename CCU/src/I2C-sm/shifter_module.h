@@ -2,10 +2,6 @@
 
 #include "I2C_sm_base.h"
 
-#define GEARS 7
-#define SHIFTER_ADDR 1
-#define CALIBRATE 5
-
 struct Bounds
 {
     int16_t min;
@@ -32,18 +28,18 @@ struct GearBounds
 class ShifterModule : public I2CSensorModuleBase
 {
 private:
-    GearBounds _gears[GEARS];
+    GearBounds _gears[SHIFTER_SPEEDS];
 
 public:
     ShifterModule();
     ~ShifterModule() {}
 
-    int8_t get_gear();
-
     /* 
     gear 0 = neutral
     last gear = reverse
     */
+    int8_t get_gear();
+
     bool calibrate(uint8_t gear_num);
 };
 
