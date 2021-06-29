@@ -10,9 +10,6 @@ void setup()
 {
   Wire2.begin();
 
-  while (!Serial)
-    ;
-
   scode.boot();
 }
 

@@ -3,8 +3,7 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
-
-#define GEARS 7
+#include "../../../CCU/src/config.h"
 
 #define CALIBRATE_MARGIN 25
 

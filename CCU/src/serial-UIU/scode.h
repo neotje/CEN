@@ -29,12 +29,22 @@ class SCodeCollection
 private:
     static String _line;
 
+    static int timed_read();
+    static void read_line();
+
 public:
     static void loop();
+    static void switch_case();
 
     static void sensor_offline()
     {
+        CONTROL_PORT.print(_line);
+        CONTROL_PORT.print(":");
         CONTROL_PORT.println("error:sensor offline");
+    }
+    static void invalid_input()
+    {
+        CONTROL_PORT.println("error:invalid input");
     }
     static void invalid_arguments()
     {

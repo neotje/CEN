@@ -1,14 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
-
-#include "parking_sensor.h"
-
-#define ADDR 2
-
-#define IS_CONNECTED 0
-#define RESTART 1
-#define TOGGLE_DEBUG 2
-#define GET_DISTANCE 3
+#include "../../../CCU/src/config.h"
 
 #define SENSORS 4
 
@@ -43,19 +35,19 @@ void requestEvent()
 
   switch (cmd)
   {
-  case IS_CONNECTED:
+  case CMD_IS_CONNECTED:
     Wire.write(1);
     break;
 
-  case RESTART:
+  case CMD_RESTART:
     restart();
     break;
 
-  case TOGGLE_DEBUG:
+  case CMD_TOGGLE_DEBUG:
     debug = !debug;
     break;
 
-  case GET_DISTANCE:
+  case CMD_PARKING_GET_DISTANCE:
     int32_t resp;
     if (_buffer[0] >= SENSORS)
     {
@@ -118,7 +110,7 @@ void setup()
     pinMode(pins[i][1], INPUT);
   }
 
-  Wire.begin(ADDR);
+  Wire.begin(PARKING_ADDRESS);
   Wire.onRequest(requestEvent);
   Wire.onReceive(recieveEvent);
 

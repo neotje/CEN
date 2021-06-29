@@ -4,6 +4,7 @@
 Serial controls
 */
 #define CONTROL_PORT Serial
+#define CONTROL_DEBUG
 
 #define CONTROL_SEPERATOR ';'
 #define CONTROL_TERMINATOR '\n'
@@ -27,7 +28,7 @@ Serial controls
 
 // parking module
 #define PARKING_ADDRESS 0
-#define CMD_PARKING_GET_DISTANCE 5
+#define CMD_PARKING_GET_DISTANCE 3
 
 // shifter_module
 #define SHIFTER_ADDRESS 1

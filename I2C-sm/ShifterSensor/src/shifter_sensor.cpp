@@ -1,6 +1,6 @@
 #include "shifter_sensor.h"
 
-ShifterSensor::GearBounds gears[GEARS];
+ShifterSensor::GearBounds gears[SHIFTER_SPEEDS];
 
 uint16_t x;
 uint16_t y;
@@ -20,7 +20,7 @@ int8_t ShifterSensor::getGear()
 {
     readSensor();
 
-    for (int8_t i = 0; i < GEARS; i++)
+    for (int8_t i = 0; i < SHIFTER_ADDRESS; i++)
     {
         if (insideBounds(x, y, gears[i]))
             return i;
@@ -33,7 +33,7 @@ uint16_t ShifterSensor::getY() { return y; }
 
 void ShifterSensor::calibrate()
 {
-    for (int i = 0; i < GEARS; i++)
+    for (int i = 0; i < SHIFTER_SPEEDS; i++)
     {
         Serial.print("move into gear: ");
         Serial.println(i);

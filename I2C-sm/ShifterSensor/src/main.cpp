@@ -1,15 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include "shifter_sensor.h"
-
-#define ADDR 1
-
-#define IS_CONNECTED 0
-#define RESTART 1
-#define TOGGLE_DEBUG 2
-#define SAVE 3
-#define LOAD 4
-#define CALIBRATE 5
+#include "../../../CCU/src/config.h"
 
 int cmd;
 bool debug = false;
@@ -33,7 +25,7 @@ void requestCalibrate()
     Serial.println(g);
   }
 
-  if (g < GEARS)
+  if (g < SHIFTER_SPEEDS)
   {
     ShifterSensor::calibrate(g);
     Wire.write(1);
@@ -49,27 +41,27 @@ void requestEvent()
 
   switch (cmd)
   {
-  case IS_CONNECTED:
+  case CMD_IS_CONNECTED:
     Wire.write(1);
     break;
 
-  case RESTART:
+  case CMD_RESTART:
     restart();
     break;
 
-  case TOGGLE_DEBUG:
+  case CMD_TOGGLE_DEBUG:
     debug = !debug;
     break;
 
-  case SAVE:
+  case CMD_SAVE:
     ShifterSensor::save();
     break;
 
-  case LOAD:
+  case CMD_LOAD:
     ShifterSensor::load();
     break;
 
-  case CALIBRATE:
+  case CMD_SHIFTER_CALIBRATE:
     requestCalibrate();
     break;
 
@@ -94,7 +86,7 @@ void recieveEvent(int size)
     _buffer = new uint8_t[size - 1];
     switch (cmd)
     {
-    case CALIBRATE:
+    case CMD_SHIFTER_CALIBRATE:
       _buffer[0] = Wire.read();
       break;
 
@@ -109,7 +101,7 @@ void setup()
   Serial.begin(9600);
   Serial.println("Booting...");
 
-  Wire.begin(ADDR);
+  Wire.begin(SHIFTER_ADDRESS);
   Wire.onRequest(requestEvent);
   Wire.onReceive(recieveEvent);
 
