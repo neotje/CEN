@@ -1,14 +1,9 @@
-#ifndef shifter_module_h
-#define shifter_module_h
+#pragma once
 
 #include "I2C_sm_base.h"
 
 #define GEARS 7
-
 #define SHIFTER_ADDR 1
-
-#define SAVE 3
-#define LOAD 4
 #define CALIBRATE 5
 
 struct Bounds
@@ -43,13 +38,6 @@ public:
     ShifterModule();
     ~ShifterModule() {}
 
-    void save(){
-        _send_request(SAVE, 0);
-    }
-    void load(){
-        _send_request(LOAD, 0);
-    }
-
     int8_t get_gear();
 
     /* 
@@ -59,24 +47,4 @@ public:
     bool calibrate(uint8_t gear_num);
 };
 
-ShifterModule::ShifterModule()
-{
-    _addr = SHIFTER_ADDR;
-    _wire = &Wire2;
-}
-
-bool ShifterModule::calibrate(uint8_t gear_num)
-{
-    _send_request(CALIBRATE, gear_num, 1);
-
-    return _buffer[0];
-}
-
-int8_t ShifterModule::get_gear()
-{
-    _request_to_buffer(1);
-
-    return _buffer[0];
-}
-
-#endif
+extern ShifterModule ShifterSensor;
