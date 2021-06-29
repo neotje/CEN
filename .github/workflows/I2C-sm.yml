@@ -31,3 +31,6 @@ jobs:
         
       - name: Build ParkingSensor project
         run: pio run -d ./I2C-sm/ParkingSensor
+        
+      - name: Build ShifterSensor project
+        run: pio run -d ./I2C-sm/ParkingSensor
