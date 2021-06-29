@@ -5,6 +5,11 @@ uint32_t ParkingBeeper::_min = MIN_DISTANCE;
 uint32_t ParkingBeeper::_max = MAX_DISTANCE;
 bool ParkingBeeper::enable = true;
 
+void ParkingBeeper::setup()
+{
+    pinMode(beeperPin, OUTPUT);
+}
+
 void ParkingBeeper::loop()
 {
     // check if parkingbeeper is enabled and the car is in reverse

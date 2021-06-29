@@ -13,6 +13,7 @@ private:
 public:
     static bool enable;
 
+    static void setup();
     static void loop();
 };
 
