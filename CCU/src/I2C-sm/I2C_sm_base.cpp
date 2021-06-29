@@ -52,7 +52,7 @@ bool I2CSensorModuleBase::is_connected()
     _wire->requestFrom(_addr, 1);
 
     uint32_t start = micros();
-    uint32_t timout = 100 * 1000;
+    uint32_t timout = 1000;
 
     while (_wire->available() == 0)
     {

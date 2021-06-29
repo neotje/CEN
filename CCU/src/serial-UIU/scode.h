@@ -22,6 +22,9 @@
  - M1         - load settings / request all sensors to load their configuration.
  - M2         - restart everthing.
  - M3;sensor  - get if sensor is online.
+
+## parking beeper
+ - M4;enable  - enable/disable the beeper.
 */
 
 class SCodeCollection
@@ -77,6 +80,7 @@ public:
     static void M1();
     static void M2();
     static void M3();
+    static void M4();
 };
 
 extern SCodeCollection scode;
