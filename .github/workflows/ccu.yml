@@ -35,4 +35,4 @@ jobs:
         run: pio platform install teensy
         
       - name: Build CCU project
-        run: pio run -d ./CEN/CCU/
+        run: pio run -d ./CCU/
