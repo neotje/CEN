@@ -23,7 +23,7 @@ void SCodeCollection::loop()
 {
     if (CONTROL_PORT.available() > 0)
     {
-        int c = timed_read();
+        int c = CONTROL_PORT.read();
 
         if (c < 0)
             return;
@@ -41,7 +41,10 @@ void SCodeCollection::loop()
             _line = "";
         }
 
-        _line += (char)c;
+        if (c == 8)
+            _line.remove(_line.length() - 1);
+        else
+            _line += (char)c;
     }
 }
 

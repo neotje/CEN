@@ -20,17 +20,17 @@ Serial controls
       I2C sensor modules
 */
 // base
-#define CMD_IS_CONNECTED 0
-#define CMD_RESTART      1
-#define CMD_TOGGLE_DEBUG 2
-#define CMD_SAVE         3
-#define CMD_LOAD         4
+#define CMD_IS_CONNECTED      0
+#define CMD_RESTART           1
+#define CMD_TOGGLE_DEBUG      2
+#define CMD_SAVE              3
+#define CMD_LOAD              4
 
 // parking module
-#define PARKING_ADDRESS 0
-#define CMD_PARKING_GET_DISTANCE 3
+#define PARKING_ADDRESS             0
+#define CMD_PARKING_GET_DISTANCE    3
 
 // shifter_module
-#define SHIFTER_ADDRESS 1
-#define SHIFTER_SPEEDS 7
+#define SHIFTER_ADDRESS       1
+#define SHIFTER_SPEEDS        7
 #define CMD_SHIFTER_CALIBRATE 5
