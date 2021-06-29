@@ -16,6 +16,8 @@ int cmd;
 bool debug = false;
 int _buffer_size = 0;
 
+uint64_t max_pulse = 2 * MAX_DISTANCE / 0.034;
+
 uint8_t *_buffer;
 
 int64_t duration;
@@ -133,7 +135,7 @@ void loop()
   {
     trigger(pins[i][0]);
 
-    duration = pulseIn(pins[i][1], HIGH);
+    duration = pulseIn(pins[i][1], HIGH, max_pulse);
 
     distances[i] = duration * 0.034 / 2;
   }
