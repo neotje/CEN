@@ -1,6 +1,7 @@
 #include "../scode.h"
 #include "../../modules/parking.h"
 
+// - M4;enable    - enable/disable the beeper.
 void SCodeCollection::M4()
 {
     if(parser.params[0] == "")
