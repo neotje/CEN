@@ -6,6 +6,7 @@
 
 #include "serial-UIU/scode.h"
 #include "modules/parking.h"
+#include "modules/power.h"
 
 IntervalTimer scodeTimer;
 
@@ -15,6 +16,7 @@ void setup()
 
   scode.boot();
 
+  TERN_(USE_POWER_MANAGER, power_manager.setup());
   TERN_(USE_PARKING_BEEPER, parking_beeper.setup());
 
   scodeTimer.begin(scode.loop, 1);
@@ -22,7 +24,10 @@ void setup()
 
 void loop()
 {
-  //scode.loop();
+  TERN_(USE_POWER_MANAGER, power_manager.loop());
 
-  TERN_(USE_PARKING_BEEPER, parking_beeper.loop());
+  if (TERN1(USE_POWER_MANAGER, power_manager.ignition_switch()))
+  {
+    TERN_(USE_PARKING_BEEPER, parking_beeper.loop());
+  }
 }
