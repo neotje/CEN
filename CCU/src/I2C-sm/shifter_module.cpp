@@ -5,7 +5,7 @@ ShifterModule ShifterSensor;
 ShifterModule::ShifterModule()
 {
     _addr = SHIFTER_ADDRESS;
-    _wire = &Wire2;
+    _wire = &SHIFTER_WIRE;
 }
 
 bool ShifterModule::calibrate(uint8_t gear_num)

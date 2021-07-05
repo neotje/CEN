@@ -5,7 +5,7 @@ ParkingModule ParkingSensor;
 ParkingModule::ParkingModule()
 {
     _addr = PARKING_ADDRESS;
-    _wire = &Wire2;
+    _wire = &PARKING_WIRE;
 }
 
 int32_t ParkingModule::get_distance(uint8_t i)
