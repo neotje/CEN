@@ -50,12 +50,12 @@ Reserved:
 /*
 Serial controls
 */
-#define CONTROL_PORT Serial
+#define CONTROL_PORT          Serial
 #define CONTROL_DEBUG
 
-#define CONTROL_SEPERATOR ';'
-#define CONTROL_TERMINATOR '\n'
-#define CONTROL_MAX_PARAMS 6
+#define CONTROL_SEPERATOR     ';'
+#define CONTROL_TERMINATOR    '\n'
+#define CONTROL_MAX_PARAMS    6
 
 
 
@@ -63,20 +63,24 @@ Serial controls
       I2C sensor modules
 */
 
+#define I2C_GROUP1 Wire
+#define I2C_GROUP2 Wire1
+#define I2C_GROUP3 Wire2
+
 // base
-#define CMD_IS_CONNECTED      0
-#define CMD_RESTART           1
-#define CMD_TOGGLE_DEBUG      2
-#define CMD_SAVE              3
-#define CMD_LOAD              4
+#define CMD_IS_CONNECTED            0
+#define CMD_RESTART                 1
+#define CMD_TOGGLE_DEBUG            2
+#define CMD_SAVE                    3
+#define CMD_LOAD                    4
 
 // parking module
-#define PARKING_WIRE Wire2
+#define PARKING_WIRE I2C_GROUP3
 #define PARKING_ADDRESS             0
 #define CMD_PARKING_GET_DISTANCE    3
 
 // shifter_module
-#define SHIFTER_WIRE Wire2
-#define SHIFTER_ADDRESS       1
-#define SHIFTER_SPEEDS        7
-#define CMD_SHIFTER_CALIBRATE 5
+#define SHIFTER_WIRE I2C_GROUP3
+#define SHIFTER_ADDRESS             1
+#define SHIFTER_SPEEDS              7
+#define CMD_SHIFTER_CALIBRATE       5

@@ -12,13 +12,14 @@ IntervalTimer scodeTimer;
 
 void setup()
 {
-  Wire2.begin();
-
-  scode.boot();
+  I2C_GROUP1.begin();
+  I2C_GROUP2.begin();
+  I2C_GROUP3.begin();
 
   TERN_(USE_POWER_MANAGER, power_manager.setup());
   TERN_(USE_PARKING_BEEPER, parking_beeper.setup());
 
+  scode.boot();
   scodeTimer.begin(scode.loop, 1);
 }
 
@@ -30,4 +31,16 @@ void loop()
   {
     TERN_(USE_PARKING_BEEPER, parking_beeper.loop());
   }
+}
+
+int main(int argc, char **argv)
+{
+  setup();
+
+  while (true)
+  {
+    loop();
+  }
+
+  return 0;
 }
