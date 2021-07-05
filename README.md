@@ -7,6 +7,7 @@ Car electronics network
 This is my attempt to modernize a Chevrolet Matiz with sensors and a multimedia center.
 
 ## File structure
+```
 .
 +-- CCU (Central Computer unit aka Teensy 4.1 platformio project files)
     +-- src
@@ -14,3 +15,4 @@ This is my attempt to modernize a Chevrolet Matiz with sensors and a multimedia 
         +-- serial-UIU (Serial communication interface)
 +-- I2C-sm (I2C Sensor Module aka Arduino Nano platformio project files)
 +-- UIU (User Interface Unit aka raspberry pi 4 with a touchscreen)
+```
