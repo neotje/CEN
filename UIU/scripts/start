@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd /home/pi/Github/CEN
+
+git pull
+
+source /home/pi/Github/CEN/UIU/venv/bin/activate
+
+cen-uiu
