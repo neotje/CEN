@@ -16,7 +16,6 @@ def test_BluetoothInput():
     assert bl.enable() == None
     assert bl.disable() == None
 
-
 if __name__ == "__main__":
     test_discoverable()
     test_set_alias()
