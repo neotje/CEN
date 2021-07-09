@@ -8,6 +8,7 @@ import re
 from typing import List
 import dbus
 from dbus.proxies import ProxyObject
+from .interfaces.adapter_api import BluezAdapter1
 
 bus = dbus.SystemBus()
 
@@ -44,12 +45,8 @@ def get_interface_property(interface: dbus.Interface, name: str):
     return properties_interface.Get(interface.dbus_interface, name)
 
 
-def get_adapter(name: str) -> dbus.Interface:
-    """
-    https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/adapter-api.txt
-    """
-    device_proxy_object = get_proxy_object(f"/org/bluez/{name}")
-    return dbus.Interface(device_proxy_object, "org.bluez.Adapter1")
+def get_adapter(name: str) -> BluezAdapter1:
+    return BluezAdapter1(bus, f"/org/bluez/{name}")
 
 
 def get_agent() -> dbus.Interface:
