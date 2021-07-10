@@ -18,13 +18,13 @@ def main():
 
     app = UIUApp()
 
-    """ try:
+    try:
         app.run()
     except KeyboardInterrupt:
         pass
     finally:
         app.stop()
-        bl.disable() """
+        bl.disable()
     
 
 if __name__ == "__main__":
