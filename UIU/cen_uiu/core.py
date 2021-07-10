@@ -31,7 +31,6 @@ class UIUCore:
 
     def restart(self):
         _LOGGER.info("Restarting...")
-        self._worker.stop()
+        self.stop()
         self._worker.join()
         os.execv(sys.argv[0], sys.argv)
-        exit()
