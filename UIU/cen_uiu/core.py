@@ -18,16 +18,20 @@ class UIUCore:
         self._worker = UIUCoreWorker(self)
 
     def start(self):
+        _LOGGER.info("starting...")
         self.bl_audio.enable()
         self.updater.start()
         self._worker.start()
 
     def stop(self):
+        _LOGGER.info("stopping...")
         self.bl_audio.disable()
         self._worker.stop()
         self.updater.stop()
 
     def restart(self):
+        _LOGGER.info("Restarting...")
         self._worker.stop()
         self._worker.join()
         os.execv(sys.argv[0], sys.argv)
+        exit()

@@ -16,14 +16,11 @@ def check_for_internet() -> bool:
 
 
 def update_uiu() -> bool:
-    try:
-        process = subprocess.run(
-            ["git", "pull"], cwd="/home/Pi/Github/CEN", capture_output=True)
+    process = subprocess.check_output(
+        ["git", "pull"], cwd="/home/pi/Github/CEN")
 
-        return process.stdout.rfind("Already up to date.") == -1
-
-    except Exception:
-        return False
+    _LOGGER.info(process.decode('utf-8'))
+    return process.decode("utf-8").rfind("up to date") == -1
 
 
 class UpdateThread(threading.Thread):
@@ -38,7 +35,9 @@ class UpdateThread(threading.Thread):
     def run(self):
         try:
             while self._run:
+                _LOGGER.info("Checking for updates...")
                 if check_for_internet() and update_uiu():
+                    _LOGGER.info("Updating...")
                     self.core.restart()
 
                 time.sleep(5)
