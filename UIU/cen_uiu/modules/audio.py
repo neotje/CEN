@@ -3,9 +3,8 @@ import sys
 
 from cen_uiu.helpers.audio import AudioInput
 
-
-import logging
-_LOGGER = logging.getLogger(__name__)
+from kivy.logger import Logger
+_LOGGER = Logger
 
 
 class BluetoothInput(AudioInput):
@@ -13,7 +12,7 @@ class BluetoothInput(AudioInput):
 
     def __init__(self):
         self._name = "Bluetooth"
-        self._bluealsa_aplay = subprocess.Popen(["ls"], stdout=None)
+        self._bluealsa_aplay = None
 
     def enable(self):
         _LOGGER.debug("Enabling bluetooth input")

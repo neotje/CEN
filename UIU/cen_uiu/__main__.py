@@ -1,31 +1,23 @@
 import sys
-from cen_uiu.app import UIUApp
-from cen_uiu.modules.audio import BluetoothInput
 
-import logging
-logging.basicConfig(
-    stream=sys.stdout,
-    level=logging.DEBUG,
-    format='%(levelname)s:%(name)s:%(funcName)s:[%(lineno)d]   %(message)s'
-)
-_LOGGER = logging.getLogger(__name__)
+from cen_uiu.core import UIUCore
+
+from kivy.logger import Logger
+_LOGGER = Logger
 
 
 def main():
-    bl = BluetoothInput()
+    core = UIUCore()
 
-    bl.enable()
-
-    app = UIUApp()
+    core.start()
 
     try:
-        app.run()
+        core._process.join()
     except KeyboardInterrupt:
         pass
     finally:
-        app.stop()
-        bl.disable()
-    
+        core.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main())
