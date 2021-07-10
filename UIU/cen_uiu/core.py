@@ -2,7 +2,7 @@ import os
 import sys
 from cen_uiu.app import UIUApp
 from cen_uiu.modules.audio import BluetoothInput
-from cen_uiu.modules.update import UpdateThread
+from cen_uiu.update import UpdateThread
 from cen_uiu.worker import UIUCoreWorker
 
 from kivy.logger import Logger
