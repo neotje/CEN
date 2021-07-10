@@ -16,9 +16,17 @@ class BluetoothInput(AudioInput):
 
     def enable(self):
         _LOGGER.debug("Enabling bluetooth input")
-        self._bluealsa_aplay = subprocess.Popen(
-            ["/usr/bin/bluealsa-aplay", "--profile-a2dp", "--pcm-buffer-time=250000", "00:00:00:00:00:00"], stdout=sys.stdout)
+
+        try:
+            self._bluealsa_aplay = subprocess.Popen(
+                ["/usr/bin/bluealsa-aplay", "--profile-a2dp", "--pcm-buffer-time=250000", "00:00:00:00:00:00"], stdout=sys.stdout)
+        except Exception:
+            pass
 
     def disable(self):
         _LOGGER.debug("Disabling bluetooth input")
-        self._bluealsa_aplay.kill()
+
+        try:
+            self._bluealsa_aplay.kill()
+        except Exception:
+            pass

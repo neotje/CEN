@@ -12,7 +12,7 @@ def main():
     core.start()
 
     try:
-        core._process.join()
+        core._worker.join()
     except KeyboardInterrupt:
         pass
     finally:

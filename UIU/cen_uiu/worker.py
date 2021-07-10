@@ -12,13 +12,16 @@ class UIUCoreWorker(multiprocessing.Process):
 
     def run(self):
         try:
-            self.core.bl_audio.enable()
             self.core.app.run()
         except KeyboardInterrupt:
-            self.stop()
+            pass
+
+        self.stop()
 
     def stop(self):
-        self.core.bl_audio.disable()
         self.core.app.stop()
 
-        self.kill()
+        try:
+            self.kill()
+        except AttributeError:
+            pass

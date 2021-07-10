@@ -1,3 +1,5 @@
+import os
+import sys
 from cen_uiu.app import UIUApp
 from cen_uiu.modules.audio import BluetoothInput
 from cen_uiu.modules.update import UpdateThread
@@ -8,29 +10,24 @@ _LOGGER = Logger
 
 
 class UIUCore:
-    bl_audio: BluetoothInput
-    updater: UpdateThread
-    app: UIUApp
-
-    _process: UIUCoreWorker
-
-    def __init__(self) -> None:
+    def __init__(self):
         _LOGGER.info("Initializing core...")
         self.bl_audio = BluetoothInput()
         self.updater = UpdateThread(self)
         self.app = UIUApp()
-        self._process = UIUCoreWorker(self)
-
-        self.updater.start()
+        self._worker = UIUCoreWorker(self)
 
     def start(self):
-        _LOGGER.info("Starting core worker...")
-        self._process.start()
+        self.bl_audio.enable()
+        self.updater.start()
+        self._worker.start()
 
     def stop(self):
-        self._process.stop()
+        self.bl_audio.disable()
+        self._worker.stop()
+        self.updater.stop()
 
     def restart(self):
-        self._process.stop()
-        self._process.join()
-        self._process.start()
+        self._worker.stop()
+        self._worker.join()
+        os.execv(sys.argv[0], sys.argv)
