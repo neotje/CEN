@@ -6,6 +6,8 @@ Car electronics network (needs a better name i think)
 
 This is my attempt to modernize a Chevrolet Matiz with sensors and a multimedia center.
 
+Features:
+
 ## File structure
 ```
 .
