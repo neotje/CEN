@@ -1,9 +1,9 @@
 #!/bin/bash
 
-sudo raspi-config nonint do_hostname "matiz"
-sudo hostnamectl set-hostname --pretty "Chevrolet Matiz"
+raspi-config nonint do_hostname "matiz"
+hostnamectl set-hostname --pretty "Chevrolet Matiz"
 
-sudo apt install -y --no-install-recommends alsa-base alsa-utils bluealsa bluez-tools
+apt install -y --no-install-recommends alsa-base alsa-utils bluealsa bluez-tools
 
 cat <<'EOF' > /etc/bluetooth/main.conf
 [General]

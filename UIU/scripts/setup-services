@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat <<'EOF' > /etct/xdg/lxsession/LXDE-pi/autostart
+cat <<'EOF' > /etc/xdg/lxsession/LXDE-pi/autostart
 @lxpanel --profile LXDE-pi
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
