@@ -1,7 +1,10 @@
-import os
-import sys
+import multiprocessing
+import platform
+from typing import Callable, Dict, List
+
 from cen_uiu.app import UIUApp
 from cen_uiu.modules.audio import BluetoothInput
+from cen_uiu.modules.bluetooth import BluetoothDiscovery
 from cen_uiu.update import UpdateThread
 from cen_uiu.worker import UIUCoreWorker
 
@@ -14,26 +17,56 @@ class UIUCore:
         _LOGGER.info("Initializing core...")
         self.bl_audio = BluetoothInput()
         self.updater = UpdateThread(self)
+        self.event = Event(self)
+        self.bluetooth = BluetoothDiscovery(self)
+
         self.app = UIUApp()
+
         self._worker = UIUCoreWorker(self)
 
     def start(self):
         _LOGGER.info("starting...")
+
         self.bl_audio.enable()
-        self.updater.start()
+        self.bluetooth.start()
+
+        if platform.uname().machine == "armv7l":
+            self.updater.start()
+
         self._worker.start()
 
     def stop(self):
         _LOGGER.info("stopping...")
-        self.bl_audio.disable()
         self._worker.stop()
+        self._worker.join()
+
+        self.bl_audio.disable()
         self.updater.stop()
+        self.bluetooth.kill()
 
     def restart(self):
         _LOGGER.info("Restarting...")
-        self.bl_audio.disable()
-        self._worker.stop()
-        self._worker.join()
-        self.updater.stop()
+        self.stop()
 
         exit(10)
+
+
+class Event:
+    def __init__(self, core: UIUCore) -> None:
+        self._listeners: Dict[List[Callable]] = {}
+        self._running_listeners = []
+
+        self._core = core
+
+    def listen(self, event: str, listener: Callable):
+        self._listeners.setdefault(event, []).get(event).append(listener)
+
+    def call(self, event: str, data: dict):
+        listeners = self._listeners.get(event)
+
+        if listeners is not None:
+            for func in listeners:
+                p = multiprocessing.Process(
+                    group=f"event-{event}", target=func, args=(self._core, data))
+
+                p.start()

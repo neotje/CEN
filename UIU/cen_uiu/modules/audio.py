@@ -14,12 +14,15 @@ class BluetoothInput(AudioInput):
         self._name = "Bluetooth"
         self._bluealsa_aplay = None
 
-    def enable(self):
+    def enable(self, addr: str = "00:00:00:00:00:00"):
         _LOGGER.debug("Enabling bluetooth input")
+
+        if self._bluealsa_aplay is not None:
+            self.disable()
 
         try:
             self._bluealsa_aplay = subprocess.Popen(
-                ["/usr/bin/bluealsa-aplay", "--profile-a2dp", "--pcm-buffer-time=250000", "00:00:00:00:00:00"], stdout=sys.stdout)
+                ["/usr/bin/bluealsa-aplay", "--profile-a2dp", "--pcm-buffer-time=500000", addr], stdout=sys.stdout)
         except Exception:
             pass
 
@@ -28,5 +31,7 @@ class BluetoothInput(AudioInput):
 
         try:
             self._bluealsa_aplay.kill()
+            self._bluealsa_aplay.wait()
+            self._bluealsa_aplay = None
         except Exception:
             pass
