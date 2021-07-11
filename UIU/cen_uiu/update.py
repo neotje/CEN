@@ -28,7 +28,7 @@ def update_uiu() -> bool:
     return False
 
 
-class UpdateThread(multiprocessing.Process):
+class UpdateWorker(multiprocessing.Process):
     _run: bool
 
     def __init__(self, core):

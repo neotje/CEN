@@ -5,7 +5,7 @@ from typing import Callable, Dict, List
 from cen_uiu.app import UIUApp
 from cen_uiu.modules.audio import BluetoothInput
 from cen_uiu.modules.bluetooth import BL_ON_CONNECT_EVENT, BluetoothDiscovery
-from cen_uiu.update import UpdateThread
+from cen_uiu.update import UpdateWorker
 from cen_uiu.worker import UIUCoreWorker
 
 from kivy.logger import Logger
@@ -25,7 +25,7 @@ class UIUCore:
         self.exit_code = multiprocessing.Value('d', 0)
 
         self._processes: List[multiprocessing.Process] = [
-            UpdateThread(self),
+            UpdateWorker(self),
             BluetoothDiscovery(self),
             UIUCoreWorker(self)
         ]
