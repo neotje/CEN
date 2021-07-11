@@ -8,6 +8,9 @@ from cen_uiu.modules.bluetooth import BL_ON_CONNECT_EVENT, BluetoothDiscovery
 from cen_uiu.update import UpdateThread
 from cen_uiu.worker import UIUCoreWorker
 
+from cen_uiu.__main__ import exit_code
+
+
 from kivy.logger import Logger
 _LOGGER = Logger
 
@@ -61,6 +64,8 @@ class UIUCore:
 
         for child in multiprocessing.active_children():
             child.kill()
+
+        exit(exit_code)
 
 
 class Event:
