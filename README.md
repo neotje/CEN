@@ -10,6 +10,7 @@ Features:
  - parking sensors
  - multimedia center with touchscreen
  - over the air updates
+ - auto connect to paired bluetooth devices
 
 ## File structure
 ```
