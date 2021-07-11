@@ -36,7 +36,7 @@ class UIUCore:
         _LOGGER.info("connected to paired device.")
 
     def _kill_all(self):
-        for p in self._processes:
+        for p in self._processes + multiprocessing.active_children():
             _LOGGER.info(f"killing: {p.name}")
             try:
                 p.kill()
@@ -71,6 +71,8 @@ class UIUCore:
 
         self.bl_audio.disable()
         self._kill_all()
+
+        multiprocessing.current_process().kill()
         exit(int(self.exit_code.value))
 
 
