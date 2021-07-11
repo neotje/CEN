@@ -37,6 +37,7 @@ class UIUCore:
 
     def _kill_all(self):
         for p in self._processes:
+            _LOGGER.info(f"killing: {p.name}")
             try:
                 p.kill()
             except AttributeError:
@@ -70,6 +71,7 @@ class UIUCore:
 
         self.bl_audio.disable()
         self._kill_all()
+        exit(int(self.exit_code.value))
 
 
 class Event:
