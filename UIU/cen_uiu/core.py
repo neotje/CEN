@@ -39,7 +39,13 @@ class UIUCore:
                 p.kill()
             except AttributeError:
                 pass
-                
+    
+    def get_process(self, name: str) -> multiprocessing.Process or None:
+        for p in self._processes:
+            if p.name.find(name) != -1:
+                return p
+
+        return None
 
     def start(self):
         _LOGGER.info("starting...")

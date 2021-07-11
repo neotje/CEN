@@ -6,7 +6,7 @@ _LOGGER = Logger
 
 class UIUCoreWorker(multiprocessing.Process):
     def __init__(self, core):
-        super().__init__()
+        super().__init__(name="ui-worker")
 
         self.core = core
 

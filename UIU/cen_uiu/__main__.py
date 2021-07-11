@@ -11,7 +11,7 @@ def main():
     core.start()
 
     try:
-        core._worker.join()
+        core.get_process("ui-worker").join()
     except KeyboardInterrupt:
         core.stop()
 
