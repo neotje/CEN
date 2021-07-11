@@ -9,6 +9,7 @@ This is my attempt to modernize a Chevrolet Matiz with sensors and a multimedia 
 Features:
  - parking sensors
  - multimedia center with touchscreen
+ - over the air updates
 
 ## File structure
 ```
