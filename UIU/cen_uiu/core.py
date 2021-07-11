@@ -36,4 +36,4 @@ class UIUCore:
         self._worker.join()
         self.updater.stop()
 
-        exit(1)
+        exit(10)

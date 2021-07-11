@@ -8,7 +8,9 @@ run() {
     $cmd
     status=$?
 
-    [ $status -eq 1 ] && run
+    echo "exit code: $status"
+
+    [ $status -eq 10 ] && run
 }
 
 run
