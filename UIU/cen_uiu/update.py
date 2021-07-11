@@ -16,11 +16,16 @@ def check_for_internet() -> bool:
 
 
 def update_uiu() -> bool:
-    process = subprocess.check_output(
+    output = subprocess.check_output(
         ["git", "pull"], cwd="/home/pi/Github/CEN")
 
-    _LOGGER.info(process.decode('utf-8'))
-    return process.decode("utf-8").rfind("up to date") == -1
+    _LOGGER.info(output.decode('utf-8'))
+
+    if output.decode("utf-8").rfind("up to date") == -1:
+        output = subprocess.check_output(
+            ["scripts/setup"], cwd="/home/pi/Github/CEN/UIU")
+        return True
+    return False
 
 
 class UpdateThread(threading.Thread):

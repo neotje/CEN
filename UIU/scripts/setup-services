@@ -1,0 +1,10 @@
+#!/bin/bash
+
+mkdir -p /home/pi/.config/systemd/user
+
+# UIU user service
+cat <<'EOF' > /home/pi/.config/systemd/user/UIU.service
+[Unit]
+Description=User Interface Unit
+B
+EOF

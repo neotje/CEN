@@ -31,6 +31,9 @@ class UIUCore:
 
     def restart(self):
         _LOGGER.info("Restarting...")
-        self.stop()
+        self.bl_audio.disable()
+        self._worker.stop()
         self._worker.join()
-        os.execv(sys.argv[0], sys.argv)
+        self.updater.stop()
+
+        exit(1)
