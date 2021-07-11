@@ -45,7 +45,7 @@ class UpdateThread(threading.Thread):
                     _LOGGER.info("Updating...")
                     self.core.restart()
 
-                time.sleep(5)
+                time.sleep(60)
         except KeyboardInterrupt:
             pass
 
