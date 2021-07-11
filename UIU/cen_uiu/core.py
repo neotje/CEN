@@ -69,7 +69,7 @@ class Event:
         self._core = core
 
     def listen(self, event: str, listener: Callable):
-        self._listeners.setdefault(event, []).get(event).append(listener)
+        self._listeners.setdefault(event, []).append(listener)
 
     def call(self, event: str, data: dict):
         listeners = self._listeners.get(event)
