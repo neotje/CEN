@@ -2,4 +2,15 @@
 
 source /home/pi/Github/CEN/UIU/venv/bin/activate
 
-cen-uiu
+run() {
+    status=$?
+    cmd="cen-uiu"
+    $cmd
+    status=$?
+
+    [ $status -eq 1 ] && run
+}
+
+run
+
+
