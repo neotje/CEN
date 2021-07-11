@@ -5,5 +5,5 @@ cat <<'EOF' > /etc/xdg/lxsession/LXDE-pi/autostart
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
 
-/home/pi/Github/CEN/UIU/scripts/start
+lxterminal -e /home/pi/Github/CEN/UIU/scripts/start
 EOF

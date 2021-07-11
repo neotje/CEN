@@ -1,5 +1,8 @@
 #!/bin/bash
 
+sudo apt update
+sudo apt full-upgrade
+
 sudo scripts/setup-bluetooth
 sudo scripts/setup-services
 
