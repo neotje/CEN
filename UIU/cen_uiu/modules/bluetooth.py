@@ -125,7 +125,6 @@ class BluetoothDiscovery(multiprocessing.Process):
 
         while True:
             for device in list_devices():
-                _LOGGER.info(device)
                 device = get_device(self._adapter, device)
                 
                 paired: bool = get_interface_property(device, "Paired")

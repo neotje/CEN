@@ -18,10 +18,6 @@ class UIUCoreWorker(multiprocessing.Process):
 
         self.stop()
 
-    def stop(self):
+    def kill(self) -> None:
         self.core.app.stop()
-
-        try:
-            self.kill()
-        except AttributeError:
-            pass
+        return super().kill()
