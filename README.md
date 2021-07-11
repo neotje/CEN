@@ -11,6 +11,7 @@ Features:
  - multimedia center with touchscreen
  - over the air updates
  - auto connect to paired bluetooth devices
+ - more comming soon!
 
 ## File structure
 ```
