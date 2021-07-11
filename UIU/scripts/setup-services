@@ -1,10 +1,9 @@
 #!/bin/bash
 
-mkdir -p /home/pi/.config/systemd/user
+cat <<'EOF' > /etct/xdg/lxsession/LXDE-pi/autostart
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+@xscreensaver -no-splash
 
-# UIU user service
-cat <<'EOF' > /home/pi/.config/systemd/user/UIU.service
-[Unit]
-Description=User Interface Unit
-B
+/home/pi/Github/CEN/UIU/scripts/start
 EOF

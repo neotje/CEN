@@ -1,5 +1,8 @@
 #!/bin/bash
 
+sudo scripts/setup-bluetooth
+sudo scripts/setup-services
+
 sudo apt install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 
 python3 -m venv venv
