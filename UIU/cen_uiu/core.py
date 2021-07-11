@@ -4,7 +4,7 @@ from typing import Callable, Dict, List
 
 from cen_uiu.app import UIUApp
 from cen_uiu.modules.audio import BluetoothInput
-from cen_uiu.modules.bluetooth import BluetoothDiscovery
+from cen_uiu.modules.bluetooth import BL_ON_CONNECT_EVENT, BluetoothDiscovery
 from cen_uiu.update import UpdateThread
 from cen_uiu.worker import UIUCoreWorker
 
@@ -23,6 +23,11 @@ class UIUCore:
         self.app = UIUApp()
 
         self._worker = UIUCoreWorker(self)
+
+        self.event.listen(BL_ON_CONNECT_EVENT, self._on_connect)
+
+    def _on_connect(self, core, device):
+        _LOGGER.info("connected to paired device.")
 
     def start(self):
         _LOGGER.info("starting...")
