@@ -12,6 +12,7 @@ Features:
  - over the air updates
  - auto connect to paired bluetooth devices
  - touch ui
+ - car sensors
 
 ## File structure
 ```
