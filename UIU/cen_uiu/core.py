@@ -42,12 +42,12 @@ class UIUCore:
 
     def stop(self):
         _LOGGER.info("stopping...")
-        self._worker.stop()
-        self._worker.join()
+        
+        for child in multiprocessing.active_children():
+            child.kill()
         
         self.bl_audio.disable()
         self.updater.stop()
-        self.bluetooth.kill()
 
     def restart(self):
         _LOGGER.info("Restarting...")
