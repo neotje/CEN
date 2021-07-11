@@ -15,7 +15,8 @@ def main():
     except KeyboardInterrupt:
         core.stop()
 
-    return core.exit_code
+    print(core.exit_code.value)
+    exit(int(core.exit_code.value))
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ class UIUCoreWorker(multiprocessing.Process):
             self.core.app.run()
         except KeyboardInterrupt:
             pass
-
+        
         self.core.stop()
 
     def kill(self) -> None:

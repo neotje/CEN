@@ -20,7 +20,9 @@ class UIUCore:
         self.event = Event(self)
         self.app = UIUApp()
 
-        self.exit_code = 0
+        self.lock = multiprocessing.Lock()
+
+        self.exit_code = multiprocessing.Value('d', 0)
 
         self._processes: List[multiprocessing.Process] = [
             UpdateThread(self),
@@ -57,14 +59,14 @@ class UIUCore:
 
     def stop(self):
         _LOGGER.info("stopping...")
-        self.exit_code = 0
+        self.exit_code.value = 0
 
         self.bl_audio.disable()
         self._kill_all()
 
     def restart(self):
         _LOGGER.info("Restarting...")
-        self.exit_code = 10
+        self.exit_code.value = 10
 
         self.bl_audio.disable()
         self._kill_all()
