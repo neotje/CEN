@@ -15,52 +15,53 @@ _LOGGER = Logger
 class UIUCore:
     def __init__(self):
         _LOGGER.info("Initializing core...")
+
         self.bl_audio = BluetoothInput()
-        self.updater = UpdateThread(self)
         self.event = Event(self)
-        self.bluetooth = BluetoothDiscovery(self)
-
         self.app = UIUApp()
-
-        self._worker = UIUCoreWorker(self)
-
-        self.event.listen(BL_ON_CONNECT_EVENT, self._on_connect)
 
         self.exit_code = 0
 
+        self._processes: List[multiprocessing.Process] = [
+            UpdateThread(self),
+            BluetoothDiscovery(self),
+            UIUCoreWorker(self)
+        ]
+
+        self.event.listen(BL_ON_CONNECT_EVENT, self._on_connect)
+
     def _on_connect(self, core, device):
         _LOGGER.info("connected to paired device.")
+
+    def _kill_all(self):
+        for p in self._processes:
+            try:
+                p.kill()
+            except AttributeError:
+                pass
+                
 
     def start(self):
         _LOGGER.info("starting...")
 
         self.bl_audio.enable()
-        self.bluetooth.start()
-
-        if platform.uname().machine == "armv7l":
-            self.updater.start()
-
-        self._worker.start()
+        
+        for p in self._processes:
+            p.start()
 
     def stop(self):
         _LOGGER.info("stopping...")
-
         self.exit_code = 0
 
-        for child in multiprocessing.active_children():
-            child.kill()
-
         self.bl_audio.disable()
+        self._kill_all()
 
     def restart(self):
         _LOGGER.info("Restarting...")
-
         self.exit_code = 10
 
         self.bl_audio.disable()
-
-        for child in multiprocessing.active_children():
-            child.kill()
+        self._kill_all()
 
 
 class Event:

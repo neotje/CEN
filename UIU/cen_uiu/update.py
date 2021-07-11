@@ -46,7 +46,3 @@ class UpdateThread(multiprocessing.Process):
                 break
 
             time.sleep(60)
-
-    def kill(self) -> None:
-        self._run = False
-        return self.terminate()
