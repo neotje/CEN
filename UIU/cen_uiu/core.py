@@ -45,11 +45,12 @@ class UIUCore:
     def stop(self):
         _LOGGER.info("stopping...")
 
+        self.exit_code = 0
+
         for child in multiprocessing.active_children():
             child.kill()
 
         self.bl_audio.disable()
-        self.updater.stop()
 
     def restart(self):
         _LOGGER.info("Restarting...")
@@ -57,8 +58,6 @@ class UIUCore:
         self.exit_code = 10
 
         self.bl_audio.disable()
-
-        self.updater.stop()
 
         for child in multiprocessing.active_children():
             child.kill()

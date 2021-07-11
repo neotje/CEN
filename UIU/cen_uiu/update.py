@@ -1,6 +1,6 @@
 import subprocess
 import requests
-import threading
+import multiprocessing
 import time
 
 from kivy.logger import Logger
@@ -28,26 +28,20 @@ def update_uiu() -> bool:
     return False
 
 
-class UpdateThread(threading.Thread):
+class UpdateThread(multiprocessing.Process):
     _run: bool
 
     def __init__(self, core):
-        super().__init__()
+        super().__init__(name="update-worker")
 
         self.core = core
         self._run = True
 
     def run(self):
-        try:
-            while self._run:
-                _LOGGER.info("Checking for updates...")
-                if check_for_internet() and update_uiu():
-                    _LOGGER.info("Updating...")
-                    self.core.restart()
+        while True:
+            _LOGGER.info("Checking for updates...")
+            if check_for_internet() and update_uiu():
+                _LOGGER.info("Updating...")
+                self.core.restart()
 
-                time.sleep(60)
-        except KeyboardInterrupt:
-            pass
-
-    def stop(self):
-        self._run = False
+            time.sleep(60)
