@@ -38,13 +38,15 @@ class UpdateThread(multiprocessing.Process):
         self._run = True
 
     def run(self):
-        while True:
+        while self._run:
             _LOGGER.info("Checking for updates...")
             if check_for_internet() and update_uiu():
                 _LOGGER.info("Updating...")
                 self.core.restart()
+                break
 
             time.sleep(60)
 
     def kill(self) -> None:
+        self._run = False
         return super().terminate()

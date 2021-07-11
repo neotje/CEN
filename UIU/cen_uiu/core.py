@@ -62,8 +62,6 @@ class UIUCore:
         for child in multiprocessing.active_children():
             child.kill()
 
-        exit(self.exit_code)
-
 
 class Event:
     def __init__(self, core: UIUCore) -> None:
