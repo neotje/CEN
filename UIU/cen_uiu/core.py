@@ -77,6 +77,6 @@ class Event:
         if listeners is not None:
             for func in listeners:
                 p = multiprocessing.Process(
-                    group=f"event-{event}", target=func, args=(self._core, data))
+                    name=f"event-{event}", target=func, args=(self._core, data))
 
                 p.start()
