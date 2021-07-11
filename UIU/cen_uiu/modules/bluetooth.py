@@ -48,10 +48,13 @@ def get_proxy_object(path: str) -> ProxyObject:
 
 
 def get_interface_property(interface: dbus.Interface, name: str):
-    properties_interface = dbus.Interface(
-        interface.proxy_object, "org.freedesktop.DBus.Properties")
+    try:
+        properties_interface = dbus.Interface(
+            interface.proxy_object, "org.freedesktop.DBus.Properties")
 
-    return properties_interface.Get(interface.dbus_interface, name)
+        return properties_interface.Get(interface.dbus_interface, name)
+    except DBusException:
+        return None
 
 
 def get_adapter(name: str) -> dbus.Interface:
@@ -124,7 +127,7 @@ class BluetoothDiscovery(multiprocessing.Process):
             for device in list_devices():
                 _LOGGER.info(device)
                 device = get_device(self._adapter, device)
-
+                
                 paired: bool = get_interface_property(device, "Paired")
                 connected: bool = get_interface_property(device, "Connected")
                 uuids: List[str] = get_interface_property(device, "UUIDs")
