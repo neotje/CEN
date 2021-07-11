@@ -49,4 +49,4 @@ class UpdateThread(multiprocessing.Process):
 
     def kill(self) -> None:
         self._run = False
-        return super().terminate()
+        return self.terminate()
