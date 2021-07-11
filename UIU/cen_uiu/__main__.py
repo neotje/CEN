@@ -5,8 +5,6 @@ from cen_uiu.core import UIUCore
 from kivy.logger import Logger
 _LOGGER = Logger
 
-exit_code = 0
-
 def main():
     core = UIUCore()
 
@@ -17,8 +15,7 @@ def main():
     except KeyboardInterrupt:
         core.stop()
 
-    global exit_code
-    return exit_code
+    return core.exit_code
 
 
 if __name__ == "__main__":

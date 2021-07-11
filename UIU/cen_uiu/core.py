@@ -26,6 +26,8 @@ class UIUCore:
 
         self.event.listen(BL_ON_CONNECT_EVENT, self._on_connect)
 
+        self.exit_code = 0
+
     def _on_connect(self, core, device):
         _LOGGER.info("connected to paired device.")
 
@@ -52,8 +54,7 @@ class UIUCore:
     def restart(self):
         _LOGGER.info("Restarting...")
 
-        global exit_code
-        exit_code = 10
+        self.exit_code = 10
 
         self.bl_audio.disable()
 
@@ -61,8 +62,6 @@ class UIUCore:
 
         for child in multiprocessing.active_children():
             child.kill()
-
-        exit(exit_code)
 
 
 class Event:
