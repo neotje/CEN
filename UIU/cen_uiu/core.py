@@ -50,7 +50,7 @@ class UIUCore:
         fut = asyncio.gather(*tasks)
         self.loop.run_until_complete(fut)
 
-        self.restart()
+        self.stop()
 
         # asyncio.run(self.async_start())
 

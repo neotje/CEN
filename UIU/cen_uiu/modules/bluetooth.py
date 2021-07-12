@@ -181,7 +181,7 @@ def list_devices() -> List[str]:
 
 
 async def async_list_devices() -> List[str]:
-    proxy = await get_proxy_object("/")
+    proxy = await async_get_proxy_object("/")
     manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
 
     objects = manager.GetManagedObjects()
