@@ -22,6 +22,8 @@ class UIUCore:
 
         self.exit_code: int = 0
 
+        self.loop = asyncio.get_event_loop()
+
         self._tasks = [
             UpdaterTask(self),
             BluetoothDiscovery(self),
@@ -33,22 +35,44 @@ class UIUCore:
         _LOGGER.info("connected to paired device.")
 
     def start(self):
-        asyncio.run(self.async_start())
+        _LOGGER.info("core: starting...")
+
+        self.bl_audio.enable()
+
+        self.loop.set_debug(True)
+
+        tasks = []
+        tasks.append(self.loop.create_task(
+            self.app.async_run(async_lib='asyncio')))
+        for t in self._tasks:
+            tasks.append(self.loop.create_task(t.async_run()))
+
+        fut = asyncio.gather(*tasks)
+        self.loop.run_until_complete(fut)
+
+        self.restart()
+
+        # asyncio.run(self.async_start())
 
     async def async_start(self):
         _LOGGER.info("core: starting...")
 
         self.bl_audio.enable()
 
-        coros = [self.app.async_run()]
+        tasks = []
 
         for t in self._tasks:
-            coros.append(t.async_run())
+            tasks.append(self.loop.create_task(t.async_run()))
 
-        await asyncio.gather(*coros)
+        tasks.append(self.loop.create_task(
+            self.app.async_run(async_lib='asyncio')))
+
+        fut = asyncio.gather(*tasks)
+
+        self.loop.run_until_complete(fut)
 
         self.restart()
-        
+
     def stop(self):
         _LOGGER.info("stopping...")
         self.exit_code = 0

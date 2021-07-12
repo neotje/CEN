@@ -41,11 +41,11 @@ class UpdaterTask(Task):
         self.core = core
         self._run = True
 
-    async def run(self):
+    async def async_run(self):
         while self._run:
             _LOGGER.info("UpdaterTask: Checking for updates...")
             if check_for_internet() and update_uiu():
                 self.core.restart()
                 break
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(60)

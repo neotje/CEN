@@ -1,4 +1,5 @@
 import sys
+import asyncio
 
 from cen_uiu.core import UIUCore
 
@@ -10,11 +11,6 @@ def main():
     core = UIUCore()
 
     core.start()
-
-    """ try:
-        core.get_process("ui-worker").join()
-    except KeyboardInterrupt:
-        core.stop() """
 
     print(core.exit_code)
     return core.exit_code
