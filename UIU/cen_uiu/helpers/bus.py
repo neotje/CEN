@@ -11,3 +11,7 @@ class BusObject:
 
     def _set_prop(self, name: str, val):
         return self._props.Set(self._interface.dbus_interface, name, val)
+
+    @property
+    def object_path(self) -> str:
+        return self._interface.object_path
