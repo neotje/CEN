@@ -146,7 +146,10 @@ class BluetoothDiscovery(multiprocessing.Process):
                 uuids: List[str] = get_interface_property(device, "UUIDs")
 
                 if paired and not connected and uuids.count(AUDIO_SRC) > 0:
-                    device.ConnectProfile(AUDIO_SRC)
+                    try:
+                        device.ConnectProfile(AUDIO_SRC)
+                    except DBusException:
+                        continue
 
                     while not get_interface_property(device, "Connected"):
                         pass
