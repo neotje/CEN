@@ -50,11 +50,23 @@ def get_proxy_object(path: str) -> ProxyObject:
 def get_interface_property(interface: dbus.Interface, name: str):
     try:
         properties_interface = dbus.Interface(
-            interface.proxy_object, "org.freedesktop.DBus.Properties")
+            interface, "org.freedesktop.DBus.Properties")
 
         return properties_interface.Get(interface.dbus_interface, name)
     except DBusException:
         return None
+
+
+def set_interface_property(interface: dbus.Interface, name: str, value) -> bool:
+    try:
+        properties_interface = dbus.Interface(
+            interface, "org.freedesktop.DBus.Properties")
+
+        properties_interface.Set(interface.dbus_interface, name, value)
+    except DBusException:
+        return False
+
+    return True
 
 
 def get_adapter(name: str) -> dbus.Interface:
@@ -118,6 +130,8 @@ class BluetoothDiscovery(multiprocessing.Process):
     def run(self):
         adapter = get_adapter(self._adapter)
 
+        set_interface_property(adapter, "Discoverable", True)
+
         try:
             adapter.StartDiscovery()
         except DBusException:
@@ -126,7 +140,7 @@ class BluetoothDiscovery(multiprocessing.Process):
         while True:
             for device in list_devices():
                 device = get_device(self._adapter, device)
-                
+
                 paired: bool = get_interface_property(device, "Paired")
                 connected: bool = get_interface_property(device, "Connected")
                 uuids: List[str] = get_interface_property(device, "UUIDs")
@@ -137,7 +151,8 @@ class BluetoothDiscovery(multiprocessing.Process):
                     while not get_interface_property(device, "Connected"):
                         pass
 
-                    self._core.event.call(BL_ON_CONNECT_EVENT, {"device": device})
+                    self._core.event.call(
+                        BL_ON_CONNECT_EVENT, {"device": device})
 
 
 class BluetoothError(Exception):
