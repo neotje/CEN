@@ -1,7 +1,5 @@
 import subprocess
-from cen_uiu.helpers.task import Task
 import requests
-import asyncio
 import pathlib
 
 from kivy.logger import Logger
@@ -17,35 +15,28 @@ def check_for_internet() -> bool:
 
 
 def update_uiu() -> bool:
-    _LOGGER.info("UpdaterTask: Updating...")
+    _LOGGER.info("updater: Updating...")
 
     if not pathlib.Path("/home/pi/Github/CEN").exists():
         return False
-    
+
+    # run git pull and check if anything changed
     output = subprocess.check_output(
         ["git", "pull"], cwd="/home/pi/Github/CEN")
 
-    _LOGGER.info(output.decode('utf-8'))
-
     if output.decode("utf-8").rfind("up to date") == -1:
+        # run setup script after git pull
         output = subprocess.check_output(
             ["scripts/setup"], cwd="/home/pi/Github/CEN/UIU")
         return True
+
+    _LOGGER.info("updater: Already up to date.")
     return False
 
 
-class UpdaterTask(Task):
-    _run: bool
+def check_and_update(core, *args):
+    if check_for_internet():
+        _LOGGER.info("Updater: Checking for updates")
 
-    def __init__(self, core):
-        self.core = core
-        self._run = True
-
-    async def async_run(self):
-        while self._run:
-            _LOGGER.info("UpdaterTask: Checking for updates...")
-            if check_for_internet() and update_uiu():
-                self.core.restart()
-                break
-
-            await asyncio.sleep(60)
+        if update_uiu():
+            core.restart()

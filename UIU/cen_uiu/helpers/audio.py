@@ -8,8 +8,10 @@ class AudioInput(ABC):
     def name(self) -> str:
         return self._name
 
+    @classmethod
     def enable(self):
         pass
-
+    
+    @classmethod
     def disable(self):
         pass

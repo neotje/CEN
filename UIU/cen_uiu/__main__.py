@@ -1,10 +1,12 @@
+import logging
 import sys
-import asyncio
 
 from cen_uiu.core import UIUCore
 
 from kivy.logger import Logger
 _LOGGER = Logger
+
+Logger.setLevel(logging.INFO)
 
 
 def main():

@@ -1,23 +1,13 @@
 import dbus
-import dbus.service
 
 
-class Object(dbus.service.Object):
-    _interface: str
+class BusObject:
+    def __init__(self, interface: dbus.Interface) -> None:
+        self._interface: dbus.Interface = interface
+        self._props: dbus.Interface = dbus.Interface(interface, "org.freedesktop.DBus.Properties")
 
-    def __init__(self, interface: str, conn=None, object_path=None, bus_name=None):
-        super().__init__(conn=conn, object_path=object_path, bus_name=bus_name)
+    def _get_prop(self, name: str):
+        return self._props.Get(self._interface.dbus_interface, name)
 
-        self._interface = interface
-
-    @dbus.service.method(dbus.PROPERTIES_IFACE, in_signature='ss', out_signature='v')
-    def Get(self, interface: dbus.String, name: dbus.String):
-        pass
-
-    @dbus.service.method(dbus.PROPERTIES_IFACE, in_signature='s', out_signature='a{sv}')
-    def GetAll(self, interface: dbus.String):
-        pass
-
-    @dbus.service.method(dbus.PROPERTIES_IFACE, in_signature='ssv')
-    def Set(self, interface: dbus.String, name: dbus.String, value):
-        pass
+    def _set_prop(self, name: str, val):
+        return self._props.Set(self._interface.dbus_interface, name, val)

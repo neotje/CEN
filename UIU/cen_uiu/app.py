@@ -1,12 +1,13 @@
-from os import name
 import pathlib
-from cen_uiu import gui
-from cen_uiu.gui.bluetooth_screen import BluetoothScreen
 
+# kivy
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
-
 from kivy.config import Config
+
+# cen_uiu
+from cen_uiu import gui
+from cen_uiu.gui.bluetooth_screen import BluetoothScreen
 
 Config.set('graphics', 'width', '800')
 Config.set('graphics', 'height', '480')
@@ -19,6 +20,11 @@ class MainScreen(Screen):
 
 
 class UIUApp(App):
+    def __init__(self, core, **kwargs):
+        super().__init__(**kwargs)
+
+        self.core = core
+
     def build(self):
         # load kv file
         kv_path = pathlib.Path(gui.__path__[0]) / "app.kv"
