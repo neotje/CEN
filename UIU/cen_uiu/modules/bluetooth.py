@@ -4,9 +4,9 @@ https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces
 """
 
 import subprocess
-import multiprocessing
 import re
 from typing import List
+from cen_uiu.helpers.task import Task
 import dbus
 from dbus.exceptions import DBusException
 from dbus.proxies import ProxyObject
@@ -121,13 +121,13 @@ def list_devices() -> List[str]:
     return devices
 
 
-class BluetoothDiscovery(multiprocessing.Process):
-    def __init__(self, core, adapter: str = "hci0") -> None:
-        super().__init__(name="bluetooth-worker")
+class BluetoothDiscovery(Task):
+    def __init__(self, core, adapter: str = "hci0"):
         self._core = core
         self._adapter = adapter
 
-    def run(self):
+    async def run(self):
+        _LOGGER.info("Bluetooth discovery: running...")
         adapter = get_adapter(self._adapter)
 
         set_interface_property(adapter, "Discoverable", True)

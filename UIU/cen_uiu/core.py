@@ -1,12 +1,12 @@
 import multiprocessing
-import platform
+import asyncio
 from typing import Callable, Dict, List
 
 from cen_uiu.app import UIUApp
+from cen_uiu.helpers.task import Task
 from cen_uiu.modules.audio import BluetoothInput
 from cen_uiu.modules.bluetooth import BL_ON_CONNECT_EVENT, BluetoothDiscovery
-from cen_uiu.update import UpdateWorker
-from cen_uiu.worker import UIUCoreWorker
+from cen_uiu.update import UpdaterTask
 
 from kivy.logger import Logger
 _LOGGER = Logger
@@ -20,14 +20,11 @@ class UIUCore:
         self.event = Event(self)
         self.app = UIUApp()
 
-        self.lock = multiprocessing.Lock()
+        self.exit_code: int = 0
 
-        self.exit_code = multiprocessing.Value('d', 0)
-
-        self._processes: List[multiprocessing.Process] = [
-            UpdateWorker(self),
+        self._tasks = [
+            UpdaterTask(self),
             BluetoothDiscovery(self),
-            UIUCoreWorker(self)
         ]
 
         self.event.listen(BL_ON_CONNECT_EVENT, self._on_connect)
@@ -35,45 +32,34 @@ class UIUCore:
     def _on_connect(self, core, device):
         _LOGGER.info("connected to paired device.")
 
-    def _kill_all(self):
-        for p in self._processes + multiprocessing.active_children():
-            _LOGGER.info(f"killing: {p.name}")
-            try:
-                p.kill()
-            except AttributeError:
-                pass
-    
-    def get_process(self, name: str) -> multiprocessing.Process or None:
-        for p in self._processes:
-            if p.name.find(name) != -1:
-                return p
-
-        return None
-
     def start(self):
-        _LOGGER.info("starting...")
+        asyncio.run(self.async_start())
+
+    async def async_start(self):
+        _LOGGER.info("core: starting...")
 
         self.bl_audio.enable()
-        
-        for p in self._processes:
-            p.start()
 
+        coros = [self.app.async_run()]
+
+        for t in self._tasks:
+            coros.append(t.async_run())
+
+        await asyncio.gather(*coros)
+
+        self.restart()
+        
     def stop(self):
         _LOGGER.info("stopping...")
-        self.exit_code.value = 0
+        self.exit_code = 0
 
         self.bl_audio.disable()
-        self._kill_all()
 
     def restart(self):
         _LOGGER.info("Restarting...")
-        self.exit_code.value = 10
+        self.exit_code = 10
 
         self.bl_audio.disable()
-        self._kill_all()
-
-        multiprocessing.current_process().kill()
-        exit(int(self.exit_code.value))
 
 
 class Event:

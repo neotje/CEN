@@ -1,5 +1,7 @@
+from os import name
 import pathlib
 from cen_uiu import gui
+from cen_uiu.gui.bluetooth_screen import BluetoothScreen
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -25,5 +27,8 @@ class UIUApp(App):
         # add screens to the screen_manager
         self.screen_manager = ScreenManager()
         self.screen_manager.add_widget(MainScreen(name="main"))
+        self.screen_manager.add_widget(BluetoothScreen(name="bluetooth"))
+
+        self.screen_manager.switch_to(self.screen_manager.screens[1])
 
         return self.screen_manager

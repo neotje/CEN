@@ -1,7 +1,8 @@
 import subprocess
+from cen_uiu.helpers.task import Task
 import requests
-import multiprocessing
-import time
+import asyncio
+import pathlib
 
 from kivy.logger import Logger
 _LOGGER = Logger
@@ -16,6 +17,11 @@ def check_for_internet() -> bool:
 
 
 def update_uiu() -> bool:
+    _LOGGER.info("UpdaterTask: Updating...")
+
+    if not pathlib.Path("/home/pi/Github/CEN").exists():
+        return False
+    
     output = subprocess.check_output(
         ["git", "pull"], cwd="/home/pi/Github/CEN")
 
@@ -28,21 +34,18 @@ def update_uiu() -> bool:
     return False
 
 
-class UpdateWorker(multiprocessing.Process):
+class UpdaterTask(Task):
     _run: bool
 
     def __init__(self, core):
-        super().__init__(name="update-worker")
-
         self.core = core
         self._run = True
 
-    def run(self):
+    async def run(self):
         while self._run:
-            _LOGGER.info("Checking for updates...")
+            _LOGGER.info("UpdaterTask: Checking for updates...")
             if check_for_internet() and update_uiu():
-                _LOGGER.info("Updating...")
                 self.core.restart()
                 break
 
-            time.sleep(60)
+            await asyncio.sleep(1)
