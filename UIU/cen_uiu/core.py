@@ -38,7 +38,7 @@ class UIUCore:
         self.bl_audio.disable()
         self.app.stop()
 
-    def restart(self):
+    def restart(self, *args):
         _LOGGER.info("Restarting...")
         self.exit_code = 10
 
