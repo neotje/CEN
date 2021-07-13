@@ -6,16 +6,23 @@ https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/adapter-api.txt
 from typing import List
 from cen_uiu.helpers import bus
 import dbus
+from dbus.exceptions import DBusException
 
 
 class BluezAdapter1(bus.BusObject):
     INTERFACE = "org.bluez.Adapter1"
 
     def StartDiscovery(self):
-        return self._interface.StartDiscovery()
+        try:
+            return self._interface.StartDiscovery()
+        except DBusException:
+            pass
 
     def StopDiscovery(self):
-        return self._interface.StopDiscovery()
+        try:
+            return self._interface.StopDiscovery()
+        except DBusException:
+            pass
 
     def RemoveDevice(self, device: dbus.ObjectPath):
         return self._interface.RemoveDevice(device)
