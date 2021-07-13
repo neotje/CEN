@@ -8,6 +8,7 @@ from kivy.config import Config
 # cen_uiu
 from cen_uiu import gui
 from cen_uiu.gui.bluetooth_screen import BluetoothScreen
+from cen_uiu.gui.update_screen import UpdateScreen
 
 Config.set('graphics', 'width', '800')
 Config.set('graphics', 'height', '480')
@@ -34,7 +35,13 @@ class UIUApp(App):
         self.screen_manager = ScreenManager()
         self.screen_manager.add_widget(MainScreen(name="main"))
         self.screen_manager.add_widget(BluetoothScreen(name="bluetooth"))
+        self.screen_manager.add_widget(UpdateScreen(name="update"))
 
-        self.screen_manager.switch_to(self.screen_manager.screens[1])
+        self.screen_manager.switch_to(self.screen_manager.screens[0])
 
         return self.screen_manager
+
+    def switch_to(self, screen_name: str):
+        for s in self.screen_manager.screens:
+            if s.name == screen_name:
+                self.screen_manager.switch_to(s)

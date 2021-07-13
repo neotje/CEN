@@ -26,9 +26,6 @@ def update_uiu() -> bool:
         ["git", "pull"], cwd="/home/pi/Github/CEN")
 
     if output.decode("utf-8").rfind("up to date") == -1:
-        # run setup script after git pull
-        output = subprocess.check_output(
-            ["scripts/setup"], cwd="/home/pi/Github/CEN/UIU")
         return True
 
     _LOGGER.info("updater: Already up to date.")
@@ -40,4 +37,5 @@ def check_and_update(core, *args):
         _LOGGER.info("Updater: Checking for updates")
 
         if update_uiu():
+            core.app.switch_to("update")
             core.restart()
