@@ -11,7 +11,7 @@ REQUIRED = [
     "kivy[full]>=2.0.0",
     "pyserial>=3.5",
     "dbus-python>=1.2.16",
-    "dbus-next>=0.2.2"
+    "screeninfo>=0.6.7"
 ]
 
 setup(
