@@ -85,6 +85,7 @@ def discover_and_connect(core, adapter_str: str, *args):
         # FIXME: Freezes the kivy app if bluez is not working correctly. (add shorter timeout)
         adapter.StartDiscovery()
     except DBusException:
+        _LOGGER.error(f"Bluetooth adapter resource not ready please reboot")
         pass
 
     for device in list_devices():
