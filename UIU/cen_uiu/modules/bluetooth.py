@@ -26,7 +26,7 @@ def get_adapter(name: str) -> BluezAdapter1:
     https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/adapter-api.txt
     """
     device_proxy_object = get_proxy_object(f"/org/bluez/{name}")
-    return BluezAdapter1(dbus.Interface(device_proxy_object, "org.bluez.Adapter1"))
+    return BluezAdapter1(device_proxy_object)
 
 
 def get_device(adapter: str, device: str) -> BluezDevice1:
@@ -35,7 +35,7 @@ def get_device(adapter: str, device: str) -> BluezDevice1:
     """
     device_proxy_object = get_proxy_object(
         f"/org/bluez/{adapter}/dev_{device}")
-    return BluezDevice1(dbus.Interface(device_proxy_object, "org.bluez.Device1"))
+    return BluezDevice1(device_proxy_object)
 
 
 def list_devices() -> List[BluezDevice1]:
@@ -63,6 +63,7 @@ def list_devices() -> List[BluezDevice1]:
 
 
 def list_connected_devices() -> List[BluezDevice1]:
+    # FIXME: bluetooth audio when scanning
     devices = list_devices()
     result: List[BluezDevice1] = []
 

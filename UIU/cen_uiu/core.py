@@ -24,9 +24,9 @@ class UIUCore:
     def start(self):
         _LOGGER.info("core: starting...")
 
-        self.bl_audio.enable()
+        #self.bl_audio.enable()
 
-        Clock.schedule_interval(partial(discover_and_connect, self, "hci0"), 3)
+        Clock.schedule_interval(partial(discover_and_connect, self, "hci0"), 10)
         Clock.schedule_interval(partial(check_and_update, self), 60)
 
         self.app.run()
