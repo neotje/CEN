@@ -14,7 +14,7 @@ from cen_uiu.gui.update_screen import UpdateScreen
 Config.set('graphics', 'width', '800')
 Config.set('graphics', 'height', '480')
 
-if get_monitors[0].width == 800 and get_monitors[0].height == 480:
+if get_monitors()[0].width == 800 and get_monitors()[0].height == 480:
     Config.set('graphics', 'window_state', 'fullscreen')
 else:
     Config.set('graphics', 'window_state', 'visible')
