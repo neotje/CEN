@@ -2,6 +2,8 @@ import subprocess
 import requests
 import pathlib
 
+from kivy.clock import Clock
+
 from kivy.logger import Logger
 _LOGGER = Logger
 
@@ -38,4 +40,5 @@ def check_and_update(core, *args):
 
         if update_uiu():
             core.app.switch_to("update")
-            core.restart()
+            
+            Clock.schedule_once(core.restart, 5)
