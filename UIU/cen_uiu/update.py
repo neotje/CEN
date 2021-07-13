@@ -18,6 +18,7 @@ def update_uiu() -> bool:
     _LOGGER.info("updater: Updating...")
 
     if not pathlib.Path("/home/pi/Github/CEN").exists():
+        _LOGGER.info("updater: Unable to update.")
         return False
 
     # run git pull and check if anything changed

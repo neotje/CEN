@@ -9,6 +9,8 @@ import dbus
 
 
 class BluezAdapter1(bus.BusObject):
+    INTERFACE = "org.bluez.Adapter1"
+
     def StartDiscovery(self):
         return self._interface.StartDiscovery()
 
@@ -64,6 +66,6 @@ class BluezAdapter1(bus.BusObject):
     def Discovering(self) -> dbus.Boolean:
         return self._get_prop("Discovering")
 
-    @Pairable.setter
+    @Discovering.setter
     def Discovering(self, val: dbus.Boolean):
         self._set_prop("Discovering", val)
