@@ -2,11 +2,6 @@
 https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/media-api.txt
 """
 
-
-# TODO: org.bluez.MediaControl1 Interface
-# TODO: org.bluez.MediaTransport1 Interface
-# TODO: org.bluez.MediaPlayer1 Interface
-
 from cen_uiu.helpers.bus import BusObject
 from cen_uiu.modules.dbus import get_proxy_object
 import dbus

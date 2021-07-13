@@ -39,9 +39,6 @@ def get_device(adapter: str, device: str) -> BluezDevice1:
 
 
 def list_devices() -> List[BluezDevice1]:
-    """
-    TODO: Return list of BluezDevice1
-    """
     proxy = get_proxy_object("/")
     manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
 
