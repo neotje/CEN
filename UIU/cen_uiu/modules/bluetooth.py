@@ -63,7 +63,6 @@ def list_devices() -> List[BluezDevice1]:
 
 
 def list_connected_devices() -> List[BluezDevice1]:
-    # FIXME: bluetooth audio when scanning
     devices = list_devices()
     result: List[BluezDevice1] = []
 
@@ -76,7 +75,14 @@ def list_connected_devices() -> List[BluezDevice1]:
 
 def discover_and_connect(core, adapter_str: str, *args):
     _LOGGER.debug("Bl discovery: scanning...")
+
     adapter = get_adapter(adapter_str)
+    connected_devs = list_connected_devices()
+
+    for cd in connected_devs:
+        if cd.UUIDs.count(AUDIO_SRC) > 0:
+            adapter.StopDiscovery()
+            return
 
     adapter.Discoverable = True
 
