@@ -42,6 +42,7 @@ def list_devices() -> List[BluezDevice1]:
     proxy = get_proxy_object("/")
     manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
 
+    # TODO: ObjectManager interface
     objects = manager.GetManagedObjects()
 
     reg_dev = re.compile("\/org\/bluez\/hci\d*\/dev\_(.*)")
