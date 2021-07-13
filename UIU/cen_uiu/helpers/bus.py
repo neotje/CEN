@@ -1,6 +1,8 @@
 import dbus
 from dbus.proxies import ProxyObject
 
+from kivy.logger import Logger
+_LOGGER = Logger
 
 class BusObject:
     INTERFACE: str
@@ -18,7 +20,8 @@ class BusObject:
     def _set_prop(self, name: str, val):
         try:
             return self._props.Set(self._interface.dbus_interface, name, val)
-        except dbus.DBusException:
+        except dbus.DBusException as e:
+            _LOGGER.error(f"BusObject: something went wrong with setting the property {name} to {val}")
             pass
 
     @property
