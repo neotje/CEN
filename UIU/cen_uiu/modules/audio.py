@@ -21,6 +21,7 @@ class BluetoothInput(AudioInput):
             self.disable()
 
         try:
+            # start aplay process
             self._bluealsa_aplay = subprocess.Popen(
                 ["/usr/bin/bluealsa-aplay", "--profile-a2dp", "--pcm-buffer-time=500000", addr], stdout=sys.stdout)
         except Exception:
@@ -30,6 +31,7 @@ class BluetoothInput(AudioInput):
         _LOGGER.debug("Disabling bluetooth input")
 
         try:
+            # stop aplay process and wait for it to die
             self._bluealsa_aplay.kill()
             self._bluealsa_aplay.wait()
             self._bluealsa_aplay = None
