@@ -4,7 +4,7 @@ from cen_uiu.modules.interfaces.media_api import BluezMediaPlayer1
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.stacklayout import StackLayout
+from kivy.uix.progressbar import ProgressBar
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
@@ -40,6 +40,7 @@ class HomeScreen(Screen):
         player_container = BoxLayout(orientation='vertical')
         player_container = RelativeLayout()
         
+        # track info
         self.song_label = Label(text="song", color=(0, 0, 0))
         self.song_label.font_size = 30
         self.song_label.size_hint = (None, None)
@@ -56,6 +57,15 @@ class HomeScreen(Screen):
         self.artist_label.halign = 'left'
         self.artist_label.pos_hint = {'center_y': .6, 'center_x': .5}
 
+        # song progress
+        progressbar = ProgressBar()
+        progressbar.max = 1000
+        progressbar.value = 1000
+        progressbar.pos_hint = {'center_y': .5, 'center_x': .5}
+        progressbar.size_hint_x = .8
+        self.progressbar = progressbar
+
+        # media control buttons
         button_size = (80, 80)
 
         previous_button = Button(color=(0, 0, 0))
@@ -86,7 +96,7 @@ class HomeScreen(Screen):
         player_container.add_widget(self.song_label)
         player_container.add_widget(self.album_label)
         player_container.add_widget(self.artist_label)
-
+        player_container.add_widget(progressbar)
         player_container.add_widget(previous_button)
         player_container.add_widget(play_button)
         player_container.add_widget(next_button)
@@ -133,6 +143,14 @@ class HomeScreen(Screen):
 
     def _on_status(self):
         if self._player is not None:
+            try:
+                duration = self._player.Track["Duration"]
+                pos = self._player.Position
+                self.progressbar.max = duration
+                self.progressbar.value = pos
+                
+            except KeyError:
+                pass
             if self._player.Status == "playing":
                 self.play_button.background_normal = get_image("pause.png")
                 return
