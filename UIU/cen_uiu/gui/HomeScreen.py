@@ -34,7 +34,7 @@ class HomeScreen(Screen):
                 song_label.text = "No device connected."
                 artist_label.text = ""
             else:
-                active: BluezMediaPlayer1
+                active = None
 
                 for device in connected:
                     control = device.MediaControl
@@ -43,10 +43,17 @@ class HomeScreen(Screen):
                         player = control.Player
                         if player is not None:
                             active = player
-
+                
                 if active is not None:
-                    song_label.text = active.Track["Title"]
-                    artist_label.text = active.Track["Artist"]
+                    try:
+                        song_label.text = active.Track["Title"]
+                    except KeyError:
+                        song_label.text = "unkown"
+
+                    try:
+                        artist_label.text = active.Track["Artist"]
+                    except KeyError:
+                        artist_label.text = "unkown"
                 else:
                     song_label.text = "No bluetooth player"
                     artist_label.text = ""
