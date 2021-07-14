@@ -149,7 +149,7 @@ class HomeScreen(Screen):
                 self.progressbar.max = int(duration)
                 self.progressbar.value = int(pos)
 
-            except KeyError:
+            except KeyError or TypeError:
                 pass
             if self._player.Status == "playing":
                 self.play_button.background_normal = get_image("pause.png")
@@ -160,17 +160,17 @@ class HomeScreen(Screen):
         if self._player is not None:
             try:
                 self.song_label.text = self._player.Track["Title"]
-            except KeyError:
+            except KeyError or TypeError:
                 self.song_label.text = "unkown"
 
             try:
                 self.artist_label.text = self._player.Track["Artist"]
-            except KeyError:
+            except KeyError or TypeError:
                 self.artist_label.text = "unkown"
 
             try:
                 self.album_label.text = self._player.Track["Album"]
-            except KeyError:
+            except KeyError or TypeError:
                 self.album_label.text = "unkown"
         else:
             self.song_label.text = "No bluetooth player"
