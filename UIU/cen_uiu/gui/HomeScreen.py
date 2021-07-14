@@ -114,7 +114,7 @@ class HomeScreen(Screen):
                 self._on_track()
                 self._on_status()
 
-        Clock.schedule_interval(update, 0.5)
+        Clock.schedule_interval(update, 0.2)
 
     def _on_play_pause(self, instance):
         if self._player is not None:
