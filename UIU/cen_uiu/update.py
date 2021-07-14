@@ -39,6 +39,7 @@ def check_and_update(core, *args):
         _LOGGER.info("Updater: Checking for updates")
 
         if update_uiu():
-            core.app.switch_to("update")
-            
+            # TODO: add update screen
+            # core.app.switch_to("update")
+
             Clock.schedule_once(core.restart, 5)
