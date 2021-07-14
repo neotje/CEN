@@ -37,6 +37,7 @@ class UIUApp(App):
         Config.set('graphics', 'width', 800)
         Config.set('graphics', 'window_state', 'visible')
         Config.set('graphics', 'resizable', False)
+        Config.set('graphics', 'multisamples', 1)
 
     def build(self):
         # load kv file

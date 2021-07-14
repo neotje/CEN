@@ -40,7 +40,6 @@ class HomeScreen(Screen):
         player_container = BoxLayout(orientation='vertical')
         player_container = RelativeLayout()
         
-        song_info_container = RelativeLayout()
         self.song_label = Label(text="song", color=(0, 0, 0))
         self.song_label.font_size = 30
         self.song_label.size_hint = (None, None)
@@ -56,8 +55,6 @@ class HomeScreen(Screen):
         self.artist_label.size_hint = (None, None)
         self.artist_label.halign = 'left'
         self.artist_label.pos_hint = {'center_y': .6, 'center_x': .5}
-
-        control_container = RelativeLayout()
 
         button_size = (80, 80)
 
@@ -93,9 +90,6 @@ class HomeScreen(Screen):
         player_container.add_widget(previous_button)
         player_container.add_widget(play_button)
         player_container.add_widget(next_button)
-
-        #player_container.add_widget(song_info_container)
-        #player_container.add_widget(control_container)
 
         self.add_widget(player_container)
 
