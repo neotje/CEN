@@ -6,7 +6,7 @@ from cen_uiu.core import UIUCore
 from kivy.logger import Logger
 _LOGGER = Logger
 
-Logger.setLevel(logging.INFO)
+Logger.setLevel(logging.DEBUG)
 
 
 def main():

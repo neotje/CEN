@@ -84,18 +84,6 @@ def discover_and_connect(core, adapter_str: str, *args):
             adapter.StopDiscovery()
             return
 
-    adapter.Discoverable = True
-
-    try:
-        # FIXME: Freezes the kivy app if bluez is not working correctly. (add shorter timeout)
-
-        if adapter.Discovering == 0:
-            adapter.StartDiscovery()
-    except DBusException as e:
-        _LOGGER.error(
-            f"Bl discovery: resource not ready please reboot {e.get_dbus_message()}")
-        pass
-
     for device in list_devices():
         paired: bool = device.Paired
         connected: bool = device.Connected

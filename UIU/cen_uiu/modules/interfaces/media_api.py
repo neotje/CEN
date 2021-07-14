@@ -81,7 +81,7 @@ class BluezMediaControl1(BusObject):
 
         if path is not None:
             prox = get_proxy_object(path)
-            return BluezMediaPlayer1(dbus.Interface(prox, BluezMediaPlayer1.INTERFACE))
+            return BluezMediaPlayer1(prox)
 
         return None
 

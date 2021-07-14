@@ -3,8 +3,9 @@ from functools import partial
 # cen_uiu
 from cen_uiu.app import UIUApp
 from cen_uiu.modules.audio import BluetoothInput
-from cen_uiu.modules.bluetooth import discover_and_connect
+from cen_uiu.modules.bluetooth import discover_and_connect, get_adapter
 from cen_uiu.update import check_and_update
+from dbus.exceptions import DBusException
 
 # kivy
 from kivy.clock import Clock
@@ -17,6 +18,8 @@ class UIUCore:
         _LOGGER.info("Initializing core...")
 
         self.bl_audio = BluetoothInput()
+
+        UIUApp.configure()
         self.app = UIUApp(self)
 
         self.exit_code: int = 0
@@ -26,7 +29,11 @@ class UIUCore:
 
         self.bl_audio.enable()
 
-        Clock.schedule_interval(partial(discover_and_connect, self, "hci0"), 10)
+        adapter = get_adapter("hci0")
+        adapter.Discoverable = True
+        #adapter.StartDiscovery()
+
+        Clock.schedule_once(partial(discover_and_connect, self, "hci0"), 5)
         Clock.schedule_interval(partial(check_and_update, self), 60)
 
         self.app.run()
