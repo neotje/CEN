@@ -140,9 +140,9 @@ class HomeScreen(Screen):
     def _on_status(self):
         if self._player is not None:
             if self._player.Status == "playing":
-                self.play_button.background_normal = get_image("play.png")
+                self.play_button.background_normal = get_image("pause.png")
                 return
-        self.play_button.background_normal = get_image("pause.png")
+        self.play_button.background_normal = get_image("play.png")
 
     def _on_track(self):
         if self._player is not None:
