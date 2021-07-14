@@ -33,9 +33,9 @@ class UIUApp(App):
 
     @classmethod
     def configure(self):
-        Config.set('graphics', 'window_state', 'visible')
         Config.set('graphics', 'height', 480)
         Config.set('graphics', 'width', 800)
+        Config.set('graphics', 'window_state', 'visible')
         Config.set('graphics', 'resizable', False)
 
     def build(self):
