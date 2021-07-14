@@ -146,9 +146,9 @@ class HomeScreen(Screen):
             try:
                 duration = self._player.Track["Duration"]
                 pos = self._player.Position
-                self.progressbar.max = duration
-                self.progressbar.value = pos
-                
+                self.progressbar.max = int(duration)
+                self.progressbar.value = int(pos)
+
             except KeyError:
                 pass
             if self._player.Status == "playing":
