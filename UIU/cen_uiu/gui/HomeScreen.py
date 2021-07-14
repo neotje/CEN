@@ -18,9 +18,13 @@ class HomeScreen(Screen):
         self.canvas.before.add(Rectangle(size=(800, 480)))
 
         layout = BoxLayout()
-        song_label = Label(text="", color=(0, 0, 0))
+        layout.orientation = 'vertical'
+        
+        song_label = Label(text="song", color=(0, 0, 0))
+        artist_label = Label(text="artist", color=(0, 0, 0))
 
         layout.add_widget(song_label)
+        layout.add_widget(artist_label)
         self.add_widget(layout)
 
         def update(dt):
@@ -28,6 +32,7 @@ class HomeScreen(Screen):
 
             if len(connected) == 0:
                 song_label.text = "No device connected."
+                artist_label.text = ""
             else:
                 active: BluezMediaPlayer1
 
@@ -40,8 +45,10 @@ class HomeScreen(Screen):
                             active = player
 
                 if active is not None:
-                    song_label.text = active.Track["title"]
+                    song_label.text = active.Track["Title"]
+                    artist_label.text = active.Track["Artist"]
                 else:
                     song_label.text = "No bluetooth player"
+                    artist_label.text = ""
 
         Clock.schedule_interval(update, 1)
