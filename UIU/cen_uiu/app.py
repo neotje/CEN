@@ -13,6 +13,8 @@ from cen_uiu.gui.MainScreenManager import MainScreenManager
 from kivy.app import App
 from kivy.config import Config
 from kivy.uix.boxlayout import BoxLayout
+from kivy.modules import inspector
+from kivy.core.window import Window
 
 
 class RootLayout(BoxLayout):
@@ -45,6 +47,7 @@ class UIUApp(App):
         self.load_kv(kv_path.as_posix()) """
 
         layout = RootLayout()
+        inspector.create_inspector(Window, layout)
         return layout
 
     def switch_to(self, screen_name: str):
