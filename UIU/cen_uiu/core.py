@@ -56,4 +56,4 @@ class UIUCore:
         self.exit_code = 10
 
         self.bl_audio.disable()
-        self.app.stop()
+        self.app.stop() 
