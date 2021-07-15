@@ -1,3 +1,4 @@
+from cen_uiu.event import EventManager, ON_DARK_MODE, ON_LIGHT_MODE
 from cen_uiu.helpers.gui import get_image
 
 from kivy.uix.actionbar import ActionBar, ActionButton, ActionPrevious, ActionView
@@ -18,8 +19,22 @@ class MainActionView(ActionView):
 
         self.action_previous = MainActionPrevious()
 
+        self.dark_mode = False
+
+        self.dark_mode_btn = ActionButton()
+        self.dark_mode_btn.text = "Nacht modus"
+        self.dark_mode_btn.bind(on_press=lambda t: self._on_ui_mode())
+
         self.add_widget(ActionButton(text="home"))
-        self.add_widget(ActionButton(text="bluetooth"))
+        self.add_widget(self.dark_mode_btn)
+
+    def _on_ui_mode(self):
+        self.dark_mode = not self.dark_mode
+
+        if self.dark_mode:
+            EventManager.dispatch(ON_DARK_MODE, {})
+        else:
+            EventManager.dispatch(ON_LIGHT_MODE, {})
 
 
 class MainActionBar(ActionBar):
