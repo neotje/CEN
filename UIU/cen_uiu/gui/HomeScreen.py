@@ -4,11 +4,9 @@ from cen_uiu.modules.bluetooth import list_connected_devices
 from cen_uiu.modules.interfaces.media_api import BluezMediaPlayer1
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
-from kivy.uix.button import Button
 from kivy.lang import Builder
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
 from kivy.animation import Animation
-from kivy.core.image import Image
 
 from kivy.logger import Logger
 _LOGGER = Logger
@@ -33,6 +31,7 @@ Builder.load_string('''
 <HomeScreen>:
     id: home
     progressbar: bar
+    play_button: play_btn
 
     canvas.before:
         Color:
@@ -70,6 +69,7 @@ Builder.load_string('''
             pos_hint: {'center_y': .25, 'center_x': .33}
             on_release: root._on_previous()
         Button:
+            id: play_btn
             background_normal: gui.get_image("play.png")
             size: 70, 70
             size_hint: None, None
@@ -94,6 +94,7 @@ class HomeScreen(Screen):
     text_color = ListProperty([0, 0, 0])
 
     progressbar = ObjectProperty()
+    play_button = ObjectProperty()
 
     animation: Animation = None
 

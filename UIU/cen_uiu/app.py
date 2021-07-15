@@ -5,7 +5,6 @@ RootLayout:
     MainActionBar
 """
 
-import pathlib
 from cen_uiu.gui.MainActionBar import MainActionBar
 from cen_uiu.gui.MainScreenManager import MainScreenManager
 
