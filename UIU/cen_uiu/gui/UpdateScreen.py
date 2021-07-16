@@ -10,12 +10,13 @@ Builder.load_string('''
             rgb: utils.get_color_from_hex("#03adfc")
         Rectangle:
             size: self.size
-    
+
     BoxLayout:
         Label:
             font_size: 30
             text: "Updaten..."
 ''')
+
 
 class UpdateScreen(Screen):
     def __init__(self, **kw):

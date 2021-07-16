@@ -59,7 +59,5 @@ class UIUApp(App):
 
     def on_stop(self):
         EventManager.dispatch(ON_STOP, {})
-
         Config.write()
-    
         self.core.stop()

@@ -200,20 +200,12 @@ class HomeScreen(Screen):
 
     def _on_track(self):
         if self._player is not None:
-            try:
-                self.song = self._player.Track["Title"]
-            except KeyError or TypeError:
-                self.song = "unkown"
+            track: dict = self._player.Track
 
-            try:
-                self.artist = self._player.Track["Artist"]
-            except KeyError or TypeError:
-                self.artist = "unkown"
-
-            try:
-                self.album = self._player.Track["Album"]
-            except KeyError or TypeError:
-                self.album = "unkown"
+            if track is not None:
+                self.song = track.setdefault("Title", "unkown")
+                self.artist = track.setdefault("Artist", "unkown")
+                self.album = track.setdefault("Album", "unkown")
         else:
             self.song = "No bluetooth player"
             self.artist = ""
