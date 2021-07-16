@@ -1,11 +1,7 @@
 from cen_uiu.event import EventManager, ON_DARK_MODE, ON_LIGHT_MODE
-from cen_uiu.helpers.gui import get_image
 from kivy.config import Config
-
-from kivy.uix.actionbar import ActionBar, ActionButton, ActionPrevious, ActionView
-from kivy.utils import get_color_from_hex
+from kivy.uix.actionbar import ActionBar
 from kivy.lang import Builder
-
 
 Builder.load_string('''
 #:import gui cen_uiu.helpers.gui
@@ -23,7 +19,7 @@ Builder.load_string('''
             on_release: event.EventManager.dispatch(event.SWITCH_TO_SCREEN, {'screen': 'home'})
 
         ActionButton:
-            text: "Nacht Modus"
+            background_normal: gui.get_image("dark_mode.png")
             on_release: root._on_ui_mode()
 ''')
 
