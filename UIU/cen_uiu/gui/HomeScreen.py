@@ -184,7 +184,7 @@ class HomeScreen(Screen):
             self._transport.Volume = self.volume
 
         if self._player is not None:
-            track: dict = self._player.Track
+            track: dict = dict(self._player.Track)
 
             if track is not None:
                 self.song = track.setdefault("Title", "unkown")
