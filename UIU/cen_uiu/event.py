@@ -3,6 +3,10 @@ from kivy.clock import Clock
 from kivy.logger import Logger
 _LOGGER = Logger
 
+# system events
+ON_STOP = "on_stop"
+
+# ui events
 ON_DARK_MODE = "on_dark_mode"
 ON_LIGHT_MODE = "on_light_mode"
 

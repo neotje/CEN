@@ -1,4 +1,5 @@
 from functools import partial
+from cen_uiu.event import EventManager
 import screeninfo
 
 # cen_uiu
@@ -46,10 +47,8 @@ class UIUCore:
 
     def stop(self):
         _LOGGER.info("stopping...")
-        self.exit_code = 0
 
         self.bl_audio.disable()
-        self.app.stop()
 
     def restart(self, *args):
         _LOGGER.info("Restarting...")

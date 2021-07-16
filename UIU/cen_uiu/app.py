@@ -5,6 +5,7 @@ RootLayout:
     MainActionBar
 """
 
+from cen_uiu.event import EventManager, ON_STOP
 from cen_uiu.gui.MainActionBar import MainActionBar
 from cen_uiu.gui.MainScreenManager import MainScreenManager
 
@@ -40,6 +41,8 @@ class UIUApp(App):
         Config.set('graphics', 'resizable', False)
         Config.set('graphics', 'multisamples', 1)
 
+        Config.adddefaultsection("UIU")
+
     def build(self):
         # load kv file
         """ kv_path = pathlib.Path(gui.__path__[0]) / "app.kv"
@@ -53,3 +56,10 @@ class UIUApp(App):
         for s in self.screen_manager.screens:
             if s.name == screen_name:
                 self.screen_manager.switch_to(s)
+
+    def on_stop(self):
+        EventManager.dispatch(ON_STOP, {})
+
+        Config.write()
+    
+        self.core.stop()
