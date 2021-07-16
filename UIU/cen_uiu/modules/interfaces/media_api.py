@@ -53,7 +53,12 @@ class BluezMediaPlayer1(BusObject):
 
     @property
     def Position(self) -> dbus.UInt32:
-        return self._get_prop("Position")
+        p = self._get_prop("Position")
+        
+        if p is None:
+            return 0
+
+        return p
 
     @property
     def Track(self) -> dbus.Dictionary:

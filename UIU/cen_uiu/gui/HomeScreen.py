@@ -157,9 +157,8 @@ class HomeScreen(Screen):
                 self._transport = transport
 
                 self._on_track()
-                self._on_status()
 
-        Clock.schedule_interval(update, 0.2)
+        Clock.schedule_interval(update, 0.1)
 
     def _on_play_pause(self):
         if self._player is not None:
@@ -178,27 +177,12 @@ class HomeScreen(Screen):
     def _on_previous(self):
         if self._player is not None:
             _LOGGER.debug("Media: previous song")
-            self._player.Previous()
+            self._player.Previous()          
 
-    def _on_status(self):
+    def _on_track(self):
         if self._transport is not None:
             self._transport.Volume = self.volume
 
-        if self._player is not None:
-            try:
-                duration = self._player.Track["Duration"]
-                pos = self._player.Position
-                self.progressbar.max = int(duration)
-                self.progressbar.value = int(pos)
-
-            except KeyError or TypeError:
-                pass
-            if self._player.Status == "playing":
-                self.play_button.background_normal = get_image("pause.png")
-                return
-        self.play_button.background_normal = get_image("play.png")
-
-    def _on_track(self):
         if self._player is not None:
             track: dict = self._player.Track
 
@@ -206,6 +190,14 @@ class HomeScreen(Screen):
                 self.song = track.setdefault("Title", "unkown")
                 self.artist = track.setdefault("Artist", "unkown")
                 self.album = track.setdefault("Album", "unkown")
+
+                self.progressbar.max = int(track.setdefault("Duration", 0))
+                self.progressbar.value = int(self._player.Position)
+
+            if self._player.Status == "playing":
+                self.play_button.background_normal = get_image("pause.png")
+            else:
+                self.play_button.background_normal = get_image("play.png")
         else:
             self.song = "No bluetooth player"
             self.artist = ""
