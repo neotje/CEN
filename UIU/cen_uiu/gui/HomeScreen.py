@@ -1,8 +1,9 @@
 from cen_uiu.event import EventManager, ON_DARK_MODE, ON_LIGHT_MODE
 from cen_uiu.helpers.gui import get_image
 from cen_uiu.modules.bluetooth import list_connected_devices
-from cen_uiu.modules.interfaces.media_api import BluezMediaPlayer1
+from cen_uiu.modules.interfaces.media_api import BluezMediaPlayer1, BluezMediaTransport1
 from kivy.clock import Clock
+from kivy.config import Config
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
@@ -81,6 +82,25 @@ Builder.load_string('''
             size_hint: None, None
             pos_hint: {'center_y': .25, 'center_x': .66}
             on_release: root._on_next()
+
+        Button:
+            text: "+"
+            background_color: 0, 0, 0, 0
+            color: root.text_color
+            font_size: 50
+            size: 70, 70
+            size_hint: None, None
+            pos_hint: {'center_y': .25, 'center_x': .9}
+            on_release: root._on_volume(5)
+        Button:
+            text: "-"
+            background_color: 0, 0, 0, 0
+            color: root.text_color
+            font_size: 50
+            size: 70, 70
+            size_hint: None, None
+            pos_hint: {'center_y': .25, 'center_x': .1}
+            on_release: root._on_volume(-5)
 ''')
 
 
@@ -96,6 +116,8 @@ class HomeScreen(Screen):
     progressbar = ObjectProperty()
     play_button = ObjectProperty()
 
+    volume: int
+
     animation: Animation = None
 
     def __init__(self, **kw):
@@ -103,6 +125,9 @@ class HomeScreen(Screen):
 
         self.name = "home"
         self._player: BluezMediaPlayer1 = None
+        self._transport: BluezMediaTransport1 = None
+
+        self.volume = Config.getdefaultint("UIU", "volume", 0)
 
         EventManager.listen(ON_DARK_MODE, self.dark_mode)
         EventManager.listen(ON_LIGHT_MODE, self.light_mode)
@@ -116,14 +141,20 @@ class HomeScreen(Screen):
                 self.album = ""
             else:
                 player = None
+                transport = None
 
                 for device in connected:
                     control = device.MediaControl
+                    mtransport = device.MediaTransport
 
                     if control is not None:
                         player = control.Player
 
+                    if transport is not None:
+                        transport = mtransport
+
                 self._player = player
+                self._transport = transport
 
                 self._on_track()
                 self._on_status()
@@ -150,6 +181,9 @@ class HomeScreen(Screen):
             self._player.Previous()
 
     def _on_status(self):
+        if self._transport is not None:
+            self._transport.Volume = self.volume
+
         if self._player is not None:
             try:
                 duration = self._player.Track["Duration"]
@@ -185,14 +219,28 @@ class HomeScreen(Screen):
             self.artist = ""
             self.album = ""
 
+    def _on_volume(self, step: int):
+        self.volume += step
+        
+        if self.volume < 0:
+            self.volume = 0
+
+        if self.volume > 100:
+            self.volume = 100
+
+        Config.set("UIU", "volume", self.volume)
+        _LOGGER.debug(f"Media: volume {self.volume}")
+
     def dark_mode(self, d: dict):
         if self.animation is not None:
             self.animation.stop(self)
-        self.animation = Animation(background_color=(0, 0, 0), text_color=(1, 1, 1))
+        self.animation = Animation(
+            background_color=(0, 0, 0), text_color=(1, 1, 1))
         self.animation.start(self)
 
     def light_mode(self, d: dict):
         if self.animation is not None:
             self.animation.stop(self)
-        self.animation = Animation(background_color=(1, 1, 1), text_color=(0, 0, 0))
+        self.animation = Animation(
+            background_color=(1, 1, 1), text_color=(0, 0, 0))
         self.animation.start(self)
