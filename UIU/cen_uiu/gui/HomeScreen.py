@@ -150,7 +150,7 @@ class HomeScreen(Screen):
                     if control is not None:
                         player = control.Player
 
-                    if transport is not None:
+                    if mtransport is not None:
                         transport = mtransport
 
                 self._player = player
