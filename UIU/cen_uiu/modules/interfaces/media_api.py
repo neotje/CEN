@@ -20,7 +20,7 @@ class BluezMediaTransport1(BusObject):
 
     @Volume.setter
     def Volume(self, val: int):
-        self._set_prop("Volume", val)
+        self._set_prop("Volume", dbus.UInt16(val * 1.27))
 
 
 class BluezMediaPlayer1(BusObject):

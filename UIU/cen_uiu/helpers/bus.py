@@ -22,6 +22,7 @@ class BusObject:
             return self._props.Set(self._interface.dbus_interface, name, val)
         except dbus.DBusException as e:
             _LOGGER.error(f"BusObject: something went wrong with setting the property {name} to {val}")
+            _LOGGER.error(e)
             pass
 
     @property
