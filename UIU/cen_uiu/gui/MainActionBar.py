@@ -1,32 +1,45 @@
 from cen_uiu.event import EventManager, ON_DARK_MODE, ON_LIGHT_MODE
 from cen_uiu.helpers.gui import get_image
+from kivy.config import Config
 
 from kivy.uix.actionbar import ActionBar, ActionButton, ActionPrevious, ActionView
 from kivy.utils import get_color_from_hex
+from kivy.lang import Builder
 
 
-class MainActionPrevious(ActionPrevious):
+Builder.load_string('''
+#:import gui cen_uiu.helpers.gui
+#:import event cen_uiu.event
+#:import utils kivy.utils
+
+
+<MainActionBar>
+    background_color: utils.get_color_from_hex("#6495ED")
+
+    ActionView:
+        ActionPrevious:
+            with_previous: False
+            app_icon: gui.get_image("Chevrolet-logo-no-text.png")
+            on_release: event.EventManager.dispatch(event.SWITCH_TO_SCREEN, {'screen': 'home'})
+
+        ActionButton:
+            text: "Nacht Modus"
+            on_release: root._on_ui_mode()
+''')
+
+
+class MainActionBar(ActionBar):
+    dark_mode: bool = False
+
     def __init__(self, **kwargs):
-        super(MainActionPrevious, self).__init__()
+        super(MainActionBar, self).__init__()
 
-        self.with_previous = True
-        self.app_icon = get_image("Chevrolet-logo-no-text.png")
+        self.dark_mode = Config.getdefault("UIU", "dark_mode", False)
 
-
-class MainActionView(ActionView):
-    def __init__(self, **kwargs):
-        super(MainActionView, self).__init__()
-
-        self.action_previous = MainActionPrevious()
-
-        self.dark_mode = False
-
-        self.dark_mode_btn = ActionButton()
-        self.dark_mode_btn.text = "Nacht modus"
-        self.dark_mode_btn.bind(on_press=lambda t: self._on_ui_mode())
-
-        self.add_widget(ActionButton(text="home"))
-        self.add_widget(self.dark_mode_btn)
+        if self.dark_mode:
+            EventManager.dispatch(ON_DARK_MODE, {})
+        else:
+            EventManager.dispatch(ON_LIGHT_MODE, {})
 
     def _on_ui_mode(self):
         self.dark_mode = not self.dark_mode
@@ -36,12 +49,4 @@ class MainActionView(ActionView):
         else:
             EventManager.dispatch(ON_LIGHT_MODE, {})
 
-
-class MainActionBar(ActionBar):
-    def __init__(self, **kwargs):
-        super(MainActionBar, self).__init__()
-
-        self.background_color = get_color_from_hex("#6495ED")
-        self.opacity = 1
-
-        self.add_widget(MainActionView())
+        Config.set("UIU", "dark_mode", self.dark_mode)
