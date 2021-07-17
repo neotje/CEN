@@ -11,6 +11,8 @@ from cen_uiu.modules.interfaces.media_api import BluezMediaControl1, BluezMediaT
 import dbus
 from dbus.exceptions import DBusException
 
+import re
+
 
 class BluezDevice1(bus.BusObject):
     INTERFACE = "org.bluez.Device1"
@@ -76,6 +78,9 @@ class BluezDevice1(bus.BusObject):
 
     @property
     def MediaTransport(self) -> BluezMediaTransport1 or None:
+        # FIXME: detection for fd1, fd2, etc
+
+        reg_dev = re.compile("\/org\/bluez\/hci\d*\/dev\_(.*)")
         try:
             interface = dbus.Interface(get_proxy_object(
                 self._interface.object_path + "/fd0"), BluezMediaTransport1.INTERFACE)

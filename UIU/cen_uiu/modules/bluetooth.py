@@ -38,6 +38,10 @@ def get_device(adapter: str, device: str) -> BluezDevice1:
     return BluezDevice1(device_proxy_object)
 
 
+def get_media_transport(device):
+    pass
+
+
 def list_devices() -> List[BluezDevice1]:
     proxy = get_proxy_object("/")
     manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
@@ -95,6 +99,8 @@ def discover_and_connect(core, adapter_str: str, *args):
             if device.ConnectProfile(AUDIO_SRC):
                 while not device.Connected:
                     pass
+
+    adapter.StopDiscovery()
 
 
 class BluetoothError(Exception):
