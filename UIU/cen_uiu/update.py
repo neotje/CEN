@@ -38,12 +38,12 @@ def update_uiu() -> bool:
 class Setup:
     def __init__(self, core) -> None:
         self.core = core
-        self.process = subprocess.Popen(["scripts/setup"], cwd="/home/pi/Github/CEN/UIU")
+        self.process = subprocess.Popen(["scripts/setup"], cwd="/home/pi/Github/CEN/UIU", stdout=subprocess.PIPE)
 
     def update(self):
         EventManager.dispatch(SWITCH_TO_SCREEN, {'screen': 'update'})
 
-        if self.process.poll is not None:
+        if self.process.poll() is not None:
             self.core.restart()
 
 
@@ -52,6 +52,7 @@ def check_and_update(core, *args):
         _LOGGER.info("Updater: Checking for updates")
 
         if update_uiu():
+            EventManager.dispatch(SWITCH_TO_SCREEN, {'screen': 'update'})
             s = Setup(core)
 
             Clock.schedule_interval(s.update, 1)
