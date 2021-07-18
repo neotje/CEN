@@ -50,6 +50,7 @@ class Setup:
         if self.process.poll() is not None:
             self.core.restart()
 
+        # using kivy clock
         Clock.schedule_once(self.update, 1)
 
 
