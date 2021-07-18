@@ -43,6 +43,7 @@ class Setup:
     def update(self):
         EventManager.dispatch(SWITCH_TO_SCREEN, {'screen': 'update'})
 
+        # check if setup is running
         if self.process.poll() is not None:
             self.core.restart()
 
