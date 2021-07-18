@@ -35,12 +35,23 @@ def update_uiu() -> bool:
     return False
 
 
+class Setup:
+    def __init__(self, core) -> None:
+        self.core = core
+        self.process = subprocess.Popen(["scripts/setup"], cwd="/home/pi/Github/CEN/UIU")
+
+    def update(self):
+        EventManager.dispatch(SWITCH_TO_SCREEN, {'screen': 'update'})
+
+        if self.process.poll is not None:
+            self.core.restart()
+
+
 def check_and_update(core, *args):
     if check_for_internet():
         _LOGGER.info("Updater: Checking for updates")
 
         if update_uiu():
-            # TODO: add update screen
-            EventManager.dispatch(SWITCH_TO_SCREEN, {'screen': 'update'})
+            s = Setup(core)
 
-            Clock.schedule_once(core.restart, 5)
+            Clock.schedule_interval(s.update, 1)
