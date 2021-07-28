@@ -14,3 +14,9 @@
 #define FIRST(a,...)     a
 #define SECOND(a,b,...)  b
 #define THIRD(a,b,c,...) c
+
+//
+// scodes
+//
+
+#define CODE(n, f) case n: f(); break;

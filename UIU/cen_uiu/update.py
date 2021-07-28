@@ -44,14 +44,13 @@ class Setup:
         EventManager.dispatch(SWITCH_TO_SCREEN, {'screen': 'update'})
 
         if self.process is None:
-            subprocess.Popen(["scripts/setup"], cwd="/home/pi/Github/CEN/UIU", stdout=subprocess.PIPE)
+            subprocess.Popen(["scripts/setup"], cwd="/home/pi/Github/CEN/UIU")
 
         # check if setup is running
-        if self.process.poll() is not None:
-            self.core.restart()
-
-        # using kivy clock
-        Clock.schedule_once(self.update, 1)
+        while self.process.poll() is None:
+            pass
+        
+        self.core.restart()
 
 
 def check_and_update(core, *args):
@@ -62,4 +61,4 @@ def check_and_update(core, *args):
             EventManager.dispatch(SWITCH_TO_SCREEN, {'screen': 'update'})
             s = Setup(core)
 
-            Clock.schedule_once(s.update, 1)
+            Clock.schedule_once(s.update, 3)

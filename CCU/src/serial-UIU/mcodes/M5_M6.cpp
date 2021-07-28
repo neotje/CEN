@@ -18,4 +18,20 @@ void SCodeCollection::M6()
     done();
 }
 
+// - M7;int;bool  - Disable/enable group by number.
+void SCodeCollection::M7()
+{
+    if (parser.params[0] == "" || parser.params[1] == "")
+        return invalid_arguments();
+
+    int group = parser.params[0].toInt();
+    bool state = parser.params[1].toInt();
+
+    if (group > 3 || group < 1)
+        return invalid_input();
+
+    power_manager.set_group(group, state);
+    done();
+}
+
 #endif

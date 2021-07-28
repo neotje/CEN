@@ -81,21 +81,23 @@ void SCodeCollection::switch_case()
     case 'M':
         switch (parser.command_num)
         {
-        case 0:
-            M0();
-            break;
+        CODE(0, M0)
 
-        case 1:
-            M1();
-            break;
+        CODE(1, M1)
 
-        case 2:
-            M2();
-            break;
+        CODE(2, M2)
 
-        case 3:
-            M3();
-            break;
+        CODE(3, M3)
+
+        CODE(4, M4)
+
+#ifdef USE_POWER_MANAGER
+        CODE(5, M5)
+
+        CODE(6, M6)
+
+        CODE(7, M7)
+#endif
 
         default:
             break;

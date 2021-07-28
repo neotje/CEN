@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "../core/macros.h"
 #include "../sensors.h"
 #include "parser.h"
 
@@ -29,6 +30,7 @@
 ## power
  - M5           - check if car ignition is on.
  - M6           - Power cycle all I2C groups
+ - M7;int;bool  - Disable/enable group by number.
 */
 
 class SCodeCollection
@@ -105,6 +107,7 @@ public:
 #ifdef USE_POWER_MANAGER
     static void M5();
     static void M6();
+    static void M7();
 #endif
 };
 
