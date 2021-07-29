@@ -16,6 +16,9 @@ Modules
 #define MIN_DISTANCE 20
 #define MAX_DISTANCE 1000
 
+// Start button
+#define USE_START_BUTTON
+
 
 
 /*
@@ -33,6 +36,7 @@ Reserved:
  - 40 (D18/SDA)
  - 41 (D19/SCL)
 */
+//                                  pin number
 #define GROUP1_ENABLE_PIN 2         // 2
 #define GROUP2_ENABLE_PIN 3         // 3
 #define GROUP3_ENABLE_PIN 4         // 4
@@ -45,6 +49,10 @@ Reserved:
 #define VOLTAGE_SENSE1_PIN A17      // 41
 #define VOLTAGE_SENSE2_PIN A16      // 40
 
+#define RGB_BUTTON1_R 12            // 12
+#define RGB_BUTTON1_G 11            // 11
+#define RGB_BUTTON1_B 10            // 10
+#define RGB_BUTTON1_PIN 9           // 9
 
 
 /*
