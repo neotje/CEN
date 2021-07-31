@@ -100,7 +100,7 @@ def discover_and_connect(core, adapter_str: str, *args):
                 while not device.Connected:
                     pass
 
-    adapter.StopDiscovery()
+    #adapter.StopDiscovery()
 
 
 class BluetoothError(Exception):
