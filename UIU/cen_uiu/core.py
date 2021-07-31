@@ -33,7 +33,7 @@ class UIUCore:
 
         adapter = get_adapter("hci0")
         adapter.Discoverable = True
-        adapter.StartDiscovery()
+        #adapter.StartDiscovery()
 
         Clock.schedule_once(partial(discover_and_connect, self, "hci0"), 5)
         Clock.schedule_interval(partial(check_and_update, self), 60)
