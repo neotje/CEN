@@ -1,11 +1,10 @@
 import subprocess
 import sys
 
-from cen_uiu.helpers.audio import AudioInput, MediaSource
-from cen_uiu.modules.bluetooth import list_connected_devices
-from cen_uiu.modules.interfaces.media_api import BluezMediaPlayer1
+from cen_uiu.helpers.audio import AudioInput
 
-from kivy.logger import Logger
+import logging
+Logger = logging.getLogger(__name__)
 _LOGGER = Logger
 
 

@@ -20,32 +20,4 @@ class AudioInput(ABC):
     
     @classmethod
     def disable(self):
-        pass
-
-
-class MediaSource(ABC):
-    @property
-    def title(self) -> str or None:
-        return
-
-    @property
-    def album(self) -> str or None:
-        return
-
-    @property
-    def artist(self) -> str or None:
-        return
-
-    @property
-    def duration(self) -> int or None:
-        return
-
-    @property
-    def position(self) -> int or None:
-        return
-
-    @property
-    def status(self) -> int:
-        return
-
-    
+        pass    

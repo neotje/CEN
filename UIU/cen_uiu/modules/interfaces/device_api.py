@@ -17,6 +17,16 @@ import re
 class BluezDevice1(bus.BusObject):
     INTERFACE = "org.bluez.Device1"
 
+    def to_object(self) -> dict:
+        return {
+            "Address": self.Address,
+            "Name": self.Name,
+            "Icon": self.Icon,
+            "Class": self.Class,
+            "Paired": self.Paired,
+            "Connected": self.Connected
+        }
+
     def Connect(self):
         return self._interface.Connect()
 
@@ -80,10 +90,21 @@ class BluezDevice1(bus.BusObject):
     def MediaTransport(self) -> BluezMediaTransport1 or None:
         # FIXME: detection for fd1, fd2, etc
 
-        reg_dev = re.compile("\/org\/bluez\/hci\d*\/dev\_(.*)")
+        proxy = get_proxy_object("/")
+        manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
+        objects = manager.GetManagedObjects()
+
+        addr = self.Address.replace(":", "_")
+        reg_dev = re.compile(f"\/org\/bluez\/hci\d*\/dev_{addr}\/fd(\d*)")
         try:
-            interface = dbus.Interface(get_proxy_object(
-                self._interface.object_path + "/fd0"), BluezMediaTransport1.INTERFACE)
-            return BluezMediaTransport1(interface)
+            for key, value in objects.items():
+                m = reg_dev.match(key)
+
+                if m is not None:
+
+                    interface = dbus.Interface(get_proxy_object(
+                        key), BluezMediaTransport1.INTERFACE)
+                    return BluezMediaTransport1(interface)
+            return None
         except DBusException:
             return None

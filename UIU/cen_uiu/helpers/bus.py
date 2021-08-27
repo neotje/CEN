@@ -1,7 +1,8 @@
 import dbus
 from dbus.proxies import ProxyObject
 
-from kivy.logger import Logger
+import logging
+Logger = logging.getLogger(__name__)
 _LOGGER = Logger
 
 class BusObject:

@@ -14,7 +14,8 @@ from dbus.exceptions import DBusException
 from cen_uiu.modules.interfaces.adapter_api import BluezAdapter1
 from cen_uiu.modules.interfaces.device_api import BluezDevice1
 
-from kivy.logger import Logger
+import logging
+Logger = logging.getLogger(__name__)
 _LOGGER = Logger
 
 # audio source UUID
@@ -77,7 +78,7 @@ def list_connected_devices() -> List[BluezDevice1]:
     return result
 
 
-def discover_and_connect(core, adapter_str: str, *args):
+def discover_and_connect(adapter_str: str):
     _LOGGER.debug("Bl discovery: scanning...")
 
     adapter = get_adapter(adapter_str)

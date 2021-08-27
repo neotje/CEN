@@ -213,3 +213,12 @@ dmypy.json
 cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,c++,c
+UIU/cen_uiu/assets/static/
+UIU/cen_uiu/assets/asset-manifest.json
+.gitignore
+UIU/cen_uiu/assets/favicon.ico
+UIU/cen_uiu/assets/index.html
+UIU/cen_uiu/assets/logo192.png
+UIU/cen_uiu/assets/logo512.png
+UIU/cen_uiu/assets/robots.txt
+UIU/cen_uiu/assets/manifest.json
