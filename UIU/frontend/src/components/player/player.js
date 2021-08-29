@@ -53,11 +53,14 @@ export function Player() {
     const [connected, setConnected] = React.useState([])
 
     const [updater, setUpdater] = React.useState()
+    const [slowUpdater, setSlowUpdater] = React.useState()
+
+    const [message, setMessage] = React.useState("")
 
     useEffect(() => {
         window.uiu.api.bl_current().then(r => {
             console.log(r);
-            setCurrent(r.device)
+            setCurrent(r.device == null ? false : r.device)
 
             if (r.device === null) {
                 window.uiu.api.bl_devices().then(result => {
@@ -72,32 +75,55 @@ export function Player() {
             }
         })
 
-        window.uiu.api.bl_devices().then(result => {
-            var arr = []
-            for (const device of result.devices) {
-                if (device.Connected === 1) {
-                    arr.push(device)
-                }
-            }
-            console.log(arr);
-            setConnected(arr)
-        })
+        const slowUpdate = () => {
+            window.uiu.api.bl_devices().then(result => {
+                var arr = []
+                for (const device of result.devices) {
+                    if (device.Paired === 1) {
+                        arr.push(device)
+                    }/*  else if (device.Paired === 1) {
+                        arr.push(device)
+                        window.uiu.api.bl_connect(device.Address).then(r => {
 
-        clearInterval(updater)
-        setUpdater(setInterval(() => {
-            window.uiu.api.bl_track().then(r => {
-                setTrack(r)
+                            if (r.device !== null) {
+                                var arr = [...connected]
+                                arr.push(r.device)
+                                setConnected(arr)
+                            }
+                        })
+                    } */
+                }
+                setConnected(arr)
             })
-            window.uiu.api.bl_position().then(r => {
-                setPosition(r)
-            })
-            window.uiu.api.bl_status().then(r => {
-                setStatus(r.status)
-            })
+        }
+
+        slowUpdate();
+
+        clearTimeout(updater)
+        clearInterval(slowUpdater)
+
+        setSlowUpdater(setInterval(slowUpdate, 10000))
+
+        const fastUpdate = () => {
             window.uiu.api.bl_current().then(r => {
-                setCurrent(r.device)
+                setCurrent(r.device == null ? false : r.device)
+                r.device = r.device == null ? false : r.device
+
+                if (r.device) {
+                    window.uiu.api.bl_status().then(r => {
+                        setStatus(r.status)
+                        setTrack(r.track)
+                        setPosition(r.position)
+
+                        setUpdater(setTimeout(fastUpdate, 500))
+                    })
+                } else {
+                    setUpdater(setTimeout(fastUpdate, 500))
+                }
             })
-        }, 1000))
+        }
+
+        fastUpdate()
     }, [])
 
     const onPause = () => {
@@ -122,11 +148,36 @@ export function Player() {
 
     const onSetDevice = (e) => {
         console.log(e)
-        window.uiu.api.bl_enable_audio(e.target.value).then(() => {
-            window.uiu.api.bl_current().then(r => {
-                setCurrent(r.device)
+
+        if (e.target.value === 0) {
+            window.uiu.api.bl_disable_audio().then(() => {
+                setCurrent(false)
+                setMessage("Disconnected")
             })
-        })
+        } else {
+            setMessage("Connecting...")
+
+            window.uiu.api.bl_disable_audio().then(() => {
+                setCurrent(false)
+                setStatus("paused")
+                setTrack({})
+
+                window.uiu.api.bl_connect(e.target.value).then(r => {
+
+                    if (r.device !== null) {
+                        window.uiu.api.bl_enable_audio(e.target.value).then(() => {
+                            onPlay()
+                            window.uiu.api.bl_current().then(r => {
+                                setMessage("")
+                                setCurrent(r.device)
+                            })
+                        })
+                    } else {
+                        setMessage("Failed to connect!")
+                    }
+                })
+            })
+        }
     }
 
     return (
@@ -137,8 +188,9 @@ export function Player() {
                 </Paper>
             </Grid>
             <Grid item xs={8}>
-                <Typography variant="h5">{track ? track.Title : ""}</Typography>
-                <Typography variant="caption">{track ? track.Artist : ""}</Typography>
+                <Typography variant="h5">{track && track.Title ? track.Title : "Onbekend"}</Typography>
+                <Typography variant="caption">{track && track.Artist ? track.Artist : "Onbekend"}</Typography>
+                <Typography variant="h5">{message}</Typography>
             </Grid>
             <Grid item xs={12}>
                 <Box display="flex" alignItems="center">
@@ -154,7 +206,8 @@ export function Player() {
                 </Box>
             </Grid>
             <Grid item xs={12} className={classes.controlsContainer}>
-                <Select value={current ? current.Address : ""} className={classes.deviceSelect} onChange={onSetDevice}>
+                <Select value={current ? current.Address : 0} className={classes.deviceSelect} onChange={onSetDevice}>
+                    <MenuItem key={999} value={0}>uitschakelen</MenuItem>
                     {
                         connected.map((device, i) => {
                             return <MenuItem key={i} value={device.Address}>{device.Name}</MenuItem>
