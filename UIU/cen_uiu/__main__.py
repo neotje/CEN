@@ -1,3 +1,4 @@
+import os
 import sys
 import subprocess
 
@@ -35,7 +36,7 @@ def webviewStart():
 
 
 def main():
-    debug = True
+    debug = True if str(os.environ.get("UIU_DEBUG")).capitalize() == "TRUE" else False
 
     if debug:
         w = webview.create_window(
