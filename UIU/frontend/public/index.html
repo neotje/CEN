@@ -43,6 +43,7 @@
         window.uiu._returnValues[name] = {}
       },
       _call: function (funcName, params, id) {
+        console.debug("call", funcName);
         window.uiu._socket.send(JSON.stringify({
           action: "call",
           id: id,
@@ -62,6 +63,8 @@
               error.name = pyError.name;
               error.stack = pyError.stack;
               console.error(error);
+
+              window.removeEventListener("uiureturn", this)
               reject(error);
             } else {
               resolve(detail.content);
@@ -76,7 +79,6 @@
 
       window.uiu._socket.onmessage = function (event) {
         var content = JSON.parse(event.data)
-        console.debug(content);
 
         switch (content.action) {
           case "expose":
@@ -84,6 +86,7 @@
             break;
 
           case "return":
+            console.debug("return", content.function)
             const returnEvent = new CustomEvent("uiureturn", {
               detail: content
             });
