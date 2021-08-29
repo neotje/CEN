@@ -22,21 +22,19 @@ class ApiSocket:
         asyncio.get_event_loop().stop()
 
     async def _handler(self, websocket, path):
-        Logger.info(path)
+        # get all function of the js_api object.
         method_list = inspect.getmembers(
             self._js_api, predicate=inspect.ismethod)
-        method_list = [
-            m for m in method_list if m[0].startswith("__") is False
-        ]
+
+        # generate a list of function names and the parameters.
         method_list = [
             {
-                "func": m[0],
-
+                "func": m[0], 
                 "params": list(inspect.getfullargspec(m[1]).args)
-            }
-            for m in method_list
+            } for m in method_list if m[0].startswith("__") is False
         ]
 
+        # send expose action to client.
         for m in method_list:
             params = [p for p in m["params"] if not p == "self"]
             obj = {
@@ -46,6 +44,7 @@ class ApiSocket:
             }
             await websocket.send(json.dumps(obj))
 
+        # send ready action to the client.
         await websocket.send(json.dumps({"action": "ready"}))
 
         while websocket.open:
@@ -53,13 +52,16 @@ class ApiSocket:
             
             Logger.debug(msg)
 
+            # decode message from the client.
             content = json.loads(msg)
 
+            # call function by name.
             if content['action'] == "call":
                 funcName = content['function']
                 params = list(content['params'].values())
                 id = content['id']
 
+                # data to return
                 data = {
                     "action": "return",
                     "id": id,
@@ -72,6 +74,7 @@ class ApiSocket:
                     result = await getattr(self._js_api, funcName)(*params)
                     data["content"] = result
                 except Exception as e:
+                    # send error info on exception
                     data["content"] = {
                         "message": str(e),
                         "name": type(e).__name__,

@@ -72,6 +72,7 @@ def list_connected_devices() -> List[BluezDevice1]:
     result: List[BluezDevice1] = []
 
     for device in devices:
+        # if device is connected add to result list
         if device.Connected:
             result.append(device)
 
@@ -81,27 +82,22 @@ def list_connected_devices() -> List[BluezDevice1]:
 def discover_and_connect(adapter_str: str):
     _LOGGER.debug("Bl discovery: scanning...")
 
-    adapter = get_adapter(adapter_str)
-    connected_devs = list_connected_devices()
-
-    for cd in connected_devs:
-        if cd.UUIDs.count(AUDIO_SRC) > 0:
-            adapter.StopDiscovery()
-            return
-
+    # loop trough list of devices
     for device in list_devices():
         paired: bool = device.Paired
         connected: bool = device.Connected
         uuids: List[str] = device.UUIDs
 
+        # Connect to the device with the audio source profile,
+        # if the device is paired and not connected.
         if paired and not connected and uuids.count(AUDIO_SRC) > 0:
             _LOGGER.debug(f"Bl discovery: connecting to {device.object_path}")
 
             if device.ConnectProfile(AUDIO_SRC):
+                # wait for the device to be connected, 
+                # so that the dbus doesn't get overloaded.
                 while not device.Connected:
                     pass
-
-    #adapter.StopDiscovery()
 
 
 class BluetoothError(Exception):

@@ -1,3 +1,6 @@
+"""
+file with handy functions.
+"""
 import platform    # For getting the operating system name
 import subprocess  # For executing a shell command
 

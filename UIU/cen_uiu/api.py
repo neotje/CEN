@@ -26,9 +26,11 @@ class UIUapi:
         Logger.debug("bl_connect")
         dev = get_device("hci0", addr.replace(':', '_'))
 
+        # if device is already connect just return the device object.
         if bool(dev.Connected):
             return {"device": dev.to_object()}
 
+        # connect using to audo source profile.
         if dev.ConnectProfile(AUDIO_SRC):
             while not dev.Connected:
                 pass
@@ -53,6 +55,9 @@ class UIUapi:
             self.adapter.StopDiscovery()
 
     async def bl_enable_audio(self, addr: str):
+        """
+        enable bluetooth audio output by bluetooth device address.
+        """
         Logger.debug("bl_enable_audio")
 
         if self.bl_device is not None and addr == self.bl_device.Address:
