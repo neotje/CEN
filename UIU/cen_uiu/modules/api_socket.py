@@ -50,6 +50,7 @@ class ApiSocket:
 
         while websocket.open:
             msg = await websocket.recv()
+            
             Logger.debug(msg)
 
             content = json.loads(msg)
@@ -68,7 +69,7 @@ class ApiSocket:
                 }
 
                 try:
-                    result = getattr(self._js_api, funcName)(*params)
+                    result = await getattr(self._js_api, funcName)(*params)
                     data["content"] = result
                 except Exception as e:
                     data["content"] = {
@@ -81,8 +82,8 @@ class ApiSocket:
                     Logger.debug(data)
                     await websocket.send(json.dumps(data))
 
-        websocket.close()
-        await websocket.wait_closed()
+        """ websocket.close()
+        await websocket.wait_closed() """
 
 
 

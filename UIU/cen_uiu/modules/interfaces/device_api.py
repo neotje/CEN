@@ -78,6 +78,10 @@ class BluezDevice1(bus.BusObject):
         return self._get_prop("Connected")
 
     @property
+    def ServicesResolved(self) -> dbus.Boolean:
+        return self._get_prop("ServicesResolved")
+
+    @property
     def MediaControl(self) -> BluezMediaControl1 or None:
         try:
             interface = dbus.Interface(

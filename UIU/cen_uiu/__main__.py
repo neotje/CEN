@@ -19,23 +19,23 @@ Logger = logging.getLogger(__name__)
 
 def webviewStart():
     Logger.info("webview started")
-
     s = ApiSocket(api.UIUapi())
-    s.serve()
 
     def webviewClosed():
         s._js_api.bl_disable_audio()
         s.close()
 
     for w in webview.windows:
-        print(w.get_current_url())
+        Logger.info(w.get_current_url())
         w.closed += webviewClosed
 
     discover_and_connect("hci0")
 
+    s.serve()
+
 
 def main():
-    debug = False
+    debug = True
 
     if debug:
         w = webview.create_window(
