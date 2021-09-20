@@ -24,7 +24,7 @@ void SCodeCollection::M2()
     ShifterSensor.restart();
     ParkingSensor.restart();
 
-    boot();
+    done();
 }
 
 // - M3;sensor  - get if sensor is online.

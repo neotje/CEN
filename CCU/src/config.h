@@ -44,7 +44,8 @@ Reserved:
 #define BEEPER_PIN 5                // 5
 
 // uses mosfet to short GPIO3 to GND to wake up pi
-#define WAKE_RPI_PIN 6              // 6
+#define RPI_GLOBAL_EN_PIN 6         // 6
+#define FAN_AUDIO_MOSFET_PIN 7      // 7
 
 #define VOLTAGE_SENSE1_PIN A17      // 41
 #define VOLTAGE_SENSE2_PIN A16      // 40
@@ -58,6 +59,8 @@ Reserved:
 /*
 Serial controls
 */
+#define USE_SCODE
+
 #define CONTROL_PORT          Serial
 #define CONTROL_DEBUG
 

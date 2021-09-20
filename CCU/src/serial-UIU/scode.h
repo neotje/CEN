@@ -1,9 +1,13 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ChRt.h>
 
+#include "../thread_priority.h"
 #include "../core/macros.h"
 #include "../sensors.h"
+#include "../modules/power.h"
+#include "../modules/RGBbutton.h"
 #include "parser.h"
 
 /*
@@ -40,6 +44,12 @@ private:
 
     static int timed_read();
     static void read_line();
+
+    static THD_WORKING_AREA(waThread, 1000);
+    static THD_FUNCTION(thread, arg);
+
+    static THD_WORKING_AREA(waEvtThread, 128);
+    static THD_FUNCTION(evtThread, arg);
 
 public:
     static void loop();
@@ -86,12 +96,7 @@ public:
         CONTROL_PORT.println("ready");
     }
 
-    static void boot()
-    {
-        CONTROL_PORT.println("boot:Teensy Car");
-        parser.reset();
-        done();
-    }
+    static void setup();
 
     static void S0();
     static void S1();

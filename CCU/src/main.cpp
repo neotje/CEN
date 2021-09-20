@@ -1,40 +1,57 @@
 #include <Arduino.h>
 #include <IntervalTimer.h>
+#include <ChRt.h>
 
 #include "core/macros.h"
 #include "config.h"
+#include "thread_priority.h"
+#include "events.h"
 
 #include "serial-UIU/scode.h"
 #include "modules/parking.h"
 #include "modules/power.h"
 #include "modules/RGBbutton.h"
 
-IntervalTimer scodeTimer;
+static THD_WORKING_AREA(waRgbButtonThread, 128);
+static THD_FUNCTION(rgbButtonThread, arg)
+{
+  (void)arg;
+
+  rgbButton1.setup();
+  rgbButton1.upColor = RGB(0, 255, 0);
+  rgbButton1.downColor = RGB(255, 0, 0);
+
+  while (!chThdShouldTerminateX())
+  {
+    rgbButton1.loop();
+    chThdSleepMilliseconds(5);
+  }
+}
+
+void setupThread()
+{
+  TERN_(USE_START_BUTTON, chThdCreateStatic(waRgbButtonThread, sizeof(waRgbButtonThread), NORMALPRIO + RGB_BUTTON_PRIO, rgbButtonThread, NULL));
+
+  TERN_(USE_POWER_MANAGER, powerManager.setup());
+
+  TERN_(USE_SCODE, scode.setup());
+}
 
 void setup()
 {
-  I2C_GROUP1.begin();
-  I2C_GROUP2.begin();
-  I2C_GROUP3.begin();
+  // initialize events.
+  TERN_(USE_START_BUTTON, chEvtObjectInit(&RGB_BUTTON_EVENT_SRC));
+  TERN_(USE_POWER_MANAGER, chEvtObjectInit(&POWER_MANAGER_EVENT_SRC));
 
-  TERN_(USE_POWER_MANAGER, power_manager.setup());
-  TERN_(USE_PARKING_BEEPER, parking_beeper.setup());
-  TERN_(USE_START_BUTTON, Button1.setup());
+  // start system and setup threads.
+  chBegin(setupThread);
 
-  scode.boot();
-  scodeTimer.begin(scode.loop, 1);
-
-  Button1.upColor = RGB(0, 255, 0);
-  Button1.downColor = RGB(255, 0, 0);
+  while (true)
+  {
+  }
 }
 
 void loop()
 {
-  TERN_(USE_POWER_MANAGER, power_manager.loop());
-  TERN_(USE_START_BUTTON, Button1.loop());
-
-  if (TERN1(USE_POWER_MANAGER, power_manager.ignition_switch()))
-  {
-    TERN_(USE_PARKING_BEEPER, parking_beeper.loop());
-  }
+  chThdSleepMilliseconds(1000);
 }

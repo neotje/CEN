@@ -5,6 +5,78 @@ SCodeCollection scode;
 // define stuff to satisfy the compiler
 String SCodeCollection::_line;
 
+THD_WORKING_AREA(SCodeCollection::waThread, 1000);
+THD_WORKING_AREA(SCodeCollection::waEvtThread, 128);
+
+void SCodeCollection::setup()
+{
+    CONTROL_PORT.begin(9600);
+    CONTROL_PORT.println("boot:Teensy Car");
+    parser.reset();
+
+    chThdCreateStatic(waEvtThread, sizeof(waEvtThread), NORMALPRIO + SCODE_EVT_PRIO, evtThread, NULL);
+    chThdCreateStatic(waThread, sizeof(waThread), NORMALPRIO + SCODE_PRIO, thread, NULL);
+}
+
+THD_FUNCTION(SCodeCollection::thread, arg)
+{
+    (void)arg;
+
+    done();
+
+    while (!chThdShouldTerminateX())
+    {
+        loop();
+        chThdYield();
+    }
+}
+
+THD_FUNCTION(SCodeCollection::evtThread, arg)
+{
+  (void)arg;
+
+  event_listener_t rgbButtonListener;
+  event_listener_t powerManagerListener;
+
+  chEvtRegisterMask(&RGB_BUTTON_EVENT_SRC, &rgbButtonListener, EVENT_MASK(0));
+  chEvtRegisterMask(&POWER_MANAGER_EVENT_SRC, &powerManagerListener, EVENT_MASK(1));
+
+  while (!chThdShouldTerminateX())
+  {
+    eventmask_t evt = chEvtWaitAny(ALL_EVENTS);
+
+    if (evt & EVENT_MASK(0))
+    {
+      eventflags_t flag = chEvtGetAndClearFlags(&rgbButtonListener);
+
+      if (flag & RGB_BUTTON_SHORT_PRESS_EVT)
+      {
+        send_event("button_short_press");
+      }
+      if (flag & RGB_BUTTON_LONG_PRESS_EVT)
+      {
+        send_event("button_long_press");
+      }
+    }
+    if (evt & EVENT_MASK(1))
+    {
+      eventflags_t flag = chEvtGetAndClearFlags(&powerManagerListener);
+
+      if (flag & IGNITION_ON_EVENT)
+      {
+        send_event("ignition_on");
+      }
+      if (flag & IGNITION_OFF_EVENT)
+      {
+        send_event("ignition_off");
+      }
+    }
+
+    chThdYield();
+  }
+}
+
+
 int SCodeCollection::timed_read()
 {
     int c;
@@ -81,22 +153,22 @@ void SCodeCollection::switch_case()
     case 'M':
         switch (parser.command_num)
         {
-        CODE(0, M0)
+            CODE(0, M0)
 
-        CODE(1, M1)
+            CODE(1, M1)
 
-        CODE(2, M2)
+            CODE(2, M2)
 
-        CODE(3, M3)
+            CODE(3, M3)
 
-        CODE(4, M4)
+            CODE(4, M4)
 
 #ifdef USE_POWER_MANAGER
-        CODE(5, M5)
+            CODE(5, M5)
 
-        CODE(6, M6)
+            CODE(6, M6)
 
-        CODE(7, M7)
+            CODE(7, M7)
 #endif
 
         default:

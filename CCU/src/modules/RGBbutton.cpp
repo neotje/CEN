@@ -1,9 +1,8 @@
 #include "RGBbutton.h"
 
-RGBbutton Button1(RGB_BUTTON1_R, RGB_BUTTON1_G, RGB_BUTTON1_B, RGB_BUTTON1_PIN);
+event_source_t RGB_BUTTON_EVENT_SRC;
 
-void button_evt(uint32_t t)
-{}
+RGBbutton rgbButton1(RGB_BUTTON1_R, RGB_BUTTON1_G, RGB_BUTTON1_B, RGB_BUTTON1_PIN);
 
 RGBbutton::RGBbutton(uint8_t r, uint8_t g, uint8_t b, uint8_t pin)
 {
@@ -12,8 +11,6 @@ RGBbutton::RGBbutton(uint8_t r, uint8_t g, uint8_t b, uint8_t pin)
     pins[2] = b;
 
     input_pin = pin;
-
-    onPress = &button_evt;
 }
 
 RGBbutton::~RGBbutton()
@@ -32,15 +29,20 @@ void RGBbutton::setup()
 
 void RGBbutton::loop()
 {
-    bool new_state = isDown();
+    new_state = isDown();
 
     if(!last_state && new_state)
         downTime = millis();
 
     if(last_state && !new_state)
     {
-        uint32_t t = millis() - downTime;
-        onPress(t);
+        downTime = millis() - downTime;
+
+        if (downTime > 800) {
+            chEvtBroadcastFlags(&RGB_BUTTON_EVENT_SRC, RGB_BUTTON_LONG_PRESS_EVT);
+        } else {
+            chEvtBroadcastFlags(&RGB_BUTTON_EVENT_SRC, RGB_BUTTON_SHORT_PRESS_EVT);
+        }
     }
 
     if (new_state)

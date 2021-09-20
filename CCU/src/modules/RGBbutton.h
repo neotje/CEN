@@ -1,9 +1,13 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ChRt.h>
 
 #include "../config.h"
+#include "../events.h"
 #include "../serial-UIU/scode.h"
+
+extern event_source_t RGB_BUTTON_EVENT_SRC;
 
 struct RGB
 {
@@ -23,6 +27,7 @@ private:
     uint32_t downTime = 0;
 
     bool last_state = false;
+    bool new_state = false;
 
 public:
     RGBbutton(uint8_t r, uint8_t g, uint8_t b, uint8_t pin);
@@ -30,7 +35,6 @@ public:
 
     RGB upColor;
     RGB downColor;
-    void (*onPress)(uint32_t);
 
     void setup();
     void loop();
@@ -44,4 +48,4 @@ public:
     bool isDown();
 };
 
-extern RGBbutton Button1;
+extern RGBbutton rgbButton1;

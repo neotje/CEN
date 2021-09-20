@@ -1,101 +1,140 @@
 #include "power.h"
 
-PowerManager power_manager;
+event_source_t POWER_MANAGER_EVENT_SRC;
 
-bool PowerManager::_group1_enable = false;
-bool PowerManager::_group2_enable = false;
-bool PowerManager::_group3_enable = false;
-bool PowerManager::_last_ignition_switch_state = false;
+PowerManager powerManager;
+
+bool PowerManager::_group1Enable = false;
+bool PowerManager::_group2Enable = false;
+bool PowerManager::_group3Enable = false;
+bool PowerManager::_lastIgnitionSwitchState = true;
+
+thread_t *PowerManager::shutdownThreadPointer;
 
 void PowerManager::setup()
 {
     pinMode(GROUP1_ENABLE_PIN, OUTPUT);
     pinMode(GROUP2_ENABLE_PIN, OUTPUT);
     pinMode(GROUP3_ENABLE_PIN, OUTPUT);
-    pinMode(WAKE_RPI_PIN, OUTPUT);
+    pinMode(RPI_GLOBAL_EN_PIN, OUTPUT);
+    pinMode(FAN_AUDIO_MOSFET_PIN, OUTPUT);
 
     analogReadResolution(8);
     analogReadAveraging(1);
+
+    chThdCreateStatic(waThread, sizeof(waThread), NORMALPRIO + POWER_MANAGER_PRIO, thread, NULL);
+}
+
+THD_WORKING_AREA(PowerManager::waThread, 128);
+THD_FUNCTION(PowerManager::thread, arg)
+{
+    (void)arg;
+
+    while (!chThdShouldTerminateX())
+    {
+        loop();
+        chThdSleepMilliseconds(1000);
+    }
+}
+
+THD_WORKING_AREA(PowerManager::waShutdownThread, 128);
+THD_FUNCTION(PowerManager::shutdownThread, arg)
+{
+    (void)arg;
+
+    for (size_t i = 0; i < 60; i++)
+    {
+        chThdSleepSeconds(1);
+
+        scode.send_event("shutdown_now");
+
+        if (chThdShouldTerminateX())
+        {
+            chThdExit(0);
+            break;
+        }
+    }
+
+    if (!chThdShouldTerminateX())
+        digitalWriteFast(RPI_GLOBAL_EN_PIN, HIGH);
+
+    chThdExit(0);
 }
 
 void PowerManager::loop()
 {
     bool state = analogRead(VOLTAGE_SENSE1_PIN) > 150;
 
-    if (state != _last_ignition_switch_state)
-        _on_ignition_switch(state);
+    if (state != _lastIgnitionSwitchState)
+        _onIgnitionSwitch(state);
 
-    _last_ignition_switch_state = state;
+    _lastIgnitionSwitchState = state;
 }
 
-void PowerManager::_on_ignition_switch(bool new_state)
+void PowerManager::_onIgnitionSwitch(bool new_state)
 {
     if (new_state)
     {
-        wake_rpi();
-        scode.send_event("starting");
+        turnOnAudioFans();
+        turnOnRPI();
+        chEvtBroadcastFlags(&POWER_MANAGER_EVENT_SRC, IGNITION_ON_EVENT);
     }
     else
     {
-        scode.send_event("shutdown");
+        chEvtBroadcastFlags(&POWER_MANAGER_EVENT_SRC, IGNITION_OFF_EVENT);
+        turnOffRPI();
+        turnOffAudioFans();
     }
 
-    TERN_(DISABLE_GROUP1_ON_SLEEP, power_manager.set_group(1, new_state));
-    TERN_(DISABLE_GROUP2_ON_SLEEP, power_manager.set_group(2, new_state));
-    TERN_(DISABLE_GROUP3_ON_SLEEP, power_manager.set_group(3, new_state));
+    TERN_(DISABLE_GROUP1_ON_SLEEP, powerManager.setGroup(1, new_state));
+    TERN_(DISABLE_GROUP2_ON_SLEEP, powerManager.setGroup(2, new_state));
+    TERN_(DISABLE_GROUP3_ON_SLEEP, powerManager.setGroup(3, new_state));
 }
 
-bool PowerManager::ignition_switch()
+bool PowerManager::isIgnitionSwitch()
 {
-    return _last_ignition_switch_state;
+    return _lastIgnitionSwitchState;
 }
 
-void PowerManager::wake_rpi()
-{
-    digitalWriteFast(WAKE_RPI_PIN, HIGH);
-    delay(1);
-    digitalWriteFast(WAKE_RPI_PIN, LOW);
-}
-
-void PowerManager::enable_all_groups()
+void PowerManager::enableAllGroups()
 {
     digitalWriteFast(GROUP1_ENABLE_PIN, HIGH);
     digitalWriteFast(GROUP2_ENABLE_PIN, HIGH);
     digitalWriteFast(GROUP3_ENABLE_PIN, HIGH);
 
-    _group1_enable = true;
-    _group2_enable = true;
-    _group3_enable = true;
+    _group1Enable = true;
+    _group2Enable = true;
+    _group3Enable = true;
 }
 
-void PowerManager::disable_all_groups()
+void PowerManager::disableAllGroups()
 {
     digitalWriteFast(GROUP1_ENABLE_PIN, LOW);
     digitalWriteFast(GROUP2_ENABLE_PIN, LOW);
     digitalWriteFast(GROUP3_ENABLE_PIN, LOW);
 
-    _group1_enable = false;
-    _group2_enable = false;
-    _group3_enable = false;
+    _group1Enable = false;
+    _group2Enable = false;
+    _group3Enable = false;
 }
 
-void PowerManager::set_group(int group, bool enable)
+void PowerManager::setGroup(int group, bool enable)
 {
     switch (group)
     {
     case 1:
         digitalWriteFast(GROUP1_ENABLE_PIN, enable);
-        _group1_enable = enable;
+        _group1Enable = enable;
         break;
 
     case 2:
         digitalWriteFast(GROUP2_ENABLE_PIN, enable);
-        _group2_enable = enable;
+        _group2Enable = enable;
         break;
 
     case 3:
         digitalWriteFast(GROUP3_ENABLE_PIN, enable);
-        _group3_enable = enable;
+        _group3Enable = enable;
         break;
 
     default:
@@ -103,20 +142,39 @@ void PowerManager::set_group(int group, bool enable)
     }
 }
 
-bool PowerManager::get_group(int group)
+bool PowerManager::getGroup(int group)
 {
     switch (group)
     {
     case 1:
-        return _group1_enable;
+        return _group1Enable;
 
     case 2:
-        return _group2_enable;
+        return _group2Enable;
 
     case 3:
-        return _group3_enable;
+        return _group3Enable;
 
     default:
         return false;
     }
+}
+
+void PowerManager::turnOffRPI()
+{
+    shutdownThreadPointer = chThdCreateStatic(waShutdownThread, sizeof(waShutdownThread), NORMALPRIO + 6, shutdownThread, NULL);
+}
+void PowerManager::turnOnRPI()
+{
+    chThdTerminate(shutdownThreadPointer);
+    digitalWriteFast(RPI_GLOBAL_EN_PIN, LOW);
+}
+
+void PowerManager::turnOnAudioFans()
+{
+    digitalWriteFast(FAN_AUDIO_MOSFET_PIN, HIGH);
+}
+void PowerManager::turnOffAudioFans()
+{
+    digitalWriteFast(FAN_AUDIO_MOSFET_PIN, LOW);
 }

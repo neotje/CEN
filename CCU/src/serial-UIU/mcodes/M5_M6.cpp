@@ -6,15 +6,15 @@
 // - M5           - check if car ignition is on.
 void SCodeCollection::M5()
 {
-    report_bool(power_manager.ignition_switch());
+    report_bool(powerManager.isIgnitionSwitch());
     done();
 }
 
 // - M6           - Power cycle all I2C groups
 void SCodeCollection::M6()
 {
-    power_manager.disable_all_groups();
-    power_manager.enable_all_groups();
+    powerManager.disableAllGroups();
+    powerManager.enableAllGroups();
     done();
 }
 
@@ -30,7 +30,7 @@ void SCodeCollection::M7()
     if (group > 3 || group < 1)
         return invalid_input();
 
-    power_manager.set_group(group, state);
+    powerManager.setGroup(group, state);
     done();
 }
 
