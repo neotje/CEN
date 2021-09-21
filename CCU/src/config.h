@@ -25,7 +25,7 @@ Modules
 
 // Start button
 #define USE_START_BUTTON
-#define LONG_PRESS_DURATION 800
+#define LONG_PRESS_DURATION 1200
 
 
 
@@ -57,6 +57,7 @@ Reserved:
 
 #define VOLTAGE_SENSE1_PIN A17      // 41
 #define VOLTAGE_SENSE2_PIN A16      // 40
+#define VOLTAGE_SENSE3_PIN A0       // 14
 
 #define RGB_BUTTON1_R 12            // 12
 #define RGB_BUTTON1_G 11            // 11
