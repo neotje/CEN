@@ -20,6 +20,7 @@ static THD_FUNCTION(rgbButtonThread, arg)
   rgbButton1.setup();
   rgbButton1.upColor = RGB(0, 255, 0);
   rgbButton1.downColor = RGB(255, 0, 0);
+  rgbButton1.longPressColor = RGB(0, 0, 255);
 
   while (!chThdShouldTerminateX())
   {

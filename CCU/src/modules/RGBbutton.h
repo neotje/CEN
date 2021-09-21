@@ -5,6 +5,7 @@
 
 #include "../config.h"
 #include "../events.h"
+#include "../core/core.h"
 #include "../serial-UIU/scode.h"
 
 extern event_source_t RGB_BUTTON_EVENT_SRC;
@@ -26,6 +27,9 @@ private:
 
     uint32_t downTime = 0;
 
+    uint32_t pressTime = 0;
+    uint32_t releaseTime = 0;
+
     bool last_state = false;
     bool new_state = false;
 
@@ -35,6 +39,7 @@ public:
 
     RGB upColor;
     RGB downColor;
+    RGB longPressColor;
 
     void setup();
     void loop();

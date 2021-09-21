@@ -32,20 +32,26 @@ void RGBbutton::loop()
     new_state = isDown();
 
     if(!last_state && new_state)
-        downTime = millis();
+        pressTime = millis();
 
     if(last_state && !new_state)
     {
-        downTime = millis() - downTime;
+        releaseTime = millis();
+        downTime = releaseTime - pressTime;
 
-        if (downTime > 800) {
+        if (downTime > LONG_PRESS_DURATION) {
+            debugln("Button long press.");
             chEvtBroadcastFlags(&RGB_BUTTON_EVENT_SRC, RGB_BUTTON_LONG_PRESS_EVT);
         } else {
+            debugln("Button short press.");
             chEvtBroadcastFlags(&RGB_BUTTON_EVENT_SRC, RGB_BUTTON_SHORT_PRESS_EVT);
         }
     }
 
-    if (new_state)
+    if (new_state && millis() - pressTime > LONG_PRESS_DURATION) {
+        setColor(longPressColor);
+    }
+    else if (new_state)
     {
         setColor(downColor);
     }
