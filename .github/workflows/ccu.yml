@@ -32,7 +32,7 @@ jobs:
         run: pip install -U platformio
         
       - name: Install teensy platform
-        run: pio platform install teensy
+        run: pio platform install teensy@4.12.0
         
       - name: Build CCU project
         run: pio run -d ./CCU/
