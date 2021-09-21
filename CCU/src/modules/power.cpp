@@ -10,6 +10,12 @@ bool PowerManager::_group3Enable = false;
 bool PowerManager::_lastIgnitionSwitchState = false;
 bool PowerManager::_rpiEnabled = false;
 bool PowerManager::_audioFansEnabled = false;
+bool PowerManager::_goToSleep = false;
+
+SnoozeCompare compare;
+SnoozeDigital digital;
+SnoozeUSBSerial usbSerial;
+SnoozeBlock config(usbSerial, compare, digital);
 
 thread_t *PowerManager::shutdownThreadPointer;
 
@@ -20,9 +26,13 @@ void PowerManager::setup()
     pinMode(GROUP3_ENABLE_PIN, OUTPUT);
     pinMode(RPI_GLOBAL_EN_PIN, OUTPUT);
     pinMode(FAN_AUDIO_MOSFET_PIN, OUTPUT);
+    pinMode(LED_BUILTIN, OUTPUT);
 
     analogReadResolution(8);
     analogReadAveraging(1);
+
+    digital.pinMode(RGB_BUTTON1_PIN, INPUT_PULLUP, FALLING);
+    compare.pinMode(VOLTAGE_SENSE3_PIN, HIGH, 0.5);
 
     turnOffRPI();
     turnOffAudioFans();
@@ -60,7 +70,6 @@ THD_FUNCTION(PowerManager::eventThread, arg)
     while (!chThdShouldTerminateX())
     {
         evt = chEvtWaitAny(ALL_EVENTS);
-        
 
         if (evt & EVENT_MASK(0))
         {
@@ -90,6 +99,7 @@ THD_FUNCTION(PowerManager::eventThread, arg)
                 if (evt == 0)
                 {
                     turnOffRPI();
+                    goToSleep();
                 }
             }
             if (flag & IGNITION_ON_EVENT)
@@ -106,12 +116,16 @@ THD_FUNCTION(PowerManager::eventThread, arg)
 
             if (flag & RGB_BUTTON_LONG_PRESS_EVT)
             {
-                if (!_rpiEnabled) {
+                if (!_rpiEnabled)
+                {
                     turnOnAudioFans();
                     turnOnRPI();
-                } else {
+                }
+                else
+                {
                     turnOffRPI();
                     turnOffAudioFans();
+                    goToSleep();
                 }
             }
         }
@@ -120,7 +134,7 @@ THD_FUNCTION(PowerManager::eventThread, arg)
 
 void PowerManager::loop()
 {
-    bool state = analogRead(VOLTAGE_SENSE1_PIN) > 150;
+    bool state = analogRead(VOLTAGE_SENSE3_PIN) > 30;
 
     if (state != _lastIgnitionSwitchState)
         _onIgnitionSwitch(state);
@@ -140,6 +154,18 @@ void PowerManager::_onIgnitionSwitch(bool new_state)
         debugln("Ignition off.");
         chEvtBroadcastFlags(&POWER_MANAGER_EVENT_SRC, IGNITION_OFF_EVENT);
     }
+}
+
+void PowerManager::goToSleep()
+{
+    debugln("Going to sleep.");
+
+    chSysLock();
+    int who = Snooze.sleep(config);
+    chSysUnlock();
+
+    turnOnAudioFans();
+    turnOnRPI();
 }
 
 bool PowerManager::isIgnitionSwitch()

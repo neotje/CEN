@@ -5,7 +5,6 @@
 #include <ChRt.h>
 
 #include "../config.h"
-#include "../events.h"
 #include "../core/core.h"
 #include "../serial-UIU/scode.h"
 #include "RGBbutton.h"
@@ -23,6 +22,8 @@ private:
 
     static bool _rpiEnabled;
     static bool _audioFansEnabled;
+
+    static bool _goToSleep;
 
     static void _onIgnitionSwitch(bool newState);
 
@@ -58,6 +59,8 @@ public:
    */
     static void turnOnAudioFans();
     static void turnOffAudioFans();
+
+    static void goToSleep();
 };
 
 extern PowerManager powerManager;
