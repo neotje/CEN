@@ -4,11 +4,9 @@
 #include <ChRt.h>
 
 #include "../config.h"
-#include "../events.h"
+#include "../thread_priority.h"
 #include "../core/core.h"
 #include "../serial-UIU/scode.h"
-
-extern event_source_t RGB_BUTTON_EVENT_SRC;
 
 struct RGB
 {
@@ -16,41 +14,42 @@ struct RGB
     uint8_t g;
     uint8_t b;
 
-    RGB(uint8_t _r = 0, uint8_t _g = 0, uint8_t _b = 0): r(_r), g(_g), b(_b) {};
+    RGB(uint8_t _r = 0, uint8_t _g = 0, uint8_t _b = 0) : r(_r), g(_g), b(_b){};
 };
 
 class RGBbutton
 {
 private:
-    uint8_t pins[3];
-    uint8_t input_pin;
+    static uint8_t pins[4];
 
-    uint32_t downTime = 0;
+    static uint32_t downTime;
+    static uint32_t releaseTime;
+    static uint32_t pressTime;
 
-    uint32_t pressTime = 0;
-    uint32_t releaseTime = 0;
+    static bool lastState;
+    static bool newState;
 
-    bool last_state = false;
-    bool new_state = false;
+    static THD_WORKING_AREA(waThread, 128);
+
 
 public:
-    RGBbutton(uint8_t r, uint8_t g, uint8_t b, uint8_t pin);
-    ~RGBbutton();
+    static RGB upColor;
+    static RGB downColor;
+    static RGB longPressColor;
 
-    RGB upColor;
-    RGB downColor;
-    RGB longPressColor;
+    static void setup();
+    static void loop();
 
-    void setup();
-    void loop();
+    static THD_FUNCTION(thread, arg);
 
-    void setColor(uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
-    void setColor(RGB c)
+    static void setColor(uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
+    static void setColor(RGB c)
     {
         setColor(c.r, c.g, c.b);
     }
 
-    bool isDown();
+    static bool isDown();
 };
 
-extern RGBbutton rgbButton1;
+extern event_source_t RGB_BUTTON_EVENT_SRC;
+extern RGBbutton rgbButton;

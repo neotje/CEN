@@ -4,7 +4,7 @@
 #include <ChRt.h>
 
 #include "../thread_priority.h"
-#include "../core/macros.h"
+#include "../core/core.h"
 #include "../sensors.h"
 #include "../modules/power.h"
 #include "../modules/RGBbutton.h"
