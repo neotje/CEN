@@ -7,7 +7,9 @@ PowerManager powerManager;
 bool PowerManager::_group1Enable = false;
 bool PowerManager::_group2Enable = false;
 bool PowerManager::_group3Enable = false;
-bool PowerManager::_lastIgnitionSwitchState = true;
+bool PowerManager::_lastIgnitionSwitchState = false;
+bool PowerManager::_rpiEnabled = false;
+bool PowerManager::_audioFansEnabled = false;
 
 thread_t *PowerManager::shutdownThreadPointer;
 
@@ -22,6 +24,10 @@ void PowerManager::setup()
     analogReadResolution(8);
     analogReadAveraging(1);
 
+    turnOffRPI();
+    turnOffAudioFans();
+
+    chThdCreateStatic(waEventThread, sizeof(waEventThread), NORMALPRIO + POWER_MANAGER_EVT_PRIO, eventThread, NULL);
     chThdCreateStatic(waThread, sizeof(waThread), NORMALPRIO + POWER_MANAGER_PRIO, thread, NULL);
 }
 
@@ -37,28 +43,79 @@ THD_FUNCTION(PowerManager::thread, arg)
     }
 }
 
-THD_WORKING_AREA(PowerManager::waShutdownThread, 128);
-THD_FUNCTION(PowerManager::shutdownThread, arg)
+THD_WORKING_AREA(PowerManager::waEventThread, 128);
+THD_FUNCTION(PowerManager::eventThread, arg)
 {
     (void)arg;
 
-    for (size_t i = 0; i < 60; i++)
+    event_listener_t listener;
+    event_listener_t buttonListener;
+
+    chEvtRegisterMask(&POWER_MANAGER_EVENT_SRC, &listener, EVENT_MASK(0));
+    chEvtRegisterMask(&RGB_BUTTON_EVENT_SRC, &buttonListener, EVENT_MASK(1));
+
+    eventmask_t evt;
+    eventflags_t flag;
+
+    while (!chThdShouldTerminateX())
     {
-        chThdSleepSeconds(1);
+        evt = chEvtWaitAny(ALL_EVENTS);
+        
 
-        scode.send_event("shutdown_now");
-
-        if (chThdShouldTerminateX())
+        if (evt & EVENT_MASK(0))
         {
-            chThdExit(0);
-            break;
+            flag = chEvtGetAndClearFlags(&listener);
+
+            if (flag & IGNITION_OFF_EVENT)
+            {
+                debugln("Starting shutdown process.");
+
+                turnOffAudioFans();
+                disableAllGroups();
+
+                for (size_t i = 0; i < RPI_SHUTDOWN_DURATION; i++)
+                {
+                    debugln(i);
+
+                    evt = chEvtWaitAnyTimeout(ALL_EVENTS, TIME_S2I(1));
+                    flag = chEvtGetAndClearFlags(&listener);
+
+                    if (flag & IGNITION_ON_EVENT)
+                    {
+                        debugln("Ignition back on canceling shutdown process.");
+                        break;
+                    }
+                }
+
+                if (evt == 0)
+                {
+                    turnOffRPI();
+                }
+            }
+            if (flag & IGNITION_ON_EVENT)
+            {
+                turnOnAudioFans();
+                turnOnRPI();
+                enableAllGroups();
+            }
+        }
+
+        if (evt & EVENT_MASK(1))
+        {
+            flag = chEvtGetAndClearFlags(&buttonListener);
+
+            if (flag & RGB_BUTTON_LONG_PRESS_EVT)
+            {
+                if (!_rpiEnabled) {
+                    turnOnAudioFans();
+                    turnOnRPI();
+                } else {
+                    turnOffRPI();
+                    turnOffAudioFans();
+                }
+            }
         }
     }
-
-    if (!chThdShouldTerminateX())
-        digitalWriteFast(RPI_GLOBAL_EN_PIN, HIGH);
-
-    chThdExit(0);
 }
 
 void PowerManager::loop()
@@ -75,20 +132,14 @@ void PowerManager::_onIgnitionSwitch(bool new_state)
 {
     if (new_state)
     {
-        turnOnAudioFans();
-        turnOnRPI();
+        debugln("Ignition on.");
         chEvtBroadcastFlags(&POWER_MANAGER_EVENT_SRC, IGNITION_ON_EVENT);
     }
     else
     {
+        debugln("Ignition off.");
         chEvtBroadcastFlags(&POWER_MANAGER_EVENT_SRC, IGNITION_OFF_EVENT);
-        turnOffRPI();
-        turnOffAudioFans();
     }
-
-    TERN_(DISABLE_GROUP1_ON_SLEEP, powerManager.setGroup(1, new_state));
-    TERN_(DISABLE_GROUP2_ON_SLEEP, powerManager.setGroup(2, new_state));
-    TERN_(DISABLE_GROUP3_ON_SLEEP, powerManager.setGroup(3, new_state));
 }
 
 bool PowerManager::isIgnitionSwitch()
@@ -160,21 +211,28 @@ bool PowerManager::getGroup(int group)
     }
 }
 
-void PowerManager::turnOffRPI()
-{
-    shutdownThreadPointer = chThdCreateStatic(waShutdownThread, sizeof(waShutdownThread), NORMALPRIO + 6, shutdownThread, NULL);
-}
 void PowerManager::turnOnRPI()
 {
-    chThdTerminate(shutdownThreadPointer);
+    debugln("Turning on RPI.");
+    digitalWriteFast(RPI_GLOBAL_EN_PIN, HIGH);
+    _rpiEnabled = true;
+}
+void PowerManager::turnOffRPI()
+{
+    debugln("Turning off RPI.");
     digitalWriteFast(RPI_GLOBAL_EN_PIN, LOW);
+    _rpiEnabled = false;
 }
 
 void PowerManager::turnOnAudioFans()
 {
+    debugln("Turning on AMP and Fans.");
     digitalWriteFast(FAN_AUDIO_MOSFET_PIN, HIGH);
+    _audioFansEnabled = true;
 }
 void PowerManager::turnOffAudioFans()
 {
+    debugln("Turning off AMP and Fans.");
     digitalWriteFast(FAN_AUDIO_MOSFET_PIN, LOW);
+    _audioFansEnabled = false;
 }

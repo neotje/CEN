@@ -6,8 +6,9 @@
 
 #include "../config.h"
 #include "../events.h"
-#include "../core/macros.h"
+#include "../core/core.h"
 #include "../serial-UIU/scode.h"
+#include "RGBbutton.h"
 
 extern event_source_t POWER_MANAGER_EVENT_SRC;
 
@@ -20,13 +21,16 @@ private:
 
     static bool _lastIgnitionSwitchState;
 
+    static bool _rpiEnabled;
+    static bool _audioFansEnabled;
+
     static void _onIgnitionSwitch(bool newState);
 
     static THD_WORKING_AREA(waThread, 128);
     static THD_FUNCTION(thread, arg);
 
-    static THD_WORKING_AREA(waShutdownThread, 128);
-    static THD_FUNCTION(shutdownThread, arg);
+    static THD_WORKING_AREA(waEventThread, 128);
+    static THD_FUNCTION(eventThread, arg);
     static thread_t *shutdownThreadPointer;
 
 public:
