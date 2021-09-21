@@ -2,6 +2,12 @@
 #include <Arduino.h>
 
 /*
+general
+*/
+#define DEBUG
+
+
+/*
 Modules
 */
 
@@ -10,6 +16,7 @@ Modules
 #define DISABLE_GROUP1_ON_SLEEP
 #define DISABLE_GROUP2_ON_SLEEP
 #define DISABLE_GROUP3_ON_SLEEP
+#define RPI_SHUTDOWN_DURATION 60 // seconds
 
 // parking
 //#define USE_PARKING_BEEPER
@@ -18,6 +25,7 @@ Modules
 
 // Start button
 #define USE_START_BUTTON
+#define LONG_PRESS_DURATION 800
 
 
 
