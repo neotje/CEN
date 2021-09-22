@@ -17,33 +17,41 @@ logging.basicConfig(
 )
 Logger = logging.getLogger(__name__)
 
+ENV_UIU_DEBUG = "UIU_DEBUG"
+DEBUG_SERVER = "http://localhost:3000"
+
+WINDOW_TITLE = "Matiz UIU"
+INDEX_HTML = assets.__path__[0] + "./index.html"
+
+BLUETOOTH_ADAPTER = "hci0"
+
+apiSocket = ApiSocket(api.UIUapi())
+
 
 def webviewStart():
     Logger.info("webview started")
-    s = ApiSocket(api.UIUapi())
 
     def webviewClosed():
-        s._js_api.bl_disable_audio()
-        s.close()
+        apiSocket._js_api.bl_disable_audio()
+        apiSocket.close()
 
-    for w in webview.windows:
-        Logger.info(w.get_current_url())
-        w.closed += webviewClosed
+    for window in webview.windows:
+        Logger.info(window.get_current_url())
+        window.closed += webviewClosed
 
-    discover_and_connect("hci0")
+    discover_and_connect(BLUETOOTH_ADAPTER)
 
-    s.serve()
+    apiSocket.serve()
 
 
 def main():
-    debug = True if str(os.environ.get("UIU_DEBUG")).capitalize() == "TRUE" else False
+    debug = True if str(os.environ.get(ENV_UIU_DEBUG)).capitalize() == "TRUE" else False
 
     if debug:
         w = webview.create_window(
-            "Matiz UIU", "http://localhost:3000", fullscreen=False, minimized=False)
+            WINDOW_TITLE, DEBUG_SERVER, fullscreen=False, minimized=False)
     else:
-        w = webview.create_window("Matiz UIU", assets.__path__[
-                                  0] + "/index.html", fullscreen=True)
+        w = webview.create_window(WINDOW_TITLE, INDEX_HTML, fullscreen=True)
 
     webview.start(webviewStart, http_server=True, debug=debug)
     return 0

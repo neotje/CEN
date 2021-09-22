@@ -14,17 +14,20 @@ class UIUapi:
 
     async def bl_devices(self):
         Logger.debug("bl_devices")
-        devices = list_devices()
+
+        devices = [
+            d.to_object() for d in list_devices() 
+        ]
 
         return {
-            "devices": [
-                d.to_object() for d in devices
-            ]
+            "devices": devices
         }
 
     async def bl_connect(self, addr: str):
         Logger.debug("bl_connect")
-        dev = get_device("hci0", addr.replace(':', '_'))
+
+        addr = addr.replace(':', '_')
+        dev = get_device("hci0", addr)
 
         # if device is already connect just return the device object.
         if bool(dev.Connected):
@@ -62,8 +65,10 @@ class UIUapi:
 
         if self.bl_device is not None and addr == self.bl_device.Address:
             return
+        
+        addr = addr.replace(':', '_')
 
-        self.bl_device = get_device("hci0", addr.replace(':', '_'))
+        self.bl_device = get_device("hci0", addr)
         self.bl_device.MediaControl.Player.Play()
         self.bl_audio.enable(addr)
 
@@ -119,6 +124,6 @@ class UIUapi:
         return {
             "status": "paused",
             "position": 0
-            }
+        }
 
     

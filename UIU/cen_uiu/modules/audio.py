@@ -25,10 +25,16 @@ class BluetoothInput(AudioInput):
         if self._bluealsa_aplay is not None:
             self.disable()
 
+        arguments = [
+            "/usr/bin/bluealsa-aplay",
+            "--profile-a2dp",
+            "--pcm-buffer-time=500000",
+            addr
+        ]
+
         try:
             # start aplay process
-            self._bluealsa_aplay = subprocess.Popen(
-                ["/usr/bin/bluealsa-aplay", "--profile-a2dp", "--pcm-buffer-time=500000", addr], stdout=sys.stdout)
+            self._bluealsa_aplay = subprocess.Popen(arguments, stdout=sys.stdout)
         except Exception:
             pass
 
