@@ -21,7 +21,7 @@ ENV_UIU_DEBUG = "UIU_DEBUG"
 DEBUG_SERVER = "http://localhost:3000"
 
 WINDOW_TITLE = "Matiz UIU"
-INDEX_HTML = assets.__path__[0] + "./index.html"
+INDEX_HTML = assets.__path__[0] + "/index.html"
 
 BLUETOOTH_ADAPTER = "hci0"
 
