@@ -1,6 +1,7 @@
 import logging
-from cen_uiu.modules.audio import BluetoothInput
+import webview
 
+from cen_uiu.modules.audio import BluetoothInput
 from cen_uiu.modules.bluetooth import AUDIO_SRC, get_adapter, get_device, list_devices
 
 Logger = logging.getLogger(__name__)
@@ -11,6 +12,14 @@ class UIUapi:
         self.adapter = get_adapter("hci0")
         self.bl_audio = BluetoothInput()
         self.bl_device = None
+
+    async def quit(self):
+        for window in webview.windows:
+            window.destroy()
+
+    async def toggle_fullscreen(self):
+        for window in webview.windows:
+            window.toggle_fullscreen()
 
     async def bl_devices(self):
         Logger.debug("bl_devices")
@@ -66,11 +75,12 @@ class UIUapi:
         if self.bl_device is not None and addr == self.bl_device.Address:
             return
         
+        self.bl_audio.enable(addr)
+
         addr = addr.replace(':', '_')
 
         self.bl_device = get_device("hci0", addr)
         self.bl_device.MediaControl.Player.Play()
-        self.bl_audio.enable(addr)
 
     async def bl_disable_audio(self):
         Logger.debug("bl_disable_audio")

@@ -25,11 +25,10 @@ INDEX_HTML = assets.__path__[0] + "/index.html"
 
 BLUETOOTH_ADAPTER = "hci0"
 
-apiSocket = ApiSocket(api.UIUapi())
-
-
 def webviewStart():
     Logger.info("webview started")
+
+    apiSocket = ApiSocket(api.UIUapi())
 
     def webviewClosed():
         apiSocket._js_api.bl_disable_audio()
@@ -38,6 +37,17 @@ def webviewStart():
     for window in webview.windows:
         Logger.info(window.get_current_url())
         window.closed += webviewClosed
+
+        window.evaluate_js("""
+        document.addEventListener('keypress', (e) => {
+            if(e.code == 'KeyQ') {
+                window.uiu.api.quit();
+            }
+            if(e.code == 'KeyF') {
+                window.uiu.api.toggle_fullscreen();
+            }
+        });
+        """);
 
     discover_and_connect(BLUETOOTH_ADAPTER)
 
@@ -54,7 +64,7 @@ def main():
         Logger.info(INDEX_HTML)
         w = webview.create_window(WINDOW_TITLE, INDEX_HTML, fullscreen=True)
 
-    webview.start(webviewStart, http_server=True, debug=debug)
+    webview.start(webviewStart, http_server=True, debug=True)
     return 0
 
 
