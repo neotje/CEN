@@ -51,6 +51,7 @@ def main():
         w = webview.create_window(
             WINDOW_TITLE, DEBUG_SERVER, fullscreen=False, minimized=False)
     else:
+        Logger.info(INDEX_HTML)
         w = webview.create_window(WINDOW_TITLE, INDEX_HTML, fullscreen=True)
 
     webview.start(webviewStart, http_server=True, debug=debug)
