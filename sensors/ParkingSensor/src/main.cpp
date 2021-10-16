@@ -34,6 +34,7 @@ void loop()
   if (hostMode)
   {
     sendDistancesToCharacteristic(distances, distanceCharacteristic);
+    BLEDevice::startAdvertising();
   }
   else
   {
