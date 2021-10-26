@@ -24,6 +24,7 @@ class BluezDevice1(bus.BusObject):
             "Icon": self.Icon,
             "Class": self.Class,
             "Paired": self.Paired,
+            "UUIDs": self.UUIDs,
             "Connected": self.Connected
         }
 
