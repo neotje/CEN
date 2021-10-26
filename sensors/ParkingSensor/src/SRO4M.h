@@ -35,7 +35,11 @@ public:
         trigger();
 
         unsigned long pulseDuration = pulseIn(_echoPin, HIGH);
-        _distance = pulseDuration / 29 / 2;
+
+        _distance = pulseDuration / 58;
+
+        if (_distance < 10 || pulseDuration == 0)
+            return 600;
 
         return _distance;
     }

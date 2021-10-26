@@ -4,6 +4,7 @@
 #include "./config.h"
 #include "./sensors.h"
 #include "./ble.h"
+#include "./beeper.h"
 
 const bool hostMode = true;
 
@@ -24,12 +25,22 @@ void setup()
     connect();
   }
 
+  setupBeeper();
   setupSensors();
 }
 
 void loop()
 {
   distances = measureAllSensors();
+
+  int d = distances[0];
+  for(size_t i = 0; i < SENSOR_COUNT; i++) {
+    if(distances[i] > 10 && distances[i] < d) {
+      d = distances[i];
+    }
+  }
+
+  smallestDistance = d;
 
   if (hostMode)
   {

@@ -22,6 +22,7 @@ int *measureAllSensors() {
     for(size_t i = 0; i < SENSOR_COUNT; i++)
     {
         measuredDistances[i] = sensors[i].measure();
+        delay(10);
     }
 
     return measuredDistances;
