@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export UIU_DISABLE_UI=TRUE
+
+scripts/start
