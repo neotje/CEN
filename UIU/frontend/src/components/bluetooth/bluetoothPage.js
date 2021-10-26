@@ -14,7 +14,7 @@ export function BluetoothPage() {
 
     const onDiscoverySwitch = (enable) => {
 
-        if(enable) {
+        if (enable) {
             window.uiu.api.bl_pause()
             setDiscoveryInterval(setInterval(retreiveDevices, 500))
         } else {
@@ -67,8 +67,12 @@ export function BluetoothPage() {
     return (
         <Box>
             <DiscoverySwitch onChange={onDiscoverySwitch} />
-            <PairedDevicesList list={pairedDevices} onDelete={onDeletePairedDevice} />
-            <AvailableDevicesList list={nearbyDevices} discovering={discovery} onClick={onPairDevice} pairingTo={pairingTo}/>
+            <PairedDevicesList list={pairedDevices}
+                onDelete={onDeletePairedDevice} />
+            <AvailableDevicesList list={nearbyDevices}
+                discovering={discovery}
+                onClick={onPairDevice}
+                pairingTo={pairingTo} />
         </Box>
     )
 }

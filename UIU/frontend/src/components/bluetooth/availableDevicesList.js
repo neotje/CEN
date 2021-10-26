@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import BluetoothIcon from '@material-ui/icons/Bluetooth';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
+import SmartphoneIcon from '@material-ui/icons/Smartphone';
 
 const useStyles = makeStyles({
     searchProgress: {
@@ -16,16 +17,22 @@ export function AvailableDevicesList(props) {
     const progressDevice = props.pairingTo ? props.pairingTo : undefined
 
     const handleOnClick = (device) => {
-        if(props.onClick) props.onClick(device)
+        if (props.onClick) props.onClick(device)
     }
 
-    const listItems = nearbyDevices.map((device, i) =>
-        <ListItem key={i} button onClick={e => {handleOnClick(device)}}>
-            <ListItemIcon>
-                <BluetoothIcon />
-            </ListItemIcon>
-            <ListItemText primary={device.Name} secondary={device == progressDevice ? "Verbinden..." : undefined} />
-        </ListItem>
+    const listItems = nearbyDevices.map(
+        (device, i) => {
+            var icon = <BluetoothIcon />
+
+            if (device.Icon == "phone") icon = <SmartphoneIcon />
+
+            return <ListItem key={i} button onClick={e => { handleOnClick(device) }}>
+                <ListItemIcon>
+                    {icon}
+                </ListItemIcon>
+                <ListItemText primary={device.Name} secondary={device == progressDevice ? "Verbinden..." : undefined} />
+            </ListItem>
+        }
     )
 
     return (
