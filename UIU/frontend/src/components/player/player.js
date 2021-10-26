@@ -79,7 +79,7 @@ export function Player() {
             window.uiu.api.bl_devices().then(result => {
                 var arr = []
                 for (const device of result.devices) {
-                    if (device.Paired === 1) {
+                    if (device.Paired === 1 && device.Class != null) {
                         arr.push(device)
                     }/*  else if (device.Paired === 1) {
                         arr.push(device)
@@ -105,6 +105,8 @@ export function Player() {
         setSlowUpdater(setInterval(slowUpdate, 10000))
 
         const fastUpdate = () => {
+            clearTimeout(updater)
+            
             window.uiu.api.bl_current().then(r => {
                 setCurrent(r.device == null ? false : r.device)
                 r.device = r.device == null ? false : r.device
@@ -124,6 +126,11 @@ export function Player() {
         }
 
         fastUpdate()
+
+        return () => {
+            clearTimeout(updater)
+            clearInterval(slowUpdater)
+        }
     }, [])
 
     const onPause = () => {
@@ -218,7 +225,7 @@ export function Player() {
                     <SkipPreviousIcon className={classes.controls} />
                 </IconButton>
                 {
-                    status == "playing" ?
+                    status === "playing" ?
                         <IconButton size="medium" onClick={e => onPause()}>
                             <PauseCircleFilledIcon className={classes.controls} />
                         </IconButton>

@@ -10,6 +10,7 @@ import BluetoothIcon from '@material-ui/icons/Bluetooth';
 
 import './App.css';
 import { Player } from './components/player/player';
+import { BluetoothPage } from './components/bluetooth/bluetoothPage'
 
 
 function TabPanel(props) {
@@ -82,7 +83,7 @@ function App() {
           <Player></Player>
         </TabPanel>
         <TabPanel value={navValue} index={1}>
-          Bluetooth
+          <BluetoothPage></BluetoothPage>
         </TabPanel>
       </SwipeableViews>
       <BottomNavigation value={navValue} onChange={(e, i) => handleNavigation(i)}>

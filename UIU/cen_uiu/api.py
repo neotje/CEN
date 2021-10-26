@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import webview
 
@@ -6,10 +7,16 @@ from cen_uiu.modules.bluetooth import AUDIO_SRC, get_adapter, get_device, list_d
 
 Logger = logging.getLogger(__name__)
 
+ADAPTER = "hci0"
+
+
+def formatAddress(a: str) -> str:
+    return a.replace(':', '_')
+
 
 class UIUapi:
     def __init__(self):
-        self.adapter = get_adapter("hci0")
+        self.adapter = get_adapter(ADAPTER)
         self.bl_audio = BluetoothInput()
         self.bl_device = None
 
@@ -32,11 +39,39 @@ class UIUapi:
             "devices": devices
         }
 
+    async def bl_pair(self, addr: str):
+        Logger.debug("bl_pair")
+
+        addr = formatAddress(addr)
+        dev = get_device(ADAPTER, addr)
+
+        if bool(dev.Paired):
+            return {"device": dev.to_object()}
+
+        dev.Pair()
+
+        for i in range(30):
+            await asyncio.sleep(1)
+
+            if bool(dev.Paired):
+                return {"device": dev.to_object()}
+
+        return {"failed": True}
+
+    async def bl_remove_device(self, addr: str):
+        Logger.debug("bl_remove_device")
+
+        addr = formatAddress(addr)
+        dev = get_device(ADAPTER, addr)
+
+        self.adapter.RemoveDevice(dev.object_path)
+
+
     async def bl_connect(self, addr: str):
         Logger.debug("bl_connect")
 
-        addr = addr.replace(':', '_')
-        dev = get_device("hci0", addr)
+        addr = formatAddress(addr)
+        dev = get_device(ADAPTER, addr)
 
         # if device is already connect just return the device object.
         if bool(dev.Connected):
@@ -77,9 +112,9 @@ class UIUapi:
         
         self.bl_audio.enable(addr)
 
-        addr = addr.replace(':', '_')
+        addr = formatAddress(addr)
 
-        self.bl_device = get_device("hci0", addr)
+        self.bl_device = get_device(ADAPTER, addr)
         self.bl_device.MediaControl.Player.Play()
 
     async def bl_disable_audio(self):
