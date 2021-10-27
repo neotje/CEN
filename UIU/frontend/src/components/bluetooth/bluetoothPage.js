@@ -32,7 +32,7 @@ export function BluetoothPage() {
             let paired = []
             let nearby = []
             for (const device of result.devices) {
-                if (device.Paired === 1) {
+                if (device.Paired) {
                     paired.push(device)
                 } else if (device.Name !== "" && device.Name !== null) {
                     nearby.push(device)

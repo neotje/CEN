@@ -66,7 +66,7 @@ export function Player() {
             if (r.device === null) {
                 window.uiu.api.bl_devices().then(result => {
                     for (const device of result.devices) {
-                        if (device.Connected === 1) {
+                        if (device.Connected) {
                             window.uiu.api.bl_enable_audio(device.Address).then(() => { })
                             setCurrent(device)
                             return
@@ -80,7 +80,7 @@ export function Player() {
             window.uiu.api.bl_devices().then(result => {
                 var arr = []
                 for (const device of result.devices) {
-                    if (device.Paired === 1 && hasAudioSrc(device)) {
+                    if (device.Paired && hasAudioSrc(device)) {
                         arr.push(device)
                     }/*  else if (device.Paired === 1) {
                         arr.push(device)
