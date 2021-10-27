@@ -23,9 +23,9 @@ class BluezDevice1(bus.BusObject):
             "Name": self.Name,
             "Icon": self.Icon,
             "Class": self.Class,
-            "Paired": self.Paired,
+            "Paired": bool(self.Paired),
             "UUIDs": self.UUIDs,
-            "Connected": self.Connected
+            "Connected": bool(self.Connected)
         }
 
     def Connect(self):

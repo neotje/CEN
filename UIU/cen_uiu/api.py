@@ -101,6 +101,11 @@ class UIUapi:
         elif not state and self.adapter.Discovering:
             self.adapter.StopDiscovery()
 
+    async def bl_is_discovering(self):
+        Logger.debug("bl_is_discovering")
+
+        return {"discovering", bool(self.adapter.Discovering)}
+
     async def bl_enable_audio(self, addr: str):
         """
         enable bluetooth audio output by bluetooth device address.
