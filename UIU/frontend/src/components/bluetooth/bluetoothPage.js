@@ -6,6 +6,7 @@ import { AvailableDevicesList } from './availableDevicesList';
 
 export function BluetoothPage() {
 
+    // TODO: check if discovery is already enabled
     const [discovery, setDiscovery] = React.useState(false)
     const [pairedDevices, setPairedDevices] = React.useState([])
     const [nearbyDevices, setNearbyDevices] = React.useState([])
@@ -13,7 +14,6 @@ export function BluetoothPage() {
     const [pairingTo, setPairingTo] = React.useState()
 
     const onDiscoverySwitch = (enable) => {
-
         if (enable) {
             window.uiu.api.bl_pause()
             setDiscoveryInterval(setInterval(retreiveDevices, 500))
@@ -62,6 +62,10 @@ export function BluetoothPage() {
         console.log("paired Devices list")
         retreiveDevices();
         setDiscoveryInterval(setInterval(retreiveDevices, 2000))
+
+        window.uiu.api.bl_is_discovering().then(r => {
+            if(r.discovering) setDiscovery(true)         
+        })
     }, [])
 
     return (

@@ -104,7 +104,7 @@ class UIUapi:
     async def bl_is_discovering(self):
         Logger.debug("bl_is_discovering")
 
-        return {"discovering", bool(self.adapter.Discovering)}
+        return {"discovering": bool(self.adapter.Discovering)}
 
     async def bl_enable_audio(self, addr: str):
         """
