@@ -12,6 +12,7 @@ import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import Box from '@material-ui/core/Box';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import { hasAudioSrc } from '../bluetooth/bluetoothTools';
 
 const useStyles = makeStyles({
     songImg: {
@@ -79,7 +80,7 @@ export function Player() {
             window.uiu.api.bl_devices().then(result => {
                 var arr = []
                 for (const device of result.devices) {
-                    if (device.Paired === 1 && device.Class != null) {
+                    if (device.Paired === 1 && hasAudioSrc(device)) {
                         arr.push(device)
                     }/*  else if (device.Paired === 1) {
                         arr.push(device)
@@ -213,7 +214,7 @@ export function Player() {
                 </Box>
             </Grid>
             <Grid item xs={12} className={classes.controlsContainer}>
-                <Select value={current ? current.Address : 0} className={classes.deviceSelect} onChange={onSetDevice}>
+                <Select value={current ? current.Address : 0} className={classes.deviceSelect} onChange={onSetDevice} disabled={message == "Connecting..."} color="secondary">
                     <MenuItem key={999} value={0}>uitschakelen</MenuItem>
                     {
                         connected.map((device, i) => {

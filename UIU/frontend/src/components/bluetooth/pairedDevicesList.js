@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import BluetoothIcon from '@material-ui/icons/Bluetooth';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SmartphoneIcon from '@material-ui/icons/Smartphone';
+import { getDeviceIcon } from './bluetoothTools';
 
 export function PairedDevicesList(props) {
     const pairedDevices = props.list ? props.list : []
@@ -13,9 +14,7 @@ export function PairedDevicesList(props) {
 
     const listItems = pairedDevices.map(
         (device, i) => {
-            var icon = <BluetoothIcon />
-
-            if (device.Icon == "phone") icon = <SmartphoneIcon />
+            var icon = getDeviceIcon(device)
 
             return <ListItem key={i}>
                 <ListItemIcon>

@@ -19,7 +19,7 @@ export function DiscoverySwitch(props) {
         <Grid 
             container
             alignItems="center"
-            justifyContent="space-around"
+            justifyContent="space-evenly"
         >
             <Grid item>
                 <Typography variant="body1">Scannen</Typography>

@@ -4,6 +4,7 @@ import BluetoothIcon from '@material-ui/icons/Bluetooth';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles';
 import SmartphoneIcon from '@material-ui/icons/Smartphone';
+import { getDeviceIcon } from './bluetoothTools';
 
 const useStyles = makeStyles({
     searchProgress: {
@@ -22,9 +23,7 @@ export function AvailableDevicesList(props) {
 
     const listItems = nearbyDevices.map(
         (device, i) => {
-            var icon = <BluetoothIcon />
-
-            if (device.Icon == "phone") icon = <SmartphoneIcon />
+            var icon = getDeviceIcon(device)
 
             return <ListItem key={i} button onClick={e => { handleOnClick(device) }}>
                 <ListItemIcon>
