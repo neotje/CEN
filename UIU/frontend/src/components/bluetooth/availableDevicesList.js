@@ -1,9 +1,6 @@
-import { CircularProgress, IconButton, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, ListSubheader, Grid } from '@material-ui/core';
-import React, { useEffect } from 'react';
-import BluetoothIcon from '@material-ui/icons/Bluetooth';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { CircularProgress, List, ListItem, ListItemIcon, ListItemText, ListSubheader, Grid } from '@material-ui/core';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import SmartphoneIcon from '@material-ui/icons/Smartphone';
 import { getDeviceIcon } from './bluetoothTools';
 
 const useStyles = makeStyles({
@@ -29,7 +26,7 @@ export function AvailableDevicesList(props) {
                 <ListItemIcon>
                     {icon}
                 </ListItemIcon>
-                <ListItemText primary={device.Name} secondary={device == progressDevice ? "Verbinden..." : undefined} />
+                <ListItemText primary={device.Name} secondary={device === progressDevice ? "Verbinden..." : undefined} />
             </ListItem>
         }
     )

@@ -1,8 +1,6 @@
 import { IconButton, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, ListSubheader } from '@material-ui/core';
-import React, { useEffect } from 'react';
-import BluetoothIcon from '@material-ui/icons/Bluetooth';
+import React from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
-import SmartphoneIcon from '@material-ui/icons/Smartphone';
 import { getDeviceIcon } from './bluetoothTools';
 
 export function PairedDevicesList(props) {

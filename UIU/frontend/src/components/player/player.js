@@ -1,18 +1,15 @@
+// TODO: bluetooth player rework
+
 import React, { useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { Paper, Typography } from '@material-ui/core';
 import LibraryMusicIcon from '@material-ui/icons/LibraryMusic';
 import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
-import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
-import IconButton from '@material-ui/core/IconButton';
-import SkipNextIcon from '@material-ui/icons/SkipNext';
-import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import Box from '@material-ui/core/Box';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { hasAudioSrc } from '../bluetooth/bluetoothTools';
+import { PlayerControls } from './playerControls';
+import { DeviceSelector } from './deviceSelector';
 
 const useStyles = makeStyles({
     songImg: {
@@ -107,7 +104,7 @@ export function Player() {
 
         const fastUpdate = () => {
             clearTimeout(updater)
-            
+
             window.uiu.api.bl_current().then(r => {
                 setCurrent(r.device == null ? false : r.device)
                 r.device = r.device == null ? false : r.device
@@ -117,6 +114,7 @@ export function Player() {
                         setStatus(r.status)
                         setTrack(r.track)
                         setPosition(r.position)
+                        setMessage("")
 
                         setUpdater(setTimeout(fastUpdate, 500))
                     })
@@ -134,33 +132,37 @@ export function Player() {
         }
     }, [])
 
-    const onPause = () => {
-        window.uiu.api.bl_pause().then(() => {
-            setStatus("paused")
-        })
+    const execControlCommand = (cmd) => {
+        switch (cmd) {
+            case "pause":
+                window.uiu.api.bl_pause().then(() => {
+                    setStatus("paused")
+                })
+                break;
+
+            case "play":
+                window.uiu.api.bl_play().then(() => {
+                    setStatus("playing")
+                })
+                break;
+
+            case "next":
+                window.uiu.api.bl_next().then(() => { })
+                break;
+
+            case "previous":
+                window.uiu.api.bl_previous().then(() => { })
+                break;
+
+            default:
+                break;
+        }
     }
 
-    const onPlay = () => {
-        window.uiu.api.bl_play().then(() => {
-            setStatus("playing")
-        })
-    }
-
-    const onPrevious = () => {
-        window.uiu.api.bl_previous().then(() => { })
-    }
-
-    const onNext = () => {
-        window.uiu.api.bl_next().then(() => { })
-    }
-
-    const onSetDevice = (e) => {
-        console.log(e)
-
-        if (e.target.value === 0) {
+    const changeDevice = (deviceAddress) => {
+        if (!deviceAddress) {
             window.uiu.api.bl_disable_audio().then(() => {
-                setCurrent(false)
-                setMessage("Disconnected")
+                reset();
             })
         } else {
             setMessage("Connecting...")
@@ -170,11 +172,11 @@ export function Player() {
                 setStatus("paused")
                 setTrack({})
 
-                window.uiu.api.bl_connect(e.target.value).then(r => {
+                window.uiu.api.bl_connect(deviceAddress).then(r => {
 
                     if (r.device !== null) {
-                        window.uiu.api.bl_enable_audio(e.target.value).then(() => {
-                            onPlay()
+                        window.uiu.api.bl_enable_audio(deviceAddress).then(() => {
+                            execControlCommand("play")
                             window.uiu.api.bl_current().then(r => {
                                 setMessage("")
                                 setCurrent(r.device)
@@ -186,6 +188,16 @@ export function Player() {
                 })
             })
         }
+    }
+
+    const reset = () => {
+        setCurrent(false)
+        setMessage("Disconnected")
+        setStatus("paused")
+        setTrack({
+            Duration: 0
+        })
+        setPosition(0)
     }
 
     return (
@@ -206,7 +218,7 @@ export function Player() {
                         <Typography variant="body2">{millisToMinutesAndSeconds(position)}</Typography>
                     </Box>
                     <Box width="100%" mr={1}>
-                        <LinearProgress variant="determinate" value={track ? (position / track.Duration) * 100 : 0} />
+                        <LinearProgress variant="determinate" value={track && track.Duration > 0 ? (position / track.Duration) * 100 : 0} />
                     </Box>
                     <Box minWidth={35}>
                         <Typography variant="body2">{millisToMinutesAndSeconds(track ? track.Duration : 0)}</Typography>
@@ -214,30 +226,8 @@ export function Player() {
                 </Box>
             </Grid>
             <Grid item xs={12} className={classes.controlsContainer}>
-                <Select value={current ? current.Address : 0} className={classes.deviceSelect} onChange={onSetDevice} disabled={message == "Connecting..."} color="secondary">
-                    <MenuItem key={999} value={0}>uitschakelen</MenuItem>
-                    {
-                        connected.map((device, i) => {
-                            return <MenuItem key={i} value={device.Address}>{device.Name}</MenuItem>
-                        })
-                    }
-                </Select>
-                <IconButton size="medium" onClick={e => onPrevious()}>
-                    <SkipPreviousIcon className={classes.controls} />
-                </IconButton>
-                {
-                    status === "playing" ?
-                        <IconButton size="medium" onClick={e => onPause()}>
-                            <PauseCircleFilledIcon className={classes.controls} />
-                        </IconButton>
-                        :
-                        <IconButton size="medium" onClick={e => onPlay()}>
-                            <PlayCircleFilledIcon className={classes.controls} />
-                        </IconButton>
-                }
-                <IconButton size="medium" onClick={e => onNext()}>
-                    <SkipNextIcon className={classes.controls} />
-                </IconButton>
+                <DeviceSelector devices={connected} current={current} onChange={changeDevice} disabled={message === "Connecting..."}/>
+                <PlayerControls playing={status === "playing"} onClick={execControlCommand} disabled={message === "Connecting..." || message === "Disconnected"}/>
             </Grid>
         </Grid>
     )
