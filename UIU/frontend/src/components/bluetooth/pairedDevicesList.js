@@ -2,8 +2,16 @@ import { IconButton, List, ListItem, ListItemIcon, ListItemSecondaryAction, List
 import React from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { getDeviceIcon } from './bluetoothTools';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+    listItem: {
+        color: theme.palette.text.primary
+    }
+}))
 
 export function PairedDevicesList(props) {
+    const classes = useStyles()
     const pairedDevices = props.list ? props.list : []
 
     const handleDelete = (device) => {
@@ -14,7 +22,7 @@ export function PairedDevicesList(props) {
         (device, i) => {
             var icon = getDeviceIcon(device)
 
-            return <ListItem key={i}>
+            return <ListItem key={i} className={classes.listItem}>
                 <ListItemIcon>
                     {icon}
                 </ListItemIcon>

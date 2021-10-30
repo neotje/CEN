@@ -4,9 +4,16 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { CssBaseline } from '@material-ui/core';
+import { CustomThemeProvider } from './components/theme/customThemeProvider';
+
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <CustomThemeProvider>
+      <CssBaseline />
+      <App />
+    </CustomThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

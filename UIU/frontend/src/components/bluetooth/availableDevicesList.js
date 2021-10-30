@@ -3,11 +3,14 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { getDeviceIcon } from './bluetoothTools';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     searchProgress: {
         marginRight: "1rem"
+    },
+    listItem: {
+        color: theme.palette.text.primary
     }
-})
+}))
 
 export function AvailableDevicesList(props) {
     const classes = useStyles()
@@ -22,7 +25,7 @@ export function AvailableDevicesList(props) {
         (device, i) => {
             var icon = getDeviceIcon(device)
 
-            return <ListItem key={i} button onClick={e => { handleOnClick(device) }}>
+            return <ListItem key={i} button onClick={e => { handleOnClick(device) }} className={classes.listItem}>
                 <ListItemIcon>
                     {icon}
                 </ListItemIcon>

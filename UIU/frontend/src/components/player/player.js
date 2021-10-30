@@ -11,7 +11,7 @@ import { hasAudioSrc } from '../bluetooth/bluetoothTools';
 import { PlayerControls } from './playerControls';
 import { DeviceSelector } from './deviceSelector';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     songImg: {
         height: "17vw",
         width: "17vw",
@@ -19,21 +19,18 @@ const useStyles = makeStyles({
         alignItems: "center",
         justifyContent: "center",
     },
+    trackInfo: {
+        color: theme.palette.text.primary
+    },
+    trackProgress: {
+        color: theme.palette.text.primary
+    },
     controlsContainer: {
         display: "flex",
         justifyContent: "center",
         alignContent: "center"
     },
-    controls: {
-        fontSize: "72px",
-        margin: "6px",
-    },
-    deviceSelect: {
-        alignSelf: "center",
-        position: "absolute",
-        left: 0
-    }
-})
+}))
 
 function millisToMinutesAndSeconds(millis) {
     var minutes = Math.floor(millis / 60000);
@@ -207,13 +204,13 @@ export function Player() {
                     <LibraryMusicIcon fontSize="large" />
                 </Paper>
             </Grid>
-            <Grid item xs={8}>
+            <Grid item xs={8} className={classes.trackInfo}>
                 <Typography variant="h5">{track && track.Title ? track.Title : "Onbekend"}</Typography>
-                <Typography variant="caption">{track && track.Artist ? track.Artist : "Onbekend"}</Typography>
+                <Typography variant="subtitle1">{track && track.Artist ? track.Artist : "Onbekend"}</Typography>
                 <Typography variant="h5">{message}</Typography>
             </Grid>
             <Grid item xs={12}>
-                <Box display="flex" alignItems="center">
+                <Box display="flex" alignItems="center" className={classes.trackProgress}>
                     <Box minWidth={35}>
                         <Typography variant="body2">{millisToMinutesAndSeconds(position)}</Typography>
                     </Box>
@@ -226,8 +223,8 @@ export function Player() {
                 </Box>
             </Grid>
             <Grid item xs={12} className={classes.controlsContainer}>
-                <DeviceSelector devices={connected} current={current} onChange={changeDevice} disabled={message === "Connecting..."}/>
-                <PlayerControls playing={status === "playing"} onClick={execControlCommand} disabled={message === "Connecting..." || message === "Disconnected"}/>
+                <DeviceSelector devices={connected} current={current} onChange={changeDevice} disabled={message === "Connecting..."} />
+                <PlayerControls playing={status === "playing"} onClick={execControlCommand} disabled={message === "Connecting..." || message === "Disconnected"} />
             </Grid>
         </Grid>
     )

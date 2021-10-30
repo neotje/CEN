@@ -1,8 +1,16 @@
 import {  Switch, Typography, Grid } from '@material-ui/core';
 import React from 'react';
 
-export function DiscoverySwitch(props) {
+import { makeStyles } from '@material-ui/core/styles';
 
+const useStyles = makeStyles((theme) => ({
+    root: {
+        color: theme.palette.text.primary
+    }
+}))
+
+export function DiscoverySwitch(props) {
+    const classes = useStyles()
     const [state, setState] = React.useState({
         enable: false
     })
@@ -20,6 +28,7 @@ export function DiscoverySwitch(props) {
             container
             alignItems="center"
             justifyContent="space-evenly"
+            className={classes.root}
         >
             <Grid item>
                 <Typography variant="body1">Scannen</Typography>

@@ -11,6 +11,7 @@ import BluetoothIcon from '@material-ui/icons/Bluetooth';
 import './App.css';
 import { Player } from './components/player/player';
 import { BluetoothPage } from './components/bluetooth/bluetoothPage'
+import { CustomThemeContext } from './components/theme/customThemeProvider';
 
 
 function TabPanel(props) {
@@ -33,37 +34,40 @@ function TabPanel(props) {
   );
 }
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
     display: "flex",
     flexDirection: "column",
+    backgroundColor: theme.palette.background.paper
   },
   views: {
     flexGrow: 1,
+    padding: theme.spacing(0, 4)
   }
-})
+}))
 
 function App() {
   const classes = useStyles();
   const [navValue, setNavValue] = React.useState(0);
   const [pyReady, setPyReady] = React.useState(window.uiu._ready);
+  const { currentTheme, setTheme } = React.useContext(CustomThemeContext)
 
   const handleNavigation = (newValue) => {
     if (newValue === 0) {
-      window.uiu.api.bl_adapter_discovery(false).then(() => {})
+      window.uiu.api.bl_adapter_discovery(false).then(() => { })
     }
     setNavValue(newValue);
   }
-  
+
   useEffect(() => {
     window.addEventListener('uiuready', () => {
       setPyReady(true)
     })
-  
-    if(pyReady) {
+
+    if (pyReady) {
       window.uiu.api.bl_adapter_discoverable(true).then(() => {
-        window.uiu.api.bl_adapter_discovery(false).then(() => {})
+        window.uiu.api.bl_adapter_discovery(false).then(() => { })
       })
     }
   }, [])
@@ -74,22 +78,27 @@ function App() {
     )
   }
   return (
-    <Container className={classes.root}>
+    <Container className={classes.root} disableGutters>
       <SwipeableViews
         index={navValue}
         className={classes.views}
         onChangeIndex={handleNavigation}>
+
         <TabPanel value={navValue} index={0}>
           <Player></Player>
         </TabPanel>
+
         <TabPanel value={navValue} index={1}>
           <BluetoothPage></BluetoothPage>
         </TabPanel>
+
       </SwipeableViews>
+
       <BottomNavigation value={navValue} onChange={(e, i) => handleNavigation(i)}>
         <BottomNavigationAction label="Muziek" value={0} icon={<MusicNoteIcon />} />
         <BottomNavigationAction label="Bluetooth" value={1} icon={<BluetoothIcon />} />
       </BottomNavigation>
+
     </Container>
   );
 }
