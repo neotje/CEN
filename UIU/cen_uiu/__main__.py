@@ -6,6 +6,7 @@ import subprocess
 from cen_uiu import api, assets
 from cen_uiu.modules.api_socket import ApiSocket
 from cen_uiu.modules.bluetooth import discover_and_connect
+from cen_uiu.helpers import env
 
 import webview
 
@@ -18,8 +19,7 @@ logging.basicConfig(
 )
 Logger = logging.getLogger(__name__)
 
-ENV_UIU_DEBUG = "UIU_DEBUG"
-ENV_UIU_WITHOUT_UI = "UIU_DISABLE_UI"
+
 
 DEBUG_SERVER = "http://localhost:3000"
 
@@ -59,24 +59,28 @@ def webviewStart():
 
 
 def main():
-    debug = str(os.environ.get(ENV_UIU_DEBUG)).upper() == "TRUE"
-    withoutUI = str(os.environ.get(ENV_UIU_WITHOUT_UI)).upper() == "TRUE"
+    env.setup()
+
+    debug = env.getBool(env.UIU_DEBUG)
+    withoutUI = env.getBool(env.UIU_WITHOUT_UI)
+    uiSrc = env.getStr(env.UIU_UI_SERVER)
+    fullScreen = env.getBool(env.UIU_FULLSCREEN)
+
+    if withoutUI:
+        apiSocket.serve()
+        return
+
+    if uiSrc == "":
+        uiSrc == INDEX_HTML
 
     try:
-        if withoutUI:
-            apiSocket.serve()
-            return 0
-
-        if debug:
-            w = webview.create_window(
-                WINDOW_TITLE, DEBUG_SERVER, fullscreen=False, minimized=False)
-        else:
-            Logger.info(INDEX_HTML)
-            w = webview.create_window(WINDOW_TITLE, INDEX_HTML, fullscreen=True)
-
-        webview.start(webviewStart, http_server=True, debug=True)
+        webview.create_window(WINDOW_TITLE, uiSrc, fullScreen=fullScreen)
+        webview.start(webviewStart, http_server=True, debug=debug)
     except KeyboardInterrupt:
         pass
+    
+    for window in webview.windows:
+        window.destroy()
 
     return 0
 
