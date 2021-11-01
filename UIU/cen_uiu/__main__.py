@@ -50,7 +50,7 @@ def webviewStart():
                 window.uiu.api.toggle_fullscreen();
             }
         });
-        """);
+        """)
 
     discover_and_connect(BLUETOOTH_ADAPTER)
 
@@ -64,17 +64,17 @@ def main():
     debug = env.getBool(env.UIU_DEBUG)
     withoutUI = env.getBool(env.UIU_WITHOUT_UI)
     uiSrc = env.getStr(env.UIU_UI_SERVER)
-    fullScreen = env.getBool(env.UIU_FULLSCREEN)
+    fullscreen = env.getBool(env.UIU_FULLSCREEN)
 
     if withoutUI:
         apiSocket.serve()
         return
 
     if uiSrc == "":
-        uiSrc == INDEX_HTML
+        uiSrc = INDEX_HTML
 
     try:
-        webview.create_window(WINDOW_TITLE, uiSrc, fullScreen=fullScreen)
+        webview.create_window(WINDOW_TITLE, uiSrc, fullscreen=fullscreen)
         webview.start(webviewStart, http_server=True, debug=debug)
     except KeyboardInterrupt:
         pass

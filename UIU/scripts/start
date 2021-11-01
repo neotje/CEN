@@ -1,5 +1,17 @@
 #!/bin/bash
 
+sudo fuser -k 2888/tcp
+
+while getopts dufs: flag; do
+    case "${flag}" in
+        d) export UIU_DEBUG=true ;;
+        u) export UIU_DISABLE_UI=true ;;
+        s) export UIU_UI_SERVER_ADDR=${OPTARG} ;;
+        f) export UIU_FULLSCREEN=false ;;
+        *) exit 1;;
+    esac
+done
+
 source /home/pi/Github/CEN/UIU/venv/bin/activate
 
 run() {
