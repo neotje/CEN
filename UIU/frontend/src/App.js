@@ -12,6 +12,10 @@ import './App.css';
 import { Player } from './components/player/player';
 import { BluetoothPage } from './components/bluetooth/bluetoothPage'
 import { CustomThemeContext } from './components/theme/customThemeProvider';
+import { Switch } from '@material-ui/core';
+import { NavigationBar } from './components/navigation/navigationBar';
+import MusicNote from '@material-ui/icons/MusicNote';
+import Bluetooth from '@material-ui/icons/Bluetooth';
 
 
 function TabPanel(props) {
@@ -47,8 +51,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-function App() {
-  const classes = useStyles();
+function App(props) {
+  const classes = useStyles(props);
   const [navValue, setNavValue] = React.useState(0);
   const [pyReady, setPyReady] = React.useState(window.uiu._ready);
   const { currentTheme, setTheme } = React.useContext(CustomThemeContext)
@@ -58,6 +62,10 @@ function App() {
       window.uiu.api.bl_adapter_discovery(false).then(() => { })
     }
     setNavValue(newValue);
+  }
+
+  const handleThemeToggle = () => {
+    setTheme(currentTheme == "light" ? "dark" : "light")
   }
 
   useEffect(() => {
@@ -94,10 +102,10 @@ function App() {
 
       </SwipeableViews>
 
-      <BottomNavigation value={navValue} onChange={(e, i) => handleNavigation(i)}>
-        <BottomNavigationAction label="Muziek" value={0} icon={<MusicNoteIcon />} />
-        <BottomNavigationAction label="Bluetooth" value={1} icon={<BluetoothIcon />} />
-      </BottomNavigation>
+      <NavigationBar value={navValue} onNavigation={handleNavigation} theme={currentTheme} onTheme={handleThemeToggle}>
+        <BottomNavigationAction label="Muziek" value={0} icon={<MusicNote />} />
+        <BottomNavigationAction label="Bluetooth" value={1} icon={<Bluetooth />} />
+      </NavigationBar>
 
     </Container>
   );

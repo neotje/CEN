@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export function DiscoverySwitch(props) {
-    const classes = useStyles()
+    const classes = useStyles(props)
     const [state, setState] = React.useState({
         enable: false
     })

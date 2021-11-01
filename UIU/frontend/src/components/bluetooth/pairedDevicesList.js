@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export function PairedDevicesList(props) {
-    const classes = useStyles()
+    const classes = useStyles(props)
     const pairedDevices = props.list ? props.list : []
 
     const handleDelete = (device) => {

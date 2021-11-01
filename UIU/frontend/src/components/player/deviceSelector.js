@@ -2,16 +2,16 @@ import { MenuItem, Select } from "@material-ui/core"
 import { makeStyles } from '@material-ui/core/styles';
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     root: {
         alignSelf: "center",
         position: "absolute",
         left: 0
     }
-})
+}))
 
 export function DeviceSelector(props) {
-    const classes = useStyles()
+    const classes = useStyles(props)
 
     const devices = props.devices ? props.devices : []
     const current = props.current && devices.length > 0 ? props.current : { Address: 0 }

@@ -5,15 +5,15 @@ import SkipPrevious from "@material-ui/icons/SkipPrevious"
 import { makeStyles } from '@material-ui/core/styles';
 import SkipNext from "@material-ui/icons/SkipNext";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     button: {
         fontSize: "72px",
         margin: "6px",
     }
-})
+}))
 
 export function PlayerControls(props) {
-    const classes = useStyles()
+    const classes = useStyles(props)
     const playing = props.playing ? props.playing : false
     const onClick = props.onClick ? props.onClick : (c) => {} 
     const disabled = props.disabled ? props.disabled : false

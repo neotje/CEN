@@ -38,8 +38,8 @@ function millisToMinutesAndSeconds(millis) {
     return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 }
 
-export function Player() {
-    const classes = useStyles()
+export function Player(props) {
+    const classes = useStyles(props)
     const [track, setTrack] = React.useState()
     const [position, setPosition] = React.useState(0)
     const [status, setStatus] = React.useState("paused")

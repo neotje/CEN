@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export function AvailableDevicesList(props) {
-    const classes = useStyles()
+    const classes = useStyles(props)
     const nearbyDevices = props.list ? props.list : []
     const progressDevice = props.pairingTo ? props.pairingTo : undefined
 
