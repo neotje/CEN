@@ -1,7 +1,6 @@
-import { BottomNavigation, Button, Container, IconButton, Switch } from "@material-ui/core"
+import { BottomNavigation, Container, IconButton } from "@material-ui/core"
 import { makeStyles } from '@material-ui/core/styles';
 import React from "react";
-import { CustomThemeContext } from "../theme/customThemeProvider";
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
 
@@ -25,7 +24,7 @@ export function NavigationBar(props) {
 
     const classes = useStyles(props)
 
-    const icon = theme == "light" ? <Brightness4Icon /> : <Brightness7Icon />
+    const icon = theme === "light" ? <Brightness4Icon /> : <Brightness7Icon />
 
     const handleToggleTheme = () => {
         onTheme()
