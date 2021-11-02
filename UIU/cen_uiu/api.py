@@ -1,9 +1,11 @@
 import asyncio
 import logging
+from typing import Any
 import webview
 
 from cen_uiu.modules.audio import BluetoothInput
 from cen_uiu.modules.bluetooth import AUDIO_SRC, get_adapter, get_device, list_devices
+from cen_uiu.modules import settings
 
 Logger = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ class UIUapi:
         Logger.debug("bl_devices")
 
         devices = [
-            d.to_object() for d in list_devices() 
+            d.to_object() for d in list_devices()
         ]
 
         return {
@@ -65,7 +67,6 @@ class UIUapi:
         dev = get_device(ADAPTER, addr)
 
         self.adapter.RemoveDevice(dev.object_path)
-
 
     async def bl_connect(self, addr: str):
         Logger.debug("bl_connect")
@@ -114,7 +115,7 @@ class UIUapi:
 
         if self.bl_device is not None and addr == self.bl_device.Address:
             return
-        
+
         self.bl_audio.enable(addr)
 
         addr = formatAddress(addr)
@@ -170,10 +171,20 @@ class UIUapi:
                 "position": player.Position,
                 "track": player.Track
             }
-        
+
         return {
             "status": "paused",
             "position": 0
         }
 
-    
+    async def settings_getAll(self):
+        return settings.getAll()
+
+    async def settings_set(self, key: str, val: Any):
+        settings.set(key, val)
+        return {}
+
+    async def settings_get(self, key: str):
+        return {
+            "value": settings.get(key)
+        }
