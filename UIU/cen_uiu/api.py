@@ -5,7 +5,7 @@ import webview
 
 from cen_uiu.modules.audio import BluetoothInput
 from cen_uiu.modules.bluetooth import AUDIO_SRC, get_adapter, get_device, list_devices
-from cen_uiu.modules import settings
+from cen_uiu.modules import brightness, settings
 
 Logger = logging.getLogger(__name__)
 
@@ -188,3 +188,12 @@ class UIUapi:
         return {
             "value": settings.get(key)
         }
+
+    async def brightness_get(self):
+        return {
+            "value": brightness.getBrightness()
+        }
+
+    async def brightness_set(self, level: int):
+        brightness.setBrightness(level)
+        return {}
