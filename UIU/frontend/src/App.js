@@ -1,18 +1,15 @@
 import React, { useEffect } from 'react';
 import Container from '@material-ui/core/Container';
-import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import SwipeableViews from 'react-swipeable-views';
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core/styles';
-import MusicNoteIcon from '@material-ui/icons/MusicNote';
-import BluetoothIcon from '@material-ui/icons/Bluetooth';
 
 import './App.css';
 import { Player } from './components/player/player';
 import { BluetoothPage } from './components/bluetooth/bluetoothPage'
 import { CustomThemeContext } from './components/theme/customThemeProvider';
-import { Switch } from '@material-ui/core';
+import { Fade, Grid, LinearProgress } from '@material-ui/core';
 import { NavigationBar } from './components/navigation/navigationBar';
 import MusicNote from '@material-ui/icons/MusicNote';
 import Bluetooth from '@material-ui/icons/Bluetooth';
@@ -48,6 +45,10 @@ const useStyles = makeStyles((theme) => ({
   views: {
     flexGrow: 1,
     padding: theme.spacing(0, 4)
+  },
+  loadingContainer: {
+    height: "100vh",
+    backgroundColor: theme.palette.background.paper
   }
 }))
 
@@ -55,6 +56,9 @@ function App(props) {
   const classes = useStyles(props);
   const [navValue, setNavValue] = React.useState(0);
   const [pyReady, setPyReady] = React.useState(window.uiu._ready);
+  const [progress, setProgress] = React.useState(0);
+  const [done, setDone] = React.useState(false);
+  const [fade, setFade] = React.useState(true);
   const { currentTheme, setTheme } = React.useContext(CustomThemeContext)
 
   const handleNavigation = (newValue) => {
@@ -71,42 +75,69 @@ function App(props) {
   useEffect(() => {
     window.addEventListener('uiuready', () => {
       setPyReady(true)
+      finalizeLoad()
     })
 
     if (pyReady) {
-      window.uiu.api.bl_adapter_discoverable(true).then(() => {
-        window.uiu.api.bl_adapter_discovery(false).then(() => { })
-      })
+      finalizeLoad()
     }
   }, [])
 
-  if (!pyReady) {
+  const finalizeLoad = () => {
+    setProgress(33)
+    window.uiu.api.bl_adapter_discoverable(true).then(() => {
+      setProgress(66)
+
+      window.uiu.api.bl_adapter_discovery(false).then(() => {
+        setProgress(100)
+
+        setTimeout(() => {
+          setFade(false);
+        }, 500)
+        setTimeout(() => {
+          setDone(true)
+        }, 1000)
+        
+      })
+    })
+  }
+
+  if (!done) {
     return (
-      <div>loading...</div>
+      <Grid container justifyContent='center' alignItems='center' className={classes.loadingContainer}>
+        <Grid item xs={12}>
+          <Fade in={fade}>
+            <LinearProgress variant='determinate' value={progress} />
+          </Fade>
+        </Grid>
+      </Grid>
+
     )
   }
   return (
     <Container className={classes.root} disableGutters>
-      <SwipeableViews
-        index={navValue}
-        className={classes.views}
-        onChangeIndex={handleNavigation}>
+      {/* <Fade in={true} appear={true}> */}
+        <SwipeableViews
+          index={navValue}
+          className={classes.views}
+          onChangeIndex={handleNavigation}>
 
-        <TabPanel value={navValue} index={0}>
-          <Player></Player>
-        </TabPanel>
+          <TabPanel value={navValue} index={0}>
+            <Player></Player>
+          </TabPanel>
 
-        <TabPanel value={navValue} index={1}>
-          <BluetoothPage></BluetoothPage>
-        </TabPanel>
+          <TabPanel value={navValue} index={1}>
+            <BluetoothPage></BluetoothPage>
+          </TabPanel>
 
-      </SwipeableViews>
+        </SwipeableViews>
 
-      <NavigationBar value={navValue} onNavigation={handleNavigation} theme={currentTheme} onTheme={handleThemeToggle}>
-        <BottomNavigationAction label="Muziek" value={0} icon={<MusicNote />} />
-        <BottomNavigationAction label="Bluetooth" value={1} icon={<Bluetooth />} />
-      </NavigationBar>
+        <NavigationBar value={navValue} onNavigation={handleNavigation} theme={currentTheme} onTheme={handleThemeToggle}>
+          <BottomNavigationAction label="Muziek" value={0} icon={<MusicNote />} />
+          <BottomNavigationAction label="Bluetooth" value={1} icon={<Bluetooth />} />
+        </NavigationBar>
 
+      {/* </Fade> */}
     </Container>
   );
 }
