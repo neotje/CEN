@@ -69,7 +69,7 @@ class ApiSocket:
                     "id": resultId,
                     "function": methodName,
                     "isError": False,
-                    "content": "{}"
+                    "content": {}
                 }
 
                 try:
