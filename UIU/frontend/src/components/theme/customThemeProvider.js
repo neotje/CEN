@@ -10,14 +10,15 @@ export const CustomThemeContext = React.createContext({
 export function CustomThemeProvider(props) {
     const { children } = props
 
-    const currentTheme = localStorage.getItem('appTheme') || 'light'
+    const currentTheme = 'light'
 
     const [themeName, _setThemeName] = React.useState(currentTheme)
 
     const theme = getTheme(themeName)
 
     const setThemeName = (name) => {
-        localStorage.setItem('appTheme', name)
+        console.log("Setting them to", name);
+        window.uiu.api.settings_set("theme", name)
         _setThemeName(name)
     }
 

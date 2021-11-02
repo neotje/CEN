@@ -85,6 +85,12 @@ function App(props) {
 
   const finalizeLoad = () => {
     setProgress(33)
+
+    window.uiu.api.settings_get("theme").then(result => {
+      console.log(result.value)
+      setTheme(result.value)
+    })
+
     window.uiu.api.bl_adapter_discoverable(true).then(() => {
       setProgress(66)
 
