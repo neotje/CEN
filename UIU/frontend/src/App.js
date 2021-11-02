@@ -113,7 +113,7 @@ function App(props) {
       <Grid container justifyContent='center' alignItems='center' className={classes.loadingContainer}>
         <Grid item xs={12}>
           <Fade in={fade}>
-            <LinearProgress variant='determinate' value={progress} />
+            <LinearProgress variant='buffer' value={progress} valueBuffer={0}/>
           </Fade>
         </Grid>
       </Grid>
