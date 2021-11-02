@@ -69,7 +69,7 @@ function App(props) {
   }
 
   const handleThemeToggle = () => {
-    setTheme(currentTheme == "light" ? "dark" : "light")
+    setTheme(currentTheme === "light" ? "dark" : "light")
   }
 
   useEffect(() => {
@@ -81,7 +81,7 @@ function App(props) {
     if (pyReady) {
       finalizeLoad()
     }
-  }, [])
+  }, [pyReady])
 
   const finalizeLoad = () => {
     setProgress(33)
