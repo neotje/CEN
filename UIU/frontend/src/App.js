@@ -9,10 +9,12 @@ import './App.css';
 import { Player } from './components/player/player';
 import { BluetoothPage } from './components/bluetooth/bluetoothPage'
 import { CustomThemeContext } from './components/theme/customThemeProvider';
-import { Fade, Grid, LinearProgress } from '@material-ui/core';
 import { NavigationBar } from './components/navigation/navigationBar';
 import MusicNote from '@material-ui/icons/MusicNote';
 import Bluetooth from '@material-ui/icons/Bluetooth';
+import SettingsIcon from '@material-ui/icons/Settings';
+import { LoadingScreen } from './components/loading/loadingScreen';
+import { SettingsPage } from './components/settings/settingsPage';
 
 
 function TabPanel(props) {
@@ -45,10 +47,6 @@ const useStyles = makeStyles((theme) => ({
   views: {
     flexGrow: 1,
     padding: theme.spacing(0, 4)
-  },
-  loadingContainer: {
-    height: "100vh",
-    backgroundColor: theme.palette.background.paper
   }
 }))
 
@@ -110,14 +108,7 @@ function App(props) {
 
   if (!done) {
     return (
-      <Grid container justifyContent='center' alignItems='center' className={classes.loadingContainer}>
-        <Grid item xs={12}>
-          <Fade in={fade}>
-            <LinearProgress variant='buffer' value={progress} valueBuffer={0}/>
-          </Fade>
-        </Grid>
-      </Grid>
-
+      <LoadingScreen progress={progress} fade={fade} />
     )
   }
   return (
@@ -126,7 +117,11 @@ function App(props) {
         <SwipeableViews
           index={navValue}
           className={classes.views}
-          onChangeIndex={handleNavigation}>
+          onChangeIndex={handleNavigation}
+          disableLazyLoading={true}
+          resistance={true}
+          disabled={navValue === 2}
+        >
 
           <TabPanel value={navValue} index={0}>
             <Player></Player>
@@ -136,11 +131,16 @@ function App(props) {
             <BluetoothPage></BluetoothPage>
           </TabPanel>
 
+          <TabPanel value={navValue} index={2}>
+            <SettingsPage></SettingsPage>
+          </TabPanel>
+
         </SwipeableViews>
 
         <NavigationBar value={navValue} onNavigation={handleNavigation} theme={currentTheme} onTheme={handleThemeToggle}>
           <BottomNavigationAction label="Muziek" value={0} icon={<MusicNote />} />
           <BottomNavigationAction label="Bluetooth" value={1} icon={<Bluetooth />} />
+          <BottomNavigationAction label="Instellingen" value={2} icon={<SettingsIcon />} />
         </NavigationBar>
 
       {/* </Fade> */}
