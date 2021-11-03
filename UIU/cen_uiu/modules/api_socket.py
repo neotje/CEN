@@ -22,10 +22,13 @@ class ApiSocket:
 
     def serve(self):
         self._loop.run_until_complete(self._server)
-        self._loop.run_forever()
+
+        try:
+            self._loop.run_forever()
+        except KeyboardInterrupt:
+            self.close()
 
     def close(self):
-        self._server.close()
         self._loop.stop()
 
     async def _handler(self, websocket, path):

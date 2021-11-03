@@ -190,10 +190,12 @@ class UIUapi:
         }
 
     async def brightness_get(self):
+        Logger.debug("brightness_get")
         return {
             "value": brightness.getBrightness()
         }
 
     async def brightness_set(self, level: int):
-        brightness.setBrightness(level)
+        Logger.debug("brightness_set")
+        brightness.setBrightness(round(level))
         return {}
