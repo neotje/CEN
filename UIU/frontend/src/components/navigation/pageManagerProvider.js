@@ -70,8 +70,10 @@ export function PageManagerProvider(props) {
 
         const title = pages[page] ? pages[page].title : page
 
+        const color = page == current ? "secondary" : "primary"
+
         return (
-            <Link href="#" onClick={clickHandler}>{title}</Link>
+            <Link href="#" onClick={clickHandler} color={color}>{title}</Link>
         )
     })
 
