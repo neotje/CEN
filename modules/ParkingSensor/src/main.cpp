@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <CEN_BLE/ESP32_BLE_CLIENT.h>
 
 #include "./config.h"
 #include "./sensors.h"

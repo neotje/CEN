@@ -3,6 +3,7 @@
 #include <BLEDevice.h>
 #include "./config.h"
 #include "./SRO4M.h"
+#include "../core/debug.h"
 
 SRO4M sensors[SENSOR_COUNT] = {
     SRO4M(13, 26),
