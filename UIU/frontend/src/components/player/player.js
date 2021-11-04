@@ -53,20 +53,24 @@ export function Player(props) {
     const [message, setMessage] = React.useState("")
 
     useEffect(() => {
-        window.uiu.api.bl_current().then(r => {
+        window.uiu.api.bl_current()
+        .then(r => {
             console.log(r);
             setCurrent(r.device == null ? false : r.device)
 
             if (r.device === null) {
-                window.uiu.api.bl_devices().then(result => {
-                    for (const device of result.devices) {
-                        if (device.Connected) {
-                            window.uiu.api.bl_enable_audio(device.Address).then(() => { })
-                            setCurrent(device)
-                            return
-                        }
-                    }
-                })
+                return window.uiu.api.bl_devices()
+            }
+        })
+        .then(result => {
+            if(!result) return
+            
+            for (const device of result.devices) {
+                if (device.Connected) {
+                    window.uiu.api.bl_enable_audio(device.Address).then(() => { })
+                    setCurrent(device)
+                    return
+                }
             }
         })
 
@@ -76,17 +80,7 @@ export function Player(props) {
                 for (const device of result.devices) {
                     if (device.Paired && hasAudioSrc(device)) {
                         arr.push(device)
-                    }/*  else if (device.Paired === 1) {
-                        arr.push(device)
-                        window.uiu.api.bl_connect(device.Address).then(r => {
-
-                            if (r.device !== null) {
-                                var arr = [...connected]
-                                arr.push(r.device)
-                                setConnected(arr)
-                            }
-                        })
-                    } */
+                    }
                 }
                 setConnected(arr)
             })
@@ -102,22 +96,29 @@ export function Player(props) {
         const fastUpdate = () => {
             clearTimeout(updater)
 
-            window.uiu.api.bl_current().then(r => {
+            window.uiu.api.bl_current()
+            .then(r => {
                 setCurrent(r.device == null ? false : r.device)
                 r.device = r.device == null ? false : r.device
 
                 if (r.device) {
-                    window.uiu.api.bl_status().then(r => {
-                        setStatus(r.status)
-                        setTrack(r.track)
-                        setPosition(r.position)
-                        setMessage("")
-
-                        setUpdater(setTimeout(fastUpdate, 500))
-                    })
+                    return window.uiu.api.bl_status()
                 } else {
+
+                    clearTimeout(updater)
                     setUpdater(setTimeout(fastUpdate, 500))
                 }
+            })
+            .then(r => {
+                if (!r) return
+
+                //setStatus(r.status)
+                setTrack(r.track)
+                setPosition(r.position)
+                setMessage("")
+
+                clearTimeout(updater)
+                setUpdater(setTimeout(fastUpdate, 500))
             })
         }
 
@@ -132,12 +133,14 @@ export function Player(props) {
     const execControlCommand = (cmd) => {
         switch (cmd) {
             case "pause":
+                setStatus("paused")
                 window.uiu.api.bl_pause().then(() => {
                     setStatus("paused")
                 })
                 break;
 
             case "play":
+                setStatus("playing")
                 window.uiu.api.bl_play().then(() => {
                     setStatus("playing")
                 })
@@ -164,25 +167,25 @@ export function Player(props) {
         } else {
             setMessage("Connecting...")
 
-            window.uiu.api.bl_disable_audio().then(() => {
+            window.uiu.api.bl_disable_audio()
+            .then(() => {
                 setCurrent(false)
                 setStatus("paused")
                 setTrack({})
 
-                window.uiu.api.bl_connect(deviceAddress).then(r => {
-
-                    if (r.device !== null) {
-                        window.uiu.api.bl_enable_audio(deviceAddress).then(() => {
-                            execControlCommand("play")
-                            window.uiu.api.bl_current().then(r => {
-                                setMessage("")
-                                setCurrent(r.device)
-                            })
+                return window.uiu.api.bl_connect(deviceAddress)
+            }).then(r => {
+                if (r.device !== null) {
+                    window.uiu.api.bl_enable_audio(deviceAddress).then(() => {
+                        execControlCommand("play")
+                        window.uiu.api.bl_current().then(r => {
+                            setMessage("")
+                            setCurrent(r.device)
                         })
-                    } else {
-                        setMessage("Failed to connect!")
-                    }
-                })
+                    })
+                } else {
+                    setMessage("Failed to connect!")
+                }
             })
         }
     }
@@ -211,13 +214,13 @@ export function Player(props) {
             </Grid>
             <Grid item xs={12}>
                 <Box display="flex" alignItems="center" className={classes.trackProgress}>
-                    <Box minWidth={35}>
+                    <Box minWidth={50}>
                         <Typography variant="body2">{millisToMinutesAndSeconds(position)}</Typography>
                     </Box>
                     <Box width="100%" mr={1}>
                         <LinearProgress variant="determinate" value={track && track.Duration > 0 ? (position / track.Duration) * 100 : 0} />
                     </Box>
-                    <Box minWidth={35}>
+                    <Box minWidth={50}>
                         <Typography variant="body2">{millisToMinutesAndSeconds(track ? track.Duration : 0)}</Typography>
                     </Box>
                 </Box>

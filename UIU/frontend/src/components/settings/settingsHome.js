@@ -22,8 +22,6 @@ function SettingsItem(props) {
 }
 
 export function SettingsHome() {
-    const pageManager = React.useContext(PageManagerContext)
-
     return (
         <List>
             <SettingsItem label="Scherm en helderheid" icon={<Brightness6Icon />} page="screen" />
