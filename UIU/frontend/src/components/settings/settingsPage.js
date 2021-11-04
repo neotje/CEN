@@ -3,6 +3,7 @@ import React from "react";
 import { PageManagerProvider } from "../navigation/pageManagerProvider";
 import { ScreenPage } from "./screenPage";
 import { SettingsHome } from "./settingsHome";
+import { SystemPage } from "./systemPage";
 
 export function SettingsPage() {
     const settingsPages = {
@@ -14,6 +15,10 @@ export function SettingsPage() {
             title: "Scherm en helderheid",
             elem: <ScreenPage />
         },
+        system: {
+            title: "Systeem",
+            elem: <SystemPage />
+        }
     }
 
     return (
