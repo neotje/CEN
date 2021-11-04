@@ -2,7 +2,7 @@
 
 sudo apt update
 
-#sudo scripts/setup-bluetooth
+sudo scripts/setup-bluetooth
 #sudo scripts/setup-wifi
 #sudo scripts/setup-services
 
@@ -11,13 +11,7 @@ sudo apt install -y python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-webkit2-4.
 sudo apt install -y pkg-config libboost-python-dev libboost-thread-dev libbluetooth-dev libglib2.0-dev python-dev libboost-dev sed
 
 # build react frontend
-cd frontend
-npm run build
-cd ..
-
-# copy react production build to assets folder
-rm -r cen_uiu/assets/static
-cp -r frontend/build/* cen_uiu/assets/
+scripts/build-react
 
 # create python virtual enviroment
 python3 -m venv venv

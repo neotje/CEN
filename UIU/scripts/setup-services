@@ -1,9 +1,7 @@
 #!/bin/bash
 
-cat <<'EOF' > /etc/xdg/lxsession/LXDE-pi/autostart
-@lxpanel --profile LXDE-pi
-@pcmanfm --desktop --profile LXDE-pi
-@xscreensaver -no-splash
-
-lxterminal -e /home/pi/Github/CEN/UIU/scripts/start
+touch ~/.blackboxrc
+cat <<'EOF' > ~/.blackboxrc
+session.styleFile:      /usr/share/blackbox/styles/Gray
+/home/pi/Github/CEN/UIU/scripts/start
 EOF

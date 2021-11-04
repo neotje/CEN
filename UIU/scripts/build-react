@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# build react frontend
+cd frontend
+npm run build
+cd ..
+
+# copy react production build to assets folder
+rm -r cen_uiu/assets/static
+cp -r frontend/build/* cen_uiu/assets/
