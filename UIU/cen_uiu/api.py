@@ -12,8 +12,7 @@ Logger = logging.getLogger(__name__)
 ADAPTER = "hci0"
 
 
-def formatAddress(a: str) -> str:
-    return a.replace(':', '_')
+
 
 
 class UIUapi:
@@ -44,7 +43,6 @@ class UIUapi:
     async def bl_pair(self, addr: str):
         Logger.debug("bl_pair")
 
-        addr = formatAddress(addr)
         dev = get_device(ADAPTER, addr)
 
         if bool(dev.Paired):
@@ -63,7 +61,6 @@ class UIUapi:
     async def bl_remove_device(self, addr: str):
         Logger.debug("bl_remove_device")
 
-        addr = formatAddress(addr)
         dev = get_device(ADAPTER, addr)
 
         self.adapter.RemoveDevice(dev.object_path)
@@ -71,7 +68,6 @@ class UIUapi:
     async def bl_connect(self, addr: str):
         Logger.debug("bl_connect")
 
-        addr = formatAddress(addr)
         dev = get_device(ADAPTER, addr)
 
         # if device is already connect just return the device object.
@@ -117,8 +113,6 @@ class UIUapi:
             return
 
         self.bl_audio.enable(addr)
-
-        addr = formatAddress(addr)
 
         self.bl_device = get_device(ADAPTER, addr)
         self.bl_device.MediaControl.Player.Play()

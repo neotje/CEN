@@ -22,6 +22,10 @@ _LOGGER = Logger
 AUDIO_SRC = "0000110a-0000-1000-8000-00805f9b34fb"
 
 
+def formatAddress(a: str) -> str:
+    return a.replace(':', '_')
+
+
 def get_adapter(name: str) -> BluezAdapter1:
     """
     https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/adapter-api.txt
@@ -34,13 +38,10 @@ def get_device(adapter: str, device: str) -> BluezDevice1:
     """
     https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/device-api.txt
     """
+    device = formatAddress(device)
     device_proxy_object = get_proxy_object(
         f"/org/bluez/{adapter}/dev_{device}")
     return BluezDevice1(device_proxy_object)
-
-
-def get_media_transport(device):
-    pass
 
 
 def list_devices() -> List[BluezDevice1]:
@@ -94,7 +95,7 @@ def discover_and_connect(adapter_str: str):
             _LOGGER.debug(f"Bl discovery: connecting to {device.object_path}")
 
             if device.ConnectProfile(AUDIO_SRC):
-                # wait for the device to be connected, 
+                # wait for the device to be connected,
                 # so that the dbus doesn't get overloaded.
                 while not device.Connected:
                     pass

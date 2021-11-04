@@ -12,7 +12,12 @@ def setup():
     os.environ.setdefault(UIU_FULLSCREEN, str(True))
 
 def getBool(key: str) -> bool:
-    return os.environ.get(key).lower() in ['true', '1']
+    value = os.environ.get(key)
+
+    if value is None:
+        return False
+    
+    return value.lower() in ['true', '1', '']
 
 def getStr(key: str) -> str:
     return os.environ.get(key)

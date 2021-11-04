@@ -2,4 +2,6 @@
 
 source ./venv/bin/activate
 
-python tests/bluetooth.test.py
+export TEST=TRUE
+
+python -m unittest discover ./cen_uiu "*_test.py"
