@@ -7,18 +7,18 @@ import traceback
 import logging
 Logger = logging.getLogger(__name__)
 
+
 def isBuiltinFunc(funcName: str) -> bool:
     return funcName.startswith("__")
+
 
 class ApiSocket:
     def __init__(self, js_api) -> None:
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
-        
+
         self._server = websockets.serve(self._handler, "127.0.0.1", 2888)
         self._js_api = js_api
-
-        
 
     def serve(self):
         self._loop.run_until_complete(self._server)
@@ -33,7 +33,8 @@ class ApiSocket:
 
     async def _handler(self, websocket, path):
         # get all function of the js_api object.
-        method_list = inspect.getmembers(self._js_api, predicate=inspect.ismethod)
+        method_list = inspect.getmembers(
+            self._js_api, predicate=inspect.ismethod)
 
         # send list of methods to client.
         # using the expose action for every function.
@@ -54,7 +55,7 @@ class ApiSocket:
 
         while websocket.open:
             msg = await websocket.recv()
-            
+
             Logger.debug(msg)
 
             # decode message from the client.

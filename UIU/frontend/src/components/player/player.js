@@ -112,7 +112,7 @@ export function Player(props) {
             .then(r => {
                 if (!r) return
 
-                //setStatus(r.status)
+                setStatus(r.status)
                 setTrack(r.track)
                 setPosition(r.position)
                 setMessage("")
