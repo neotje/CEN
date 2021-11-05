@@ -1,0 +1,2 @@
+class InvalidBLEDeviceException(Exception):
+    pass

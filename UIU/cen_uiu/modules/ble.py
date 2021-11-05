@@ -7,13 +7,6 @@ from webview.event import Event
 Logger = logging.getLogger(__name__)
 
 
-def discover(adapter="hci0", timeout=2, ) -> dict:
-    discovery = gattlib.DiscoveryService(adapter)
-    devices = discovery.discover(timeout)
-
-    return devices
-
-
 def read(device: str, uuid: str):
     requester = gattlib.GATTRequester(device, False)
 
@@ -59,7 +52,7 @@ class BLEDevice:
 
     @property
     def services(self) -> List:
-        self.connect()
+        #self.connect()
         primary_services = self._requester.discover_primary()
 
         return [prim['uuid'] for prim in primary_services]
@@ -71,6 +64,10 @@ class BLEDevice:
         characteristics = self._requester.discover_characteristics()
 
         return [char['uuid'] for char in characteristics]
+
+    def hasService(self, uuid: str) -> bool:
+        services = self.services
+        return uuid in services
 
     def connect(self, wait=True):
         if not self._requester.is_connected():
@@ -95,3 +92,19 @@ class BLEDevice:
 
     def addOnNotification(self, listener):
         self._requester.notification += listener
+
+    def __repr__(self) -> str:
+        return f"address: {self.address} name: {self.name}"
+
+
+def discover(adapter="hci0", timeout=2) -> dict:
+    discovery = gattlib.DiscoveryService(adapter)
+    devices = discovery.discover(timeout)
+
+    deviceObjects = []
+
+    for address, name in list(devices.items()):
+        deviceObjects.append(BLEDevice(address, name))
+
+
+    return deviceObjects
