@@ -133,14 +133,14 @@ export function Player(props) {
     const execControlCommand = (cmd) => {
         switch (cmd) {
             case "pause":
-                setStatus("paused")
+                //setStatus("paused")
                 window.uiu.api.bl_pause().then(() => {
                     setStatus("paused")
                 })
                 break;
 
             case "play":
-                setStatus("playing")
+                //setStatus("playing")
                 window.uiu.api.bl_play().then(() => {
                     setStatus("playing")
                 })
