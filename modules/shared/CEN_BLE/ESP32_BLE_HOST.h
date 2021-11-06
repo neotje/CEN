@@ -15,6 +15,8 @@ namespace BLEHostTools
     {
         BLEDevice::init(hostName);
 
+        debugln(BLEDevice::getAddress().toString().c_str());
+
         server = BLEDevice::createServer();
         advertising = BLEDevice::getAdvertising();
     }

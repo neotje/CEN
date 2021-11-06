@@ -13,12 +13,13 @@ class LeftStripCallback : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
+        int start = micros();
         debugln(pCharacteristic->getValue().c_str());
 
         const std::string value = pCharacteristic->getValue();
 
-        std::string indexStr = value.substr(0, 1);
-        std::string hexStr = value.substr(1, 8);
+        std::string indexStr = value.substr(0, 2);
+        std::string hexStr = value.substr(2, 9);
 
         int i = atoi(indexStr.c_str());
         int c = (int)strtol(hexStr.c_str(), NULL, 0);
@@ -29,6 +30,7 @@ class LeftStripCallback : public BLECharacteristicCallbacks
         leftLeds[i].setColorCode(c);
 
         FastLED.show();
+        debugln(micros() - start);
     }
 };
 
@@ -40,8 +42,8 @@ class RightStripCallback : public BLECharacteristicCallbacks
 
         const std::string value = pCharacteristic->getValue();
 
-        std::string indexStr = value.substr(0, 1);
-        std::string hexStr = value.substr(1, 8);
+        std::string indexStr = value.substr(0, 2);
+        std::string hexStr = value.substr(2, 9);
 
         int i = atoi(indexStr.c_str());
         int c = (int)strtol(hexStr.c_str(), NULL, 0);
@@ -52,6 +54,20 @@ class RightStripCallback : public BLECharacteristicCallbacks
         rightLeds[i].setColorCode(c);
 
         FastLED.show();
+    }
+};
+
+class FillStripsCallback : public BLECharacteristicCallbacks
+{
+    void onWrite(BLECharacteristic *pCharacteristic)
+    {
+        debugln(pCharacteristic->getValue().c_str());
+
+        const std::string value = pCharacteristic->getValue();
+
+        int color = (int)strtol(value.c_str(), NULL, 0);
+
+        FastLED.showColor(CRGB(color));
     }
 };
 
@@ -67,6 +83,7 @@ void setupLeds(int ledsPerSide)
 
     leftStripService->setCallbacks(new LeftStripCallback());
     rightStripService->setCallbacks(new RightStripCallback());
+    fillStripsService->setCallbacks(new FillStripsCallback());
 }
 
 void ledFadeIn(CRGB color, int duration)

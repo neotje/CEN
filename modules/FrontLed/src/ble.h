@@ -7,6 +7,7 @@
 BLEService *ledStripService = nullptr;
 BLECharacteristic *leftStripService = nullptr;
 BLECharacteristic *rightStripService = nullptr;
+BLECharacteristic *fillStripsService = nullptr;
 
 class ServerCallbacks : public BLEServerCallbacks
 {
@@ -27,4 +28,5 @@ void startBleHost(std::string hostName)
     ledStripService = BLEHostTools::createService(LED_STRIP_SERVICE);
     leftStripService = BLEHostTools::createCharacteristic(LEFT_STRIP_CHARACTERISTIC, ledStripService);
     rightStripService = BLEHostTools::createCharacteristic(RIGHT_STRIP_CHARACTERISTIC, ledStripService);
+    fillStripsService = BLEHostTools::createCharacteristic(FILL_STRIPS_CHARACTERISTIC, ledStripService);
 }

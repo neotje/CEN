@@ -1,6 +1,6 @@
 #pragma once
 
-//#define DEBUG
+#define DEBUG
 
 #define BLE_HOST_NAME "Front LedStrip"
 
