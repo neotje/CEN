@@ -65,6 +65,17 @@ class BLEDevice:
 
         return [char['uuid'] for char in characteristics]
 
+    @property
+    def isConnected(self) -> bool:
+        return self._requester.is_connected()
+
+    def to_object(self) -> dict:
+        return {
+            "Name": self.name,
+            "Address": self.address,
+            "Connected": self.isConnected
+        }
+
     def hasService(self, uuid: str) -> bool:
         services = self.services
         return uuid in services
@@ -88,7 +99,7 @@ class BLEDevice:
 
         value = str(value).encode("utf-8")
 
-        self._requester.write_by_handle(handle, value)
+        self._requester.write_by_handle_async(handle, value, gattlib.GATTResponse())
 
     def addOnNotification(self, listener):
         self._requester.notification += listener
