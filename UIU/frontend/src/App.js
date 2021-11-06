@@ -15,6 +15,7 @@ import Bluetooth from '@material-ui/icons/Bluetooth';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { LoadingScreen } from './components/loading/loadingScreen';
 import { SettingsPage } from './components/settings/settingsPage';
+import frontLed from './components/api/frontled';
 
 
 function TabPanel(props) {
@@ -82,27 +83,37 @@ function App(props) {
   }, [pyReady])
 
   const finalizeLoad = () => {
-    setProgress(33)
+    const steps = 5
+    setProgress(100 / steps * 1)
 
-    window.uiu.api.settings_get("theme").then(result => {
+    window.uiu.api.settings_get("theme")
+    .then(result => {
       console.log(result.value)
       setTheme(result.value)
+
+      setProgress(100 / steps * 2)
+      return window.uiu.api.bl_adapter_discoverable(true)
     })
+    .then(() => {
 
-    window.uiu.api.bl_adapter_discoverable(true).then(() => {
-      setProgress(66)
+      setProgress(100 / steps * 3)
+      return window.uiu.api.bl_adapter_discovery(false)
+    })
+    .then(() => {
 
-      window.uiu.api.bl_adapter_discovery(false).then(() => {
-        setProgress(100)
+      setProgress(100 / steps * 4)
+      return frontLed.setup()
+    })
+    .then(() => {
 
-        setTimeout(() => {
-          setFade(false);
-        }, 500)
-        setTimeout(() => {
-          setDone(true)
-        }, 1000)
-        
-      })
+      setProgress(100 / steps * 5)
+      setTimeout(() => {
+        setFade(false);
+      }, 500)
+      setTimeout(() => {
+        setDone(true)
+      }, 1000)
+      
     })
   }
 

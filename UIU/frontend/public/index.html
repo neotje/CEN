@@ -94,7 +94,7 @@
               console.error(error);
 
               window.removeEventListener("uiureturn", this)
-              reject(error);
+              resolve(error);
             } else {
               resolve(detail.content);
             }

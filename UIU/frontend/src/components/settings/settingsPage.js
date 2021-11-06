@@ -1,6 +1,7 @@
 import { Container } from "@material-ui/core";
 import React from "react";
 import { PageManagerProvider } from "../navigation/pageManagerProvider";
+import { LightingPage } from "./lightingPage";
 import { ScreenPage } from "./screenPage";
 import { SettingsHome } from "./settingsHome";
 import { SystemPage } from "./systemPage";
@@ -18,6 +19,10 @@ export function SettingsPage() {
         system: {
             title: "Systeem",
             elem: <SystemPage />
+        },
+        lighting: {
+            title: "Verlichting",
+            elem: <LightingPage />
         }
     }
 

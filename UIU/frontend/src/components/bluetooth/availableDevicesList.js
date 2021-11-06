@@ -29,7 +29,7 @@ export function AvailableDevicesList(props) {
                 <ListItemIcon>
                     {icon}
                 </ListItemIcon>
-                <ListItemText primary={device.Name} secondary={device === progressDevice ? "Verbinden..." : undefined} />
+                <ListItemText primary={device.Name === null ? device.Address : device.Name} secondary={progressDevice && device.Address === progressDevice.Address ? "Verbinden..." : undefined} />
             </ListItem>
         }
     )

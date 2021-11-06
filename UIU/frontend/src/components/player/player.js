@@ -10,6 +10,7 @@ import Box from '@material-ui/core/Box';
 import { hasAudioSrc } from '../bluetooth/bluetoothTools';
 import { PlayerControls } from './playerControls';
 import { DeviceSelector } from './deviceSelector';
+import { DeviceSelectorDialog } from '../bluetooth/deviceSelectorDialog';
 
 const useStyles = makeStyles((theme) => ({
     songImg: {
