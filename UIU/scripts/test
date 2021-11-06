@@ -4,4 +4,4 @@ source ./venv/bin/activate
 
 export TEST=TRUE
 
-python -m unittest discover ./cen_uiu "*_test.py"
+python -m unittest discover ./tests "*_test.py"

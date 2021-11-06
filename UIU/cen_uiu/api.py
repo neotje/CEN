@@ -1,6 +1,8 @@
 import asyncio
 import logging
 from typing import Any
+from cen_uiu.modules.ble import BLEDevice
+from cen_uiu.modules.frontled import FrontLedConnection
 import webview
 
 from cen_uiu.modules.audio import BluetoothInput
@@ -12,14 +14,14 @@ Logger = logging.getLogger(__name__)
 ADAPTER = "hci0"
 
 
-
-
-
 class UIUapi:
+    frontLedConnection: FrontLedConnection
+
     def __init__(self):
         self.adapter = get_adapter(ADAPTER)
         self.bl_audio = BluetoothInput()
         self.bl_device = None
+        self.frontLedConnection = None
 
     async def quit(self):
         for window in webview.windows:
@@ -201,3 +203,45 @@ class UIUapi:
     async def system_shutdown(self):
         system.shutdown()
         return {}
+
+    async def frontLed_available(self):
+        if self.frontLedConnection is None:
+            return {"available": False}
+
+        if self.frontLedConnection._device.isConnected():
+            return {"available": True, "device": self.frontLedConnection.device.to_object()}
+        else:
+            return {"available": False}
+
+    async def frontLed_loadDevice(self, addr: str):
+        bleDevice = BLEDevice(addr)
+
+        self.frontLedConnection = FrontLedConnection(bleDevice)
+
+        return {}
+
+    async def frontLed_fill(self, side: str, color: str):
+        if self.frontLedConnection is None:
+            return {"available": False}
+
+        if side == "left":
+            self.frontLedConnection.fillLeft(color)
+        elif side == "right":
+            self.frontLedConnection.fillRight(color)
+        elif side == "all":
+            self.frontLedConnection.fill(color)
+
+        return {"available": True, "device": self.frontLedConnection.device.to_object()}
+
+    async def frontLed_set(self, side: str, index: int, color: str):
+        if self.frontLedConnection is None:
+            return {"available": False}
+
+        if side == "left":
+            self.frontLedConnection.setLeft(index, color)
+        elif side == "right":
+            self.frontLedConnection.setRight(index, color)
+        elif side == "all":
+            self.frontLedConnection.set(index, color)
+
+        return {"available": True}
