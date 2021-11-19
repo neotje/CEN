@@ -7,6 +7,7 @@ from typing import List
 
 from cen_uiu.helpers import bus
 from cen_uiu.modules.dbus import get_proxy_object
+from cen_uiu.modules.interfaces.gattCharacteristic_api import GattCharacteristic1
 from cen_uiu.modules.interfaces.media_api import BluezMediaControl1, BluezMediaTransport1
 import dbus
 from dbus.exceptions import DBusException
@@ -113,3 +114,24 @@ class BluezDevice1(bus.BusObject):
             return None
         except DBusException:
             return None
+
+    def GATTCharacteristic(self, uuid) -> GattCharacteristic1 or None:
+        proxy = get_proxy_object("/")
+        manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
+        objects = manager.GetManagedObjects()
+        addr = self.Address.replace(":", "_")
+        reg_dev = re.compile(f"\/org\/bluez\/hci\d*\/dev_{addr}\/service(\d*)\/char(\d*)")
+
+        try:
+            for key, value in objects.items():
+                m = reg_dev.match(key)
+
+                if m is not None:
+                    interface = dbus.Interface(get_proxy_object(key), GattCharacteristic1.INTERFACE)
+                    char = GattCharacteristic1(interface)
+
+                    if char.UUID == uuid:
+                        return char
+        except DBusException:
+            pass
+

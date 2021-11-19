@@ -178,7 +178,9 @@ class UIUapi:
 
     async def settings_set(self, key: str, val: Any):
         settings.set(key, val)
-        return {}
+        return {
+            "value": settings.get(key)
+        }
 
     async def settings_get(self, key: str):
         return {
@@ -214,6 +216,8 @@ class UIUapi:
             return {"available": False}
 
     async def frontLed_loadDevice(self, addr: str):
+        if addr is None: return {}
+        
         bleDevice = BLEDevice(addr)
 
         self.frontLedConnection = FrontLedConnection(bleDevice)
