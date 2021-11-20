@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from typing import Any
-from cen_uiu.modules.ble import BLEDevice
 from cen_uiu.modules.frontled import FrontLedConnection
 import webview
 
@@ -210,7 +209,7 @@ class UIUapi:
         if self.frontLedConnection is None:
             return {"available": False}
 
-        if self.frontLedConnection._device.isConnected():
+        if self.frontLedConnection.device.Connected:
             return {"available": True, "device": self.frontLedConnection.device.to_object()}
         else:
             return {"available": False}
@@ -218,7 +217,7 @@ class UIUapi:
     async def frontLed_loadDevice(self, addr: str):
         if addr is None: return {}
         
-        bleDevice = BLEDevice(addr)
+        bleDevice = get_device(ADAPTER, addr)
 
         self.frontLedConnection = FrontLedConnection(bleDevice)
 

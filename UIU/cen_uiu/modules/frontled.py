@@ -1,5 +1,6 @@
 from cen_uiu.helpers.exceptions import InvalidBLEDeviceException
-from cen_uiu.modules import ble
+from cen_uiu.modules.interfaces.device_api import BluezDevice1
+from cen_uiu.modules.interfaces.gattCharacteristic_api import GattCharacteristic1
 
 LED_STRIP_SERVICE = "dff41a39-471b-4ca1-a837-c76895946d78"
 LEFT_STRIP_CHARACTERISTIC = "2abd4adf-6a44-4e5e-8c84-aee36271e72c"
@@ -9,20 +10,28 @@ LED_COUNT_PER_SIDE = 19
 
 
 class FrontLedConnection:
-    _device: ble.BLEDevice
+    _device: BluezDevice1
 
-    def __init__(self, bleDevice: ble.BLEDevice) -> None:
+    _fillChar: GattCharacteristic1
+    _rightChar: GattCharacteristic1
+    _leftChar: GattCharacteristic1
+
+    def __init__(self, bleDevice: BluezDevice1) -> None:
         self._device = bleDevice
-        self._device.connect()
+        self._device.Connect()
 
         self.check_device()
 
+        self._fillChar = bleDevice.GATTCharacteristic(FILL_STRIPS_CHARACTERISTIC)
+        self._rightChar = bleDevice.GATTCharacteristic(RIGHT_STRIP_CHARACTERISTIC)
+        self._leftChar = bleDevice.GATTCharacteristic(LEFT_STRIP_CHARACTERISTIC)
+
     @property
-    def device(self) -> ble.BLEDevice:
+    def device(self) -> BluezDevice1:
         return self._device
 
     def check_device(self):
-        if not self._device.hasService(LED_STRIP_SERVICE):
+        if not LED_STRIP_SERVICE in self._device.UUIDs:
             raise InvalidBLEDeviceException(
                 f"{self._device} does not have the LED strip service UUID")
 
@@ -36,7 +45,7 @@ class FrontLedConnection:
             index = f"0{index}"
 
         color = color.replace("#", "0x")
-        self._device.write(LEFT_STRIP_CHARACTERISTIC, f"{index}{color}")
+        self._leftChar.WriteValue(f"{index}{color}")
 
     def setRight(self, index, color):
         if index < 0 or index >= LED_COUNT_PER_SIDE:
@@ -48,7 +57,7 @@ class FrontLedConnection:
             index = f"0{index}"
 
         color = color.replace("#", "0x")
-        self._device.write(RIGHT_STRIP_CHARACTERISTIC, f"{index}{color}")
+        self._rightChar.WriteValue(f"{index}{color}")
 
     def set(self, index, color: str):
         if index < LED_COUNT_PER_SIDE:
@@ -66,4 +75,4 @@ class FrontLedConnection:
 
     def fill(self, color: str):
         color = color.replace("#", "0x")
-        self._device.write(FILL_STRIPS_CHARACTERISTIC, color)
+        self._fillChar.WriteValue(f"{color}")

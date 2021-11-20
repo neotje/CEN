@@ -12,10 +12,17 @@ import dbus
 class GattCharacteristic1(bus.BusObject):
     INTERFACE = "org.bluez.GattCharacteristic1"
 
-    def ReadValue(self, options: dbus.Dictionary):
-        return self._interface.ReadValue(options)
+    def ReadValue(self, options: dbus.Dictionary = {}) -> bytearray:
+        rawValue = self._interface.ReadValue(options)
+        value = bytearray()
 
-    def WriteValue(self, value: dbus.ByteArray, options: dbus.Dictionary):
+        for b in rawValue:
+            value.append(b)
+
+        return value
+
+    def WriteValue(self, value: str, options: dbus.Dictionary = {}):
+        value = value.encode()
         self._interface.WriteValue(value, options)
 
     @property

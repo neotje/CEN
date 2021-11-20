@@ -1,3 +1,7 @@
+"""
+DEPRECATED!
+"""
+
 from typing import Any, List
 import gattlib
 
