@@ -56,6 +56,9 @@ def webviewStart():
 
     apiSocket.serve()
 
+    for window in webview.windows:
+        window.destroy()
+
 
 
 def main():

@@ -15,8 +15,8 @@ REQUIRED = [
     "pyserial>=3.5",
     "dbus-python>=1.2.16",
     "screeninfo>=0.6.7",
-    "websockets>=9.1"
-    "pybluez[ble]>=0.23"
+    "websockets>=10.1",
+    #"pybluez[ble]>=0.23"
 ]
 
 setup(

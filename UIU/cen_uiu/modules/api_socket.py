@@ -23,13 +23,10 @@ class ApiSocket:
     def serve(self):
         self._loop.run_until_complete(self._server)
 
-        try:
-            self._loop.run_forever()
-        except KeyboardInterrupt:
-            self.close()
+        self._loop.run_forever()        
 
     def close(self):
-        self._loop.stop()
+        self._server.close()
 
     async def _handler(self, websocket, path):
         # get all function of the js_api object.
@@ -54,7 +51,10 @@ class ApiSocket:
         await websocket.send(json.dumps({"action": "ready"}))
 
         while websocket.open:
-            msg = await websocket.recv()
+            try:
+                msg = await websocket.recv()
+            except Exception:
+                break
 
             Logger.debug(msg)
 
