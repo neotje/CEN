@@ -1,7 +1,9 @@
-import os
-from posix import environ
+import tracemalloc
+
+tracemalloc.start()
+
 import sys
-import subprocess
+import asyncio
 
 from cen_uiu import api, assets
 from cen_uiu.modules.api_socket import ApiSocket
@@ -60,8 +62,7 @@ def webviewStart():
         window.destroy()
 
 
-
-def main():
+async def run():
     env.setup()
 
     debug = env.getBool(env.UIU_DEBUG)
@@ -69,9 +70,11 @@ def main():
     uiSrc = env.getStr(env.UIU_UI_SERVER)
     fullscreen = env.getBool(env.UIU_FULLSCREEN)
 
+    socketTask = asyncio.create_task(apiSocket.serve())
+
     if withoutUI:
-        apiSocket.serve()
-        return
+        await socketTask
+        return 0
 
     if uiSrc == "":
         uiSrc = INDEX_HTML
@@ -85,7 +88,16 @@ def main():
     for window in webview.windows:
         window.destroy()
 
+    await socketTask
     return 0
+
+
+def main():
+    try:
+        code = asyncio.run(run())
+    except KeyboardInterrupt:
+        return 0
+    return code
 
 
 if __name__ == "__main__":

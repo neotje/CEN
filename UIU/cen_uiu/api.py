@@ -205,6 +205,10 @@ class UIUapi:
         system.shutdown()
         return {}
 
+    async def system_softReboot(self):
+        system.softReboot()
+        return {}
+
     async def frontLed_available(self):
         if self.frontLedConnection is None:
             return {"available": False}

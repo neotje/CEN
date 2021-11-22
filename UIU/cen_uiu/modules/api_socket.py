@@ -14,16 +14,13 @@ def isBuiltinFunc(funcName: str) -> bool:
 
 class ApiSocket:
     def __init__(self, js_api) -> None:
-        self._loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self._loop)
-
-        self._server = websockets.serve(self._handler, "127.0.0.1", 2888)
         self._js_api = js_api
 
-    def serve(self):
-        self._loop.run_until_complete(self._server)
-
-        self._loop.run_forever()        
+    async def serve(self):
+        self._server = websockets.serve(self._handler, "127.0.0.1", 2888)
+        
+        async with self._server:
+            await asyncio.Future()
 
     def close(self):
         self._server.close()
