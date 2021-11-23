@@ -1,4 +1,7 @@
+import struct
+import can
 from cen_uiu.helpers.exceptions import InvalidBLEDeviceException
+from cen_uiu.modules import can_bus
 from cen_uiu.modules.interfaces.device_api import BluezDevice1
 from cen_uiu.modules.interfaces.gattCharacteristic_api import GattCharacteristic1
 
@@ -76,3 +79,45 @@ class FrontLedConnection:
     def fill(self, color: str):
         color = color.replace("#", "0x")
         self._fillChar.WriteValue(f"{color}")
+
+
+class FrontLedCan:
+    _bus: can_bus.CanBus
+    _count: int
+
+    LED_COUNT_ID = 2
+    FILL_ID = 3
+    SET_ID = 4
+    SHOW_ID = 5
+
+    def __init__(self, bus: can_bus.CanBus) -> None:
+        self._bus = bus
+
+    def begin(self):
+        self.requestLedCount()
+
+    async def begin_async(self):
+        await self.requestLedCount_async()
+
+    def requestLedCount(self) -> int:
+        msg = self._bus.send(self.LED_COUNT_ID, b'', wait=True)
+        self._count, = struct.unpack("<H", msg.data)
+        return self._count
+
+    async def requestLedCount_async(self) -> int:
+        msg = await self._bus.send_async(self.LED_COUNT_ID, b'', wait=True)
+        self._count, = struct.unpack("<H", msg.data)
+        return self._count
+
+    @property
+    def ledCount(self):
+        return self._count
+
+    def fill(self, color: tuple):
+        self._bus.send(self.FILL_ID, struct.pack("<BBB", *color))
+
+    def show(self):
+        self._bus.send(self.SHOW_ID, b'', wait=True)
+
+    async def show_async(self):
+        await self._bus.send_async(self.SHOW_ID, b'', wait=True)
