@@ -73,6 +73,14 @@
       },
       _call: function (funcName, params, id) {
         console.debug("call", funcName);
+
+        if (!window.uiu._socket.readyState) {
+          setTimeout(() => {
+            location.reload()
+          }, 1000)
+          return
+        }
+
         window.uiu._socket.send(JSON.stringify({
           action: "call",
           id: id,
@@ -104,6 +112,7 @@
     }
 
     function uiu_init() {
+      console.log("Initializing api...")
       window.uiu._socket = new WebSocket("ws://127.0.0.1:2888");
 
       window.uiu._socket.onmessage = function (event) {
@@ -136,7 +145,14 @@
       window.uiu._socket.onerror = function (e) {
         uiu_init()
       }
+
+      window.uiu._socket.onclose = function (e) {
+        "closing"
+        uiu_init()
+      }
     }
+
+    window.uiu.init = uiu_init
 
     uiu_init()
   </script>

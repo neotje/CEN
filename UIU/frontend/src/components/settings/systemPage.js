@@ -32,6 +32,11 @@ export function SystemPage() {
         }
     }
 
+    const handleSoftRebootBtn = ()=> {
+        console.log("reboot");
+        window.uiu.api.system_softReboot().then(() => {})
+    }
+
     return (
         <Box marginTop={4}>
             <ConfirmInput
@@ -50,6 +55,7 @@ export function SystemPage() {
                     <ListItemSecondaryAction>
                         <ButtonGroup variant="contained" size="small">
                             <Button color="primary" onClick={handleRebootBtn}>Herstarten</Button>
+                            <Button color="" onClick={handleSoftRebootBtn}>Soft Reboot</Button>
                             <Button color="secondary" onClick={handleShutdownBtn}>Afsluiten</Button>
                         </ButtonGroup>
                     </ListItemSecondaryAction>
