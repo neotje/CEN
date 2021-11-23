@@ -47,12 +47,7 @@ class ApiSocket:
         # send ready action to the client.
         await websocket.send(json.dumps({"action": "ready"}))
 
-        while websocket.open:
-            try:
-                msg = await websocket.recv()
-            except Exception:
-                break
-
+        async for msg in websocket:
             Logger.debug(msg)
 
             # decode message from the client.

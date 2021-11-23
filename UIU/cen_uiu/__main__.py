@@ -4,6 +4,7 @@ tracemalloc.start()
 
 import sys
 import asyncio
+from threading import Thread
 
 from cen_uiu import api, assets
 from cen_uiu.modules.api_socket import ApiSocket
@@ -35,13 +36,9 @@ apiSocket = ApiSocket(api.UIUapi())
 def webviewStart():
     Logger.info("webview started")
 
-    def webviewClosed():
-        apiSocket._js_api.bl_disable_audio()
-        apiSocket.close()
-
     for window in webview.windows:
         Logger.info(window.get_current_url())
-        window.closed += webviewClosed
+        """ window.closed += webviewClosed """
 
         window.evaluate_js("""
         document.addEventListener('keypress', (e) => {
@@ -56,13 +53,15 @@ def webviewStart():
 
     discover_and_connect(BLUETOOTH_ADAPTER)
 
-    apiSocket.serve()
 
-    for window in webview.windows:
-        window.destroy()
+def socketWorker():
+    try:
+        asyncio.run(apiSocket.serve())
+    except KeyboardInterrupt:
+        pass
 
 
-async def run():
+def main():
     env.setup()
 
     debug = env.getBool(env.UIU_DEBUG)
@@ -70,34 +69,27 @@ async def run():
     uiSrc = env.getStr(env.UIU_UI_SERVER)
     fullscreen = env.getBool(env.UIU_FULLSCREEN)
 
-    socketTask = asyncio.create_task(apiSocket.serve())
-
-    if withoutUI:
-        await socketTask
-        return 0
-
     if uiSrc == "":
         uiSrc = INDEX_HTML
 
+    socketThread = Thread(target=socketWorker)
+
+    if withoutUI:
+        socketThread.start()
+        socketThread.join()
+        return 0
+
     try:
+        socketThread.start()
         webview.create_window(WINDOW_TITLE, uiSrc, fullscreen=fullscreen)
         webview.start(webviewStart, http_server=True, debug=debug)
     except KeyboardInterrupt:
         pass
-    
+
     for window in webview.windows:
         window.destroy()
 
-    await socketTask
     return 0
-
-
-def main():
-    try:
-        code = asyncio.run(run())
-    except KeyboardInterrupt:
-        return 0
-    return code
 
 
 if __name__ == "__main__":
