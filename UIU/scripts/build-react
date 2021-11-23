@@ -2,10 +2,11 @@
 
 # build react frontend
 cd frontend
+npm install -g npm
 npm install
 npm run build
 cd ..
 
 # copy react production build to assets folder
-rm -r cen_uiu/assets/static
+sudo rm -r cen_uiu/assets/static
 cp -r frontend/build/* cen_uiu/assets/
