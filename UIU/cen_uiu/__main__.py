@@ -1,3 +1,4 @@
+import threading
 import tracemalloc
 
 tracemalloc.start()
@@ -10,6 +11,7 @@ from cen_uiu import api, assets
 from cen_uiu.modules.api_socket import ApiSocket
 from cen_uiu.modules.bluetooth import discover_and_connect
 from cen_uiu.helpers import env
+from cen_uiu.modules import system
 
 import webview
 
@@ -53,13 +55,13 @@ def webviewStart():
 
     discover_and_connect(BLUETOOTH_ADAPTER)
 
+lock = threading.Lock()
 
 def socketWorker():
     try:
         asyncio.run(apiSocket.serve())
     except KeyboardInterrupt:
         pass
-
 
 def main():
     env.setup()
@@ -77,7 +79,7 @@ def main():
     if withoutUI:
         socketThread.start()
         socketThread.join()
-        return 0
+        return system.exitcode
 
     try:
         socketThread.start()
@@ -89,7 +91,7 @@ def main():
     for window in webview.windows:
         window.destroy()
 
-    return 0
+    return system.exitcode
 
 
 if __name__ == "__main__":

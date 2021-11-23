@@ -120,4 +120,4 @@ class FrontLedCan:
         self._bus.send(self.SHOW_ID, b'', wait=True)
 
     async def show_async(self):
-        await self._bus.send_async(self.SHOW_ID, b'', wait=True)
+        await self._bus.send_async(self.SHOW_ID, b'', wait=True)        

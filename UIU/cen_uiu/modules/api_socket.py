@@ -18,6 +18,8 @@ class ApiSocket:
 
     async def serve(self):
         self._server = websockets.serve(self._handler, "127.0.0.1", 2888)
+
+        await self._js_api.setup()
         
         async with self._server:
             await asyncio.Future()
@@ -46,42 +48,46 @@ class ApiSocket:
 
         # send ready action to the client.
         await websocket.send(json.dumps({"action": "ready"}))
+        
+        try:
+            async for msg in websocket:
+                Logger.debug(msg)
 
-        async for msg in websocket:
-            Logger.debug(msg)
+                # decode message from the client.
+                content = json.loads(msg)
 
-            # decode message from the client.
-            content = json.loads(msg)
+                # call function by name.
+                if content['action'] == "call":
+                    methodName = content['function']
+                    methodParams = list(content['params'].values())
+                    resultId = content['id']
 
-            # call function by name.
-            if content['action'] == "call":
-                methodName = content['function']
-                methodParams = list(content['params'].values())
-                resultId = content['id']
-
-                # data to return
-                data = {
-                    "action": "return",
-                    "id": resultId,
-                    "function": methodName,
-                    "isError": False,
-                    "content": {}
-                }
-
-                try:
-                    result = await getattr(self._js_api, methodName)(*methodParams)
-                    data["content"] = result
-                except Exception as e:
-                    # send error info on exception
-                    data["content"] = {
-                        "message": str(e),
-                        "name": type(e).__name__,
-                        "stack": traceback.format_exc()
+                    # data to return
+                    data = {
+                        "action": "return",
+                        "id": resultId,
+                        "function": methodName,
+                        "isError": False,
+                        "content": {}
                     }
-                    data["isError"] = True
-                finally:
-                    Logger.debug(data)
-                    await websocket.send(json.dumps(data))
 
+                    try:
+                        result = await getattr(self._js_api, methodName)(*methodParams)
+                        data["content"] = result
+                    except Exception as e:
+                        # send error info on exception
+                        data["content"] = {
+                            "message": str(e),
+                            "name": type(e).__name__,
+                            "stack": traceback.format_exc()
+                        }
+                        data["isError"] = True
+                    finally:
+                        Logger.debug(data)
+                        await websocket.send(json.dumps(data))
+
+        except Exception:
+            pass
+        websocket.close()
         """ websocket.close()
         await websocket.wait_closed() """
