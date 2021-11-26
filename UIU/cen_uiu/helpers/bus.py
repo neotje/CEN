@@ -1,3 +1,4 @@
+import asyncio
 import dbus
 from dbus.proxies import ProxyObject
 
@@ -37,3 +38,7 @@ class BusObject:
     @property
     def object_path(self) -> str:
         return self._interface.object_path
+
+    async def run_in_executor(self, func, *args):
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, func, *args)

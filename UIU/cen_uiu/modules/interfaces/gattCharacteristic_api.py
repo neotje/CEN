@@ -12,8 +12,8 @@ import dbus
 class GattCharacteristic1(bus.BusObject):
     INTERFACE = "org.bluez.GattCharacteristic1"
 
-    def ReadValue(self, options: dbus.Dictionary = {}) -> bytearray:
-        rawValue = self._interface.ReadValue(options)
+    async def ReadValue(self, options: dbus.Dictionary = {}) -> bytearray:
+        rawValue = self.run_in_executor(self._interface.ReadValue, options)
         value = bytearray()
 
         for b in rawValue:
@@ -21,9 +21,9 @@ class GattCharacteristic1(bus.BusObject):
 
         return value
 
-    def WriteValue(self, value: str, options: dbus.Dictionary = {}):
+    async def WriteValue(self, value: str, options: dbus.Dictionary = {}):
         value = value.encode()
-        self._interface.WriteValue(value, options)
+        await self.run_in_executor(self._interface.WriteValue, value, options)
 
     @property
     def UUID(self) -> dbus.String:

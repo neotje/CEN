@@ -1,5 +1,6 @@
 # TODO: create a settings manager.
 
+import asyncio
 import json
 from os.path import exists
 from typing import Any, List
@@ -8,31 +9,35 @@ from cen_uiu import config
 CONFIG_FILE = config.__path__[0] + "/main.json"
 
 
-def checkConfigFile():
+async def checkConfigFile():
+    loop = asyncio.get_running_loop()
+
     if not exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'w') as config:
-            json.dump({}, config)
+        config = await loop.run_in_executor(None, open, CONFIG_FILE, 'w')
+        return await loop.run_in_executor(None, json.dump, {}, config)            
 
 
-def getAll() -> dict:
-    checkConfigFile()
+async def getAll() -> dict:
+    await checkConfigFile()
+    loop = asyncio.get_running_loop()
 
-    with open(CONFIG_FILE) as config:
-        return json.load(config)
-
-
-def setAll(data: dict):
-    checkConfigFile()
-
-    with open(CONFIG_FILE, 'w') as config:
-        json.dump(data, config)
+    config = await loop.run_in_executor(None, open, CONFIG_FILE)
+    return await loop.run_in_executor(None, json.load, config)  
 
 
-def get(key: str):
-    return getAll().get(key)
+async def setAll(data: dict):
+    await checkConfigFile()
+    loop = asyncio.get_running_loop()
+
+    config = await loop.run_in_executor(None, open, CONFIG_FILE, 'w')
+    await loop.run_in_executor(None, json.dump, data, config)
 
 
-def set(key: str, val: Any):
-    data = getAll()
+async def get(key: str):
+    return (await getAll()).get(key)
+
+
+async def set(key: str, val: Any):
+    data = await getAll()
     data[key] = val
-    setAll(data)
+    await setAll(data)

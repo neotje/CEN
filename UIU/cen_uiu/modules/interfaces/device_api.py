@@ -3,6 +3,7 @@ org.bluez.Device1 interface
 
 https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/device-api.txt
 """
+import asyncio
 from typing import List
 
 from cen_uiu.helpers import bus
@@ -29,27 +30,27 @@ class BluezDevice1(bus.BusObject):
             "Connected": bool(self.Connected)
         }
 
-    def Connect(self):
-        return self._interface.Connect()
+    async def Connect(self):
+        return await self.run_in_executor(self._interface.Connect)
 
-    def Disconnect(self):
-        return self._interface.Disconnect()
+    async def Disconnect(self):
+        return await self.run_in_executor(self._interface.Disconnect)
 
-    def ConnectProfile(self, uuid: dbus.String):
+    async def ConnectProfile(self, uuid: dbus.String):
         try:
-            self._interface.ConnectProfile(uuid)
+            await self.run_in_executor(self._interface.ConnectProfile, uuid)
             return True
         except DBusException:
             return False
 
-    def DisconnectProfile(self, uuid: dbus.String):
-        return self._interface.DisconnectProfile(uuid)
+    async def DisconnectProfile(self, uuid: dbus.String):
+        return await self.run_in_executor(self._interface.DisconnectProfile, uuid)
 
-    def Pair(self):
-        return self._interface.Pair()
+    async def Pair(self):
+        return await self.run_in_executor(self._interface.Pair)
 
-    def CancelPairing(self):
-        return self._interface.CancelPairing()
+    async def CancelPairing(self):
+        return await self.run_in_executor(self._interface.CancelPairing)
 
     @property
     def Address(self) -> dbus.String:
@@ -93,12 +94,12 @@ class BluezDevice1(bus.BusObject):
             return None
 
     @property
-    def MediaTransport(self) -> BluezMediaTransport1 or None:
+    async def MediaTransport(self) -> BluezMediaTransport1 or None:
         # FIXME: detection for fd1, fd2, etc
 
-        proxy = get_proxy_object("/")
+        proxy = await get_proxy_object("/")
         manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
-        objects = manager.GetManagedObjects()
+        objects = self.run_in_executor(manager.GetManagedObjects)
 
         addr = self.Address.replace(":", "_")
         reg_dev = re.compile(f"\/org\/bluez\/hci\d*\/dev_{addr}\/fd(\d*)")
@@ -108,30 +109,32 @@ class BluezDevice1(bus.BusObject):
 
                 if m is not None:
 
-                    interface = dbus.Interface(get_proxy_object(
-                        key), BluezMediaTransport1.INTERFACE)
+                    interface = dbus.Interface(
+                        await get_proxy_object(key),
+                        BluezMediaTransport1.INTERFACE
+                    )
                     return BluezMediaTransport1(interface)
             return None
         except DBusException:
             return None
 
-    def GATTCharacteristic(self, uuid) -> GattCharacteristic1 or None:
-        proxy = get_proxy_object("/")
+    async def GATTCharacteristic(self, uuid) -> GattCharacteristic1 or None:
+        proxy = await get_proxy_object("/")
         manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
-        objects = manager.GetManagedObjects()
+        objects = self.run_in_executor(manager.GetManagedObjects)
         addr = self.Address.replace(":", "_")
-        reg_dev = re.compile(f"\/org\/bluez\/hci\d*\/dev_{addr}\/service(\d*)\/char(\d*)")
+        reg_dev = re.compile(
+            f"\/org\/bluez\/hci\d*\/dev_{addr}\/service(\d*)\/char(\d*)")
 
         try:
             for key, value in objects.items():
                 m = reg_dev.match(key)
 
                 if m is not None:
-                    interface = dbus.Interface(get_proxy_object(key), GattCharacteristic1.INTERFACE)
+                    interface = dbus.Interface(await get_proxy_object(key), GattCharacteristic1.INTERFACE)
                     char = GattCharacteristic1(interface)
 
                     if char.UUID == uuid:
                         return char
         except DBusException:
             pass
-

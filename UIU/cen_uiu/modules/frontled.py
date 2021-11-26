@@ -1,3 +1,4 @@
+import asyncio
 import struct
 import can
 from cen_uiu.helpers.exceptions import InvalidBLEDeviceException
@@ -97,7 +98,10 @@ class FrontLedCan:
         self.requestLedCount()
 
     async def begin_async(self):
-        await self.requestLedCount_async()
+        try:
+            return await self.requestLedCount_async()
+        except asyncio.TimeoutError:
+            return -1
 
     def requestLedCount(self) -> int:
         msg = self._bus.send(self.LED_COUNT_ID, b'', wait=True)
@@ -120,4 +124,7 @@ class FrontLedCan:
         self._bus.send(self.SHOW_ID, b'', wait=True)
 
     async def show_async(self):
-        await self._bus.send_async(self.SHOW_ID, b'', wait=True)        
+        try:
+            await self._bus.send_async(self.SHOW_ID, b'', wait=True)
+        except asyncio.TimeoutError:
+            pass 

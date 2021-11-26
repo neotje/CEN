@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from typing import Any
-from cen_uiu.modules.can_bus import CanBus
+from cen_uiu.modules.can_bus import AsyncCanBus, CanBus
 from cen_uiu.modules.frontled import FrontLedCan, FrontLedConnection
 import webview
 
@@ -21,31 +21,22 @@ class UIUapi:
     canbus: CanBus
 
     def __init__(self):
-        self.adapter = get_adapter(ADAPTER)
+        self.adapter = asyncio.run(get_adapter(ADAPTER))
         self.bl_audio = BluetoothInput()
         self.bl_device = None
         self.frontLedConnection = None
 
-    async def setup(self):
-        self.canbus = CanBus()
-        await self.canbus.begin_async(250_000, 1)
+    async def _setup(self):
+        self.canbus = AsyncCanBus()
+        await self.canbus.begin(250_000, 1)
 
         self.frontLedCan = FrontLedCan(self.canbus)
-        await self.frontLedCan.begin_async()
-
-    async def quit(self):
-        for window in webview.windows:
-            window.destroy()
-
-    async def toggle_fullscreen(self):
-        for window in webview.windows:
-            window.toggle_fullscreen()
 
     async def bl_devices(self):
         Logger.debug("bl_devices")
 
         devices = [
-            d.to_object() for d in list_devices()
+            d.to_object() for d in await list_devices()
         ]
 
         return {
@@ -55,12 +46,12 @@ class UIUapi:
     async def bl_pair(self, addr: str):
         Logger.debug("bl_pair")
 
-        dev = get_device(ADAPTER, addr)
+        dev = await get_device(ADAPTER, addr)
 
         if bool(dev.Paired):
             return {"device": dev.to_object()}
 
-        dev.Pair()
+        await dev.Pair()
 
         for i in range(30):
             await asyncio.sleep(1)
@@ -73,21 +64,21 @@ class UIUapi:
     async def bl_remove_device(self, addr: str):
         Logger.debug("bl_remove_device")
 
-        dev = get_device(ADAPTER, addr)
+        dev = await get_device(ADAPTER, addr)
 
-        self.adapter.RemoveDevice(dev.object_path)
+        await self.adapter.RemoveDevice(dev.object_path)
 
     async def bl_connect(self, addr: str):
         Logger.debug("bl_connect")
 
-        dev = get_device(ADAPTER, addr)
+        dev = await get_device(ADAPTER, addr)
 
         # if device is already connect just return the device object.
         if bool(dev.Connected):
             return {"device": dev.to_object()}
 
         # connect using to audo source profile.
-        if dev.ConnectProfile(AUDIO_SRC):
+        if await dev.ConnectProfile(AUDIO_SRC):
             while not dev.Connected:
                 pass
             return {"device": dev.to_object()}
@@ -106,9 +97,9 @@ class UIUapi:
     async def bl_adapter_discovery(self, state: bool):
         Logger.debug("bl_adapter_discovery")
         if state and not self.adapter.Discovering:
-            self.adapter.StartDiscovery()
+            await self.adapter.StartDiscovery()
         elif not state and self.adapter.Discovering:
-            self.adapter.StopDiscovery()
+            await self.adapter.StopDiscovery()
 
     async def bl_is_discovering(self):
         Logger.debug("bl_is_discovering")
@@ -126,51 +117,61 @@ class UIUapi:
 
         self.bl_audio.enable(addr)
 
-        self.bl_device = get_device(ADAPTER, addr)
-        self.bl_device.MediaControl.Player.Play()
+        self.bl_device = await get_device(ADAPTER, addr)
+
+        player = await self.bl_device.MediaControl.Player
+        if player is not None:
+            player.Play()
 
     async def bl_disable_audio(self):
         Logger.debug("bl_disable_audio")
         self.bl_audio.disable()
 
         if self.bl_device is not None:
-            self.bl_device.MediaControl.Player.Stop()
+            player = await self.bl_device.MediaControl.Player
+
+            if player is None:
+                return
+
+            await player.Stop()
             self.bl_device = None
 
     async def bl_play(self):
         Logger.debug("bl_play")
         if self.bl_device is not None:
-            self.bl_device.MediaControl.Player.Play()
+            player = await self.bl_device.MediaControl.Player
+            if player is not None:
+                player.Play()
 
     async def bl_pause(self):
         Logger.debug("bl_pause")
         if self.bl_device is not None:
-            self.bl_device.MediaControl.Player.Pause()
+            await (await self.bl_device.MediaControl.Player).Pause()
 
     async def bl_next(self):
         Logger.debug("bl_next")
         if self.bl_device is not None:
-            self.bl_device.MediaControl.Player.Next()
+            await (await self.bl_device.MediaControl.Player).Next()
 
     async def bl_previous(self):
         Logger.debug("bl_previous")
         if self.bl_device is not None:
-            self.bl_device.MediaControl.Player.Previous()
+            await (await self.bl_device.MediaControl.Player).Previous()
 
     async def bl_track(self):
         Logger.debug("bl_track")
         if self.bl_device is not None:
-            return self.bl_device.MediaControl.Player.Track
+            return (await self.bl_device.MediaControl.Player).Track
 
     async def bl_position(self):
         Logger.debug("bl_position")
         if self.bl_device is not None:
-            return self.bl_device.MediaControl.Player.Position
+            return (await self.bl_device.MediaControl.Player).Position
 
     async def bl_status(self):
         Logger.debug("bl_status")
         if self.bl_device is not None:
-            player = self.bl_device.MediaControl.Player
+            player = await self.bl_device.MediaControl.Player
 
             return {
                 "status": player.Status,
@@ -184,17 +185,17 @@ class UIUapi:
         }
 
     async def settings_getAll(self):
-        return settings.getAll()
+        return await settings.getAll()
 
     async def settings_set(self, key: str, val: Any):
-        settings.set(key, val)
+        await settings.set(key, val)
         return {
-            "value": settings.get(key)
+            "value": await settings.get(key)
         }
 
     async def settings_get(self, key: str):
         return {
-            "value": settings.get(key)
+            "value": await settings.get(key)
         }
 
     async def brightness_get(self):

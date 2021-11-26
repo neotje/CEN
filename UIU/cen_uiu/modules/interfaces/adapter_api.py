@@ -3,6 +3,7 @@ org.bluez.Adapter1 interface
 
 https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/adapter-api.txt
 """
+import asyncio
 from typing import List
 from cen_uiu.helpers import bus
 import dbus
@@ -12,26 +13,26 @@ from dbus.exceptions import DBusException
 class BluezAdapter1(bus.BusObject):
     INTERFACE = "org.bluez.Adapter1"
 
-    def StartDiscovery(self):
+    async def StartDiscovery(self):
         try:
-            return self._interface.StartDiscovery()
+            return await self.run_in_executor(self._interface.StartDiscovery)
         except DBusException:
             pass
 
-    def StopDiscovery(self):
+    async def StopDiscovery(self):
         try:
-            return self._interface.StopDiscovery()
+            return await self.run_in_executor(self._interface.StopDiscovery)
         except DBusException:
             pass
 
-    def RemoveDevice(self, device: dbus.ObjectPath):
-        return self._interface.RemoveDevice(device)
+    async def RemoveDevice(self, device: dbus.ObjectPath):
+        return await self.run_in_executor(self._interface.RemoveDevice, device)
 
-    def SetDiscoveryFilter(self, filter: dbus.Dictionary):
-        return self._interface.StartDiscovery(filter)
+    async def SetDiscoveryFilter(self, filter: dbus.Dictionary):
+        return  await self.run_in_executor(self._interface.StartDiscovery, filter)
 
-    def GetDiscoveryFilters(self) -> List[str]:
-        return self._interface.GetDiscoveryFilters()
+    async def GetDiscoveryFilters(self) -> List[str]:
+        return await self.run_in_executor(self._interface.GetDiscoveryFilters)
 
     @property
     def Address(self) -> dbus.String:
