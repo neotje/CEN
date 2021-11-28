@@ -19,16 +19,16 @@ class BusObject:
         self._props: dbus.Interface = dbus.Interface(interface, "org.freedesktop.DBus.Properties")
 
     # cal this function to get a property of a dbus object.
-    def _get_prop(self, name: str):
+    async def _get_prop(self, name: str):
         try:
-            return self._props.Get(self._interface.dbus_interface, name)
+            return await self.run_in_executor(self._props.Get, self._interface.dbus_interface, name)
         except dbus.DBusException:
             return None
 
     # call this function to set a property of a dbus object.
-    def _set_prop(self, name: str, val):
+    async def _set_prop(self, name: str, val):
         try:
-            return self._props.Set(self._interface.dbus_interface, name, val)
+            return await self.run_in_executor(self._props.Set, self._interface.dbus_interface, name, val)
         except dbus.DBusException as e:
             _LOGGER.error(f"BusObject: something went wrong with setting the property {name} to {val}")
             _LOGGER.error(e)

@@ -35,45 +35,38 @@ class BluezAdapter1(bus.BusObject):
         return await self.run_in_executor(self._interface.GetDiscoveryFilters)
 
     @property
-    def Address(self) -> dbus.String:
-        return self._get_prop("Address")
+    async def Address(self) -> dbus.String:
+        return await self._get_prop("Address")
 
     @property
-    def Name(self) -> dbus.String:
-        return self._get_prop("Name")
+    async def Name(self) -> dbus.String:
+        return await self._get_prop("Name")
 
     @property
-    def Class(self) -> dbus.Int32:
-        return self._get_prop("Class")
+    async def Class(self) -> dbus.Int32:
+        return await self._get_prop("Class")
 
     @property
-    def Powered(self) -> dbus.Boolean:
-        return self._get_prop("Powered")
+    async def Powered(self) -> dbus.Boolean:
+        return await self._get_prop("Powered")
 
-    @Powered.setter
-    def Powered(self, val: dbus.Boolean):
-        self._set_prop("Powered", val)
-
-    @property
-    def Discoverable(self) -> dbus.Boolean:
-        return self._get_prop("Discoverable")
-
-    @Discoverable.setter
-    def Discoverable(self, val: dbus.Boolean):
-        self._set_prop("Discoverable", val)
+    async def setPowered(self, val: dbus.Boolean):
+        await self._set_prop("Powered", val)
 
     @property
-    def Pairable(self) -> dbus.Boolean:
-        return self._get_prop("Pairable")
+    async def Discoverable(self) -> dbus.Boolean:
+        return await self._get_prop("Discoverable")
 
-    @Pairable.setter
-    def Pairable(self, val: dbus.Boolean):
-        self._set_prop("Pairable", val)
+    async def setDiscoverable(self, val: dbus.Boolean):
+        await self._set_prop("Discoverable", val)
 
     @property
-    def Discovering(self) -> dbus.Boolean:
-        return self._get_prop("Discovering")
+    async def Pairable(self) -> dbus.Boolean:
+        return await self._get_prop("Pairable")
 
-    @Discovering.setter
-    def Discovering(self, val: dbus.Boolean):
-        self._set_prop("Discovering", val)
+    async def setPairable(self, val: dbus.Boolean):
+        await self._set_prop("Pairable", val)
+
+    @property
+    async def Discovering(self) -> dbus.Boolean:
+        return await self._get_prop("Discovering")

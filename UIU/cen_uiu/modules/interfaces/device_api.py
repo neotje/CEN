@@ -19,15 +19,15 @@ import re
 class BluezDevice1(bus.BusObject):
     INTERFACE = "org.bluez.Device1"
 
-    def to_object(self) -> dict:
+    async def to_object(self) -> dict:
         return {
-            "Address": self.Address,
-            "Name": self.Name,
-            "Icon": self.Icon,
-            "Class": self.Class,
-            "Paired": bool(self.Paired),
-            "UUIDs": self.UUIDs,
-            "Connected": bool(self.Connected)
+            "Address": await self.Address,
+            "Name": await self.Name,
+            "Icon": await self.Icon,
+            "Class": await self.Class,
+            "Paired": bool(await self.Paired),
+            "UUIDs": await self.UUIDs,
+            "Connected": bool(await self.Connected)
         }
 
     async def Connect(self):
@@ -53,39 +53,39 @@ class BluezDevice1(bus.BusObject):
         return await self.run_in_executor(self._interface.CancelPairing)
 
     @property
-    def Address(self) -> dbus.String:
-        return self._get_prop("Address")
+    async def Address(self) -> dbus.String:
+        return await self._get_prop("Address")
 
     @property
-    def Name(self) -> dbus.String:
-        return self._get_prop("Name")
+    async def Name(self) -> dbus.String:
+        return await self._get_prop("Name")
 
     @property
     def Icon(self) -> dbus.String:
         return self._get_prop("Icon")
 
     @property
-    def Class(self) -> dbus.Int32:
-        return self._get_prop("Class")
+    async def Class(self) -> dbus.Int32:
+        return await self._get_prop("Class")
 
     @property
-    def UUIDs(self) -> List[str]:
-        return self._get_prop("UUIDs")
+    async def UUIDs(self) -> List[str]:
+        return await self._get_prop("UUIDs")
 
     @property
-    def Paired(self) -> dbus.Boolean:
-        return self._get_prop("Paired")
+    async def Paired(self) -> dbus.Boolean:
+        return await self._get_prop("Paired")
 
     @property
-    def Connected(self) -> dbus.Boolean:
-        return self._get_prop("Connected")
+    async def Connected(self) -> dbus.Boolean:
+        return await self._get_prop("Connected")
 
     @property
-    def ServicesResolved(self) -> dbus.Boolean:
-        return self._get_prop("ServicesResolved")
+    async def ServicesResolved(self) -> dbus.Boolean:
+        return await self._get_prop("ServicesResolved")
 
     @property
-    def MediaControl(self) -> BluezMediaControl1 or None:
+    async def MediaControl(self) -> BluezMediaControl1:
         try:
             interface = dbus.Interface(
                 self._interface, BluezMediaControl1.INTERFACE)
@@ -94,14 +94,14 @@ class BluezDevice1(bus.BusObject):
             return None
 
     @property
-    async def MediaTransport(self) -> BluezMediaTransport1 or None:
+    async def MediaTransport(self) -> BluezMediaTransport1:
         # FIXME: detection for fd1, fd2, etc
 
         proxy = await get_proxy_object("/")
         manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
         objects = self.run_in_executor(manager.GetManagedObjects)
 
-        addr = self.Address.replace(":", "_")
+        addr = (await self.Address).replace(":", "_")
         reg_dev = re.compile(f"\/org\/bluez\/hci\d*\/dev_{addr}\/fd(\d*)")
         try:
             for key, value in objects.items():
@@ -122,7 +122,7 @@ class BluezDevice1(bus.BusObject):
         proxy = await get_proxy_object("/")
         manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
         objects = self.run_in_executor(manager.GetManagedObjects)
-        addr = self.Address.replace(":", "_")
+        addr = (await self.Address).replace(":", "_")
         reg_dev = re.compile(
             f"\/org\/bluez\/hci\d*\/dev_{addr}\/service(\d*)\/char(\d*)")
 

@@ -90,6 +90,6 @@ class ApiSocket:
 
         except Exception:
             pass
-        websocket.close()
+        await websocket.close()
         """ websocket.close()
         await websocket.wait_closed() """

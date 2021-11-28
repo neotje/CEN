@@ -48,12 +48,12 @@ class BluezMediaPlayer1(BusObject):
         return await self.run_in_executor(self._interface.Rewind)
 
     @property
-    def Status(self) -> dbus.String:
-        return self._get_prop("Status")
+    async def Status(self) -> dbus.String:
+        return await self._get_prop("Status")
 
     @property
-    def Position(self) -> dbus.UInt32:
-        p = self._get_prop("Position")
+    async def Position(self) -> dbus.UInt32:
+        p = await self._get_prop("Position")
         
         if p is None:
             return 0
@@ -61,8 +61,8 @@ class BluezMediaPlayer1(BusObject):
         return p
 
     @property
-    def Track(self) -> dbus.Dictionary:
-        return self._get_prop("Track")
+    async def Track(self) -> dbus.Dictionary:
+        return await self._get_prop("Track")
 
     @property
     def Name(self) -> dbus.String:
@@ -73,7 +73,7 @@ class BluezMediaPlayer1(BusObject):
         return self._get_prop("Device")
 
 
-async def getBluezMediaPlayer(path):
+async def getBluezMediaPlayer(path) -> BluezMediaPlayer1:
     if path is None:
         return None
 
@@ -89,7 +89,7 @@ class BluezMediaControl1(BusObject):
 
     @property
     async def Player(self) -> BluezMediaPlayer1 or None:
-        path = self._get_prop("Player")
+        path = await self._get_prop("Player")
 
         return await getBluezMediaPlayer(path)
 
