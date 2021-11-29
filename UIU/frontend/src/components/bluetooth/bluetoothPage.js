@@ -3,6 +3,7 @@ import Box from '@material-ui/core/Box';
 import { DiscoverySwitch } from './discoverySwitch';
 import { PairedDevicesList } from './pairedDevicesList';
 import { AvailableDevicesList } from './availableDevicesList';
+import { ApiSocketContext } from '../api/apiSocket';
 
 export function BluetoothPage() {
 
@@ -13,22 +14,24 @@ export function BluetoothPage() {
     const [discoveryInterval, setDiscoveryInterval] = React.useState()
     const [pairingTo, setPairingTo] = React.useState()
 
+    const {api} = React.useContext(ApiSocketContext)
+
     const onDiscoverySwitch = (enable) => {
         if (enable) {
-            window.uiu.api.bl_pause()
-            setDiscoveryInterval(setInterval(retreiveDevices, 500))
+            api.bl_pause()
+            setDiscoveryInterval(setInterval(retreiveDevices, 1000))
         } else {
-            window.uiu.api.bl_play()
+            api.bl_play()
             clearInterval(discoveryInterval)
             setDiscoveryInterval(setInterval(retreiveDevices, 2000))
         }
 
-        window.uiu.api.bl_adapter_discovery(enable)
+        api.bl_adapter_discovery(enable)
         setDiscovery(enable)
     }
 
     const retreiveDevices = () => {
-        window.uiu.api.bl_devices().then(result => {
+        api.bl_devices().then(result => {
             let paired = []
             let nearby = []
             for (const device of result.devices) {
@@ -45,14 +48,14 @@ export function BluetoothPage() {
     }
 
     const onDeletePairedDevice = (device) => {
-        window.uiu.api.bl_remove_device(device.Address).then(r => {
+        api.bl_remove_device(device.Address).then(r => {
             retreiveDevices();
         })
     }
 
     const onPairDevice = (device) => {
         setPairingTo(device)
-        window.uiu.api.bl_pair(device.Address).then(r => {
+        api.bl_pair(device.Address).then(r => {
             setPairingTo(undefined)
             retreiveDevices()
         })
@@ -63,7 +66,7 @@ export function BluetoothPage() {
         retreiveDevices();
         setDiscoveryInterval(setInterval(retreiveDevices, 2000))
 
-        window.uiu.api.bl_is_discovering().then(r => {
+        api.bl_is_discovering().then(r => {
             if(r.discovering) setDiscovery(true)         
         })
     }, [])

@@ -2,22 +2,24 @@ import { Box, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListIte
 import BrightnessHigh from "@material-ui/icons/BrightnessHigh";
 import BrightnessLow from "@material-ui/icons/BrightnessLow";
 import React from "react";
+import { ApiSocketContext } from "../api/apiSocket";
 import { CustomThemeContext } from "../theme/customThemeProvider";
 
 export function ScreenPage() {
     const [brightness, _setBrightness] = React.useState(0);
     const themeManager = React.useContext(CustomThemeContext);
+    const {api} = React.useContext(ApiSocketContext)
 
     console.log(themeManager);
 
     React.useEffect(() => {
-        window.uiu.api.brightness_get().then(result => {
+        api.brightness_get().then(result => {
             setBrightness(result.value / 255 * 100)
         })
     }, [])
 
     const setBrightness = (value) => {
-        window.uiu.api.brightness_set(value / 100 * 255)
+        api.brightness_set(value / 100 * 255)
         _setBrightness(value)
     }
 

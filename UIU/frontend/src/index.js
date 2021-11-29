@@ -6,14 +6,17 @@ import reportWebVitals from './reportWebVitals';
 
 import { CssBaseline } from '@material-ui/core';
 import { CustomThemeProvider } from './components/theme/customThemeProvider';
+import { ApiSocketProvider } from './components/api/apiSocket';
 
 
 ReactDOM.render(
   <React.StrictMode>
-    <CustomThemeProvider>
-      <CssBaseline />
-      <App />
-    </CustomThemeProvider>
+    <ApiSocketProvider>
+      <CustomThemeProvider>
+        <CssBaseline />
+        <App />
+      </CustomThemeProvider>
+    </ApiSocketProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

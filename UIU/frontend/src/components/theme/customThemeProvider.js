@@ -1,6 +1,7 @@
 import React from 'react'
 import { ThemeProvider } from '@material-ui/core/styles'
 import getTheme from './themes'
+import { ApiSocketContext } from '../api/apiSocket'
 
 export const CustomThemeContext = React.createContext({
     currentTheme: 'light',
@@ -16,9 +17,15 @@ export function CustomThemeProvider(props) {
 
     const theme = getTheme(themeName)
 
+    const {api} = React.useContext(ApiSocketContext)
+
     const setThemeName = (name) => {
         console.log("Setting them to", name);
-        window.uiu.api.settings_set("theme", name)
+
+        if (api.ready) {
+            api.settings_set("theme", name)
+        }
+        
         _setThemeName(name)
     }
 

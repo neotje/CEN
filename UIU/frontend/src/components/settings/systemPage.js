@@ -1,10 +1,12 @@
 import { Box, Button, ButtonGroup, List, ListItem, ListItemSecondaryAction, ListItemText } from "@material-ui/core"
 import React from "react"
+import { ApiSocketContext } from "../api/apiSocket"
 import { ConfirmInput } from "./confirmInput"
 
 export function SystemPage() {
     const [confirmShutdown, setConfirmShutdown] = React.useState(false)
     const [confirmReboot, setConfirmReboot] = React.useState(false)
+    const {api} = React.useContext(ApiSocketContext)
 
     const handleShutdownBtn = (e) => {
         setConfirmShutdown(true)
@@ -19,7 +21,7 @@ export function SystemPage() {
 
         if (confirmed) {
             console.log("shutdown");
-            window.uiu.api.system_shutdown().then(() => {})
+            api.system_shutdown().then(() => {})
         }
     }
 
@@ -28,13 +30,13 @@ export function SystemPage() {
 
         if (confirmed) {
             console.log("reboot");
-            window.uiu.api.system_reboot().then(() => {})
+            api.system_reboot().then(() => {})
         }
     }
 
     const handleSoftRebootBtn = ()=> {
         console.log("reboot");
-        window.uiu.api.system_softReboot().then(() => {})
+        api.system_softReboot().then(() => {})
     }
 
     return (

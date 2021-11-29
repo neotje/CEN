@@ -1,4 +1,5 @@
 import React from "react"
+import { ApiSocket } from "./apiSocket";
 
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -13,23 +14,21 @@ class FrontLED {
     device
     fillColor
 
-    constructor() { }
-
-    setup() {
-        return window.uiu.api.settings_get("frontLedFillColor")
+    setup(api) {
+        return api.settings_get("frontLedFillColor")
             .then(result => {
                 this.fillColor = result.value
 
-                this.fill(this.fillColor === null ? "#000000" : this.fillColor)
+                this.fill(this.fillColor === null ? "#000000" : this.fillColor, api)
             })
             .catch(() => {
             })
     }
 
-    fill(color) {
+    fill(color, api) {
         this.fillColor = color
-        window.uiu.api.settings_set("frontLedFillColor", color).then(result => { })
-        return window.uiu.api.frontLed_fill("all", hexToRgb(color)).then(result => { })
+        api.settings_set("frontLedFillColor", color).then(result => { })
+        return api.frontLed_fill("all", hexToRgb(color)).then(result => { })
     }
 }
 
