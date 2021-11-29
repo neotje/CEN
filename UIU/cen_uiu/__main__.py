@@ -5,6 +5,7 @@ from cen_uiu import api, assets
 import asyncio
 import sys
 import argparse
+from aiohttp import web
 
 Logger = logging.getLogger(__name__)
 
@@ -31,7 +32,6 @@ def webviewStart():
 
 
 def backend():
-
     parser = argparse.ArgumentParser(prog="uiu-backend")
     parser.add_argument('-p', "--port", type=int,
                         help="socket server port", default=2888, required=False)
@@ -49,9 +49,22 @@ def backend():
     apiSocket = ApiSocket(apiObj, args.port)
 
     try:
-        asyncio.run(apiSocket.serve())
+        #asyncio.run(apiSocket.serve())
+        asyncio.run(run_backend(apiSocket))
     except KeyboardInterrupt:
         pass
+
+async def run_backend(socket: ApiSocket):
+    app = web.Application(logger=Logger)
+    app.router.add_static("/", path=assets.__path__[0], name='root')
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    site = web.TCPSite(runner, 'localhost', 4123)
+    await site.start()
+
+    await socket.serve()
+    await runner.cleanup()
 
 
 def frontend():
