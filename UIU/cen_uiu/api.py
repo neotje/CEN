@@ -25,7 +25,7 @@ class UIUapi(ApiBase):
         self.bl_device = None
 
     async def _setup(self):
-        self.canbus = AsyncCanBus()
+        self.canbus = AsyncCanBus("can0")
         await self.canbus.begin(250_000, 1)
 
         self.frontLedCan = FrontLedCan(self.canbus)
