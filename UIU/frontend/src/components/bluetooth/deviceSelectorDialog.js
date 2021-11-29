@@ -1,5 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@material-ui/core"
 import React from "react"
+import { ApiSocketContext } from "../api/apiSocket"
 import { AvailableDevicesList } from "./availableDevicesList"
 import { hasService } from "./bluetoothTools"
 
@@ -12,6 +13,7 @@ export function DeviceSelectorDialog(props) {
 
     const [devices, setDevices] = React.useState([])
     const [discoveryInterval, setDiscoveryInterval] = React.useState()
+    const {api} = React.useContext(ApiSocketContext)
 
     const handleClose = () => {
         onExit()
@@ -22,7 +24,7 @@ export function DeviceSelectorDialog(props) {
     }
 
     const retreiveDevices = () => {
-        window.uiu.api.bl_devices().then(result => {
+        api.bl_devices().then(result => {
             let filtered = []
             for (const device of result.devices) {
                 if (service) {
@@ -38,7 +40,7 @@ export function DeviceSelectorDialog(props) {
         })
     }
 
-    window.uiu.api.bl_adapter_discovery(open)
+    api.bl_adapter_discovery(open)
 
     if (open && discoveryInterval == undefined) {
         setDiscoveryInterval(setInterval(retreiveDevices, 500))

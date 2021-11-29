@@ -11,6 +11,7 @@ import { hasAudioSrc } from '../bluetooth/bluetoothTools';
 import { PlayerControls } from './playerControls';
 import { DeviceSelector } from './deviceSelector';
 import { DeviceSelectorDialog } from '../bluetooth/deviceSelectorDialog';
+import { ApiSocketContext } from '../api/apiSocket';
 
 const useStyles = makeStyles((theme) => ({
     songImg: {
@@ -52,15 +53,16 @@ export function Player(props) {
     const [slowUpdater, setSlowUpdater] = React.useState()
 
     const [message, setMessage] = React.useState("")
+    const {api} = React.useContext(ApiSocketContext)
 
     useEffect(() => {
-        window.uiu.api.bl_current()
+        api.bl_current()
         .then(r => {
             console.log(r);
             setCurrent(r.device == null ? false : r.device)
 
             if (r.device === null) {
-                return window.uiu.api.bl_devices()
+                return api.bl_devices()
             }
         })
         .then(result => {
@@ -68,7 +70,7 @@ export function Player(props) {
             
             for (const device of result.devices) {
                 if (device.Connected) {
-                    window.uiu.api.bl_enable_audio(device.Address).then(() => { })
+                    api.bl_enable_audio(device.Address).then(() => { })
                     setCurrent(device)
                     return
                 }
@@ -76,7 +78,7 @@ export function Player(props) {
         })
 
         const slowUpdate = () => {
-            window.uiu.api.bl_devices().then(result => {
+            api.bl_devices().then(result => {
                 var arr = []
                 for (const device of result.devices) {
                     if (device.Paired && hasAudioSrc(device)) {
@@ -97,13 +99,13 @@ export function Player(props) {
         const fastUpdate = () => {
             clearTimeout(updater)
 
-            window.uiu.api.bl_current()
+            api.bl_current()
             .then(r => {
                 setCurrent(r.device == null ? false : r.device)
                 r.device = r.device == null ? false : r.device
 
                 if (r.device) {
-                    return window.uiu.api.bl_status()
+                    return api.bl_status()
                 } else {
 
                     clearTimeout(updater)
@@ -135,24 +137,24 @@ export function Player(props) {
         switch (cmd) {
             case "pause":
                 //setStatus("paused")
-                window.uiu.api.bl_pause().then(() => {
+                api.bl_pause().then(() => {
                     setStatus("paused")
                 })
                 break;
 
             case "play":
                 //setStatus("playing")
-                window.uiu.api.bl_play().then(() => {
+                api.bl_play().then(() => {
                     setStatus("playing")
                 })
                 break;
 
             case "next":
-                window.uiu.api.bl_next().then(() => { })
+                api.bl_next().then(() => { })
                 break;
 
             case "previous":
-                window.uiu.api.bl_previous().then(() => { })
+                api.bl_previous().then(() => { })
                 break;
 
             default:
@@ -162,24 +164,24 @@ export function Player(props) {
 
     const changeDevice = (deviceAddress) => {
         if (!deviceAddress) {
-            window.uiu.api.bl_disable_audio().then(() => {
+            api.bl_disable_audio().then(() => {
                 reset();
             })
         } else {
             setMessage("Connecting...")
 
-            window.uiu.api.bl_disable_audio()
+            api.bl_disable_audio()
             .then(() => {
                 setCurrent(false)
                 setStatus("paused")
                 setTrack({})
 
-                return window.uiu.api.bl_connect(deviceAddress)
+                return api.bl_connect(deviceAddress)
             }).then(r => {
                 if (r.device !== null) {
-                    window.uiu.api.bl_enable_audio(deviceAddress).then(() => {
+                    api.bl_enable_audio(deviceAddress).then(() => {
                         execControlCommand("play")
-                        window.uiu.api.bl_current().then(r => {
+                        api.bl_current().then(r => {
                             setMessage("")
                             setCurrent(r.device)
                         })

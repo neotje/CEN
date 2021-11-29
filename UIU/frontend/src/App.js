@@ -16,7 +16,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { LoadingScreen } from './components/loading/loadingScreen';
 import { SettingsPage } from './components/settings/settingsPage';
 import frontLed from './components/api/frontled';
-
+import { ApiSocketContext } from './components/api/apiSocket';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -54,15 +54,17 @@ const useStyles = makeStyles((theme) => ({
 function App(props) {
   const classes = useStyles(props);
   const [navValue, setNavValue] = React.useState(0);
-  const [pyReady, setPyReady] = React.useState(window.uiu._ready);
   const [progress, setProgress] = React.useState(0);
   const [done, setDone] = React.useState(false);
   const [fade, setFade] = React.useState(true);
   const { currentTheme, setTheme } = React.useContext(CustomThemeContext)
 
+  const {api} = React.useContext(ApiSocketContext)
+  const [pyReady, setPyReady] = React.useState(api.ready);
+
   const handleNavigation = (newValue) => {
     if (newValue === 0) {
-      window.uiu.api.bl_adapter_discovery(false).then(() => { })
+      api.bl_adapter_discovery(false).then(() => { })
     }
     setNavValue(newValue);
   }
@@ -72,37 +74,38 @@ function App(props) {
   }
 
   useEffect(() => {
-    window.addEventListener('uiuready', () => {
-      setPyReady(true)
-      finalizeLoad()
-    })
+    api.onReady(result => {
+      setPyReady(result)
 
-    if (pyReady) {
-      finalizeLoad()
-    }
-  }, [pyReady])
+      if(result) {
+        finalizeLoad()
+      }
+    })
+    
+    api.connect()
+  }, [])
 
   const finalizeLoad = () => {
     const steps = 5
     setProgress(100 / steps * 1)
 
-    window.uiu.api.settings_get("theme")
+    api.settings_get("theme")
     .then(result => {
       console.log(result.value)
       setTheme(result.value)
 
       setProgress(100 / steps * 2)
-      return window.uiu.api.bl_adapter_discoverable(true)
+      return api.bl_adapter_discoverable(true)
     })
     .then(() => {
 
       setProgress(100 / steps * 3)
-      return window.uiu.api.bl_adapter_discovery(false)
+      return api.bl_adapter_discovery(false)
     })
     .then(() => {
 
       setProgress(100 / steps * 4)
-      return frontLed.setup()
+      return frontLed.setup(api)
     })
     .then(() => {
 

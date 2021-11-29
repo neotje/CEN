@@ -36,6 +36,9 @@
 
     window.clearTimeout = function (timerID) {
       window.activeTimers--;
+      if (window.activeTimers < 0) {
+        window.activeTimers = 0
+      }
       window.originalClearTimeout(timerID);
     };
 
@@ -53,108 +56,6 @@
       window.activeIntervals--;
       window.originalClearInterval(timerID);
     };
-
-    window.uiu = {
-      api: {},
-      _returnValues: {},
-      _socket: new WebSocket("ws://127.0.0.1:2888"),
-      _ready: false,
-      _expose: function (name, params) {
-        const body = `
-            const __id = (Math.random() + '').substring(2);
-            var promise = new Promise(function(resolve, reject) {
-              window.uiu._checkValue("${name}", __id, resolve, reject);
-            });
-            window.uiu._call("${name}", arguments, __id);
-            return promise
-            `
-        window.uiu.api[name] = new Function(params, body);
-        window.uiu._returnValues[name] = {}
-      },
-      _call: function (funcName, params, id) {
-        console.debug("call", funcName);
-
-        if (!window.uiu._socket.readyState) {
-          setTimeout(() => {
-            location.reload()
-          }, 1000)
-          return
-        }
-
-        window.uiu._socket.send(JSON.stringify({
-          action: "call",
-          id: id,
-          function: funcName,
-          params: params
-        }))
-      },
-      _checkValue: function (funcName, id, resolve, reject) {
-        window.addEventListener('uiureturn', (e) => {
-          var detail = e.detail;
-
-          if (detail.function === funcName && detail.id === id) {
-            if (detail.isError) {
-              var pyError = detail.content;
-              var error = new Error(pyError.message);
-
-              error.name = pyError.name;
-              error.stack = pyError.stack;
-              console.error(error);
-
-              window.removeEventListener("uiureturn", this)
-              resolve(error);
-            } else {
-              resolve(detail.content);
-            }
-          }
-        })
-      }
-    }
-
-    function uiu_init() {
-      console.log("Initializing api...")
-      window.uiu._socket = new WebSocket("ws://127.0.0.1:2888");
-
-      window.uiu._socket.onmessage = function (event) {
-        var content = JSON.parse(event.data)
-
-        switch (content.action) {
-          case "expose":
-            window.uiu._expose(content.name, content.params)
-            break;
-
-          case "return":
-            console.debug("return", content.function)
-            const returnEvent = new CustomEvent("uiureturn", {
-              detail: content
-            });
-            window.dispatchEvent(returnEvent)
-            break;
-
-          case "ready":
-            console.log("api is ready");
-            window.uiu._ready = true;
-            window.dispatchEvent(new CustomEvent('uiuready'));
-            break;
-
-          default:
-            break;
-        }
-      }
-
-      window.uiu._socket.onerror = function (e) {
-        uiu_init()
-      }
-
-      window.uiu._socket.onclose = function (e) {
-        "closing"
-        uiu_init()
-      }
-    }
-
-    window.uiu.init = uiu_init
-
-    uiu_init()
   </script>
 </head>
 
