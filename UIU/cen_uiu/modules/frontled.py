@@ -1,3 +1,4 @@
+import asyncio
 import struct
 import can
 from cen_uiu.helpers.exceptions import InvalidBLEDeviceException
@@ -82,7 +83,7 @@ class FrontLedConnection:
 
 
 class FrontLedCan:
-    _bus: can_bus.CanBus
+    _bus: can_bus.AsyncCanBus
     _count: int
 
     LED_COUNT_ID = 2
@@ -90,22 +91,14 @@ class FrontLedCan:
     SET_ID = 4
     SHOW_ID = 5
 
-    def __init__(self, bus: can_bus.CanBus) -> None:
+    def __init__(self, bus: can_bus.AsyncCanBus) -> None:
         self._bus = bus
 
-    def begin(self):
-        self.requestLedCount()
+    async def begin(self):
+        await self.requestLedCount()
 
-    async def begin_async(self):
-        await self.requestLedCount_async()
-
-    def requestLedCount(self) -> int:
-        msg = self._bus.send(self.LED_COUNT_ID, b'', wait=True)
-        self._count, = struct.unpack("<H", msg.data)
-        return self._count
-
-    async def requestLedCount_async(self) -> int:
-        msg = await self._bus.send_async(self.LED_COUNT_ID, b'', wait=True)
+    async def requestLedCount(self) -> int:
+        msg = await self._bus.send(self.LED_COUNT_ID, b'', wait=True)
         self._count, = struct.unpack("<H", msg.data)
         return self._count
 
@@ -113,11 +106,8 @@ class FrontLedCan:
     def ledCount(self):
         return self._count
 
-    def fill(self, color: tuple):
-        self._bus.send(self.FILL_ID, struct.pack("<BBB", *color))
+    async def fill(self, color: tuple):
+        await self._bus.send(self.FILL_ID, struct.pack("<BBB", *color))
 
-    def show(self):
-        self._bus.send(self.SHOW_ID, b'', wait=True)
-
-    async def show_async(self):
-        await self._bus.send_async(self.SHOW_ID, b'', wait=True)        
+    async def show(self):
+        await self._bus.send(self.SHOW_ID, b'', wait=True)

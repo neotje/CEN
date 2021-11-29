@@ -2,7 +2,7 @@
 
 sudo apt update
 
-sudo scripts/setup-bluetooth
+#sudo scripts/setup-bluetooth
 #sudo scripts/setup-wifi
 #sudo scripts/setup-services
 
@@ -13,21 +13,19 @@ sudo apt install -y pkg-config libboost-python-dev libboost-thread-dev libblueto
 # build react frontend
 scripts/build-react
 
-# create python virtual enviroment
-python3 -m venv venv
-source ./venv/bin/activate
-pip install wheel
+sudo apt install -y python3-pip
+sudo pip3 install wheel
 
 # temporary folder for build files
 mkdir temp
 cd temp
 
 # build/install gattlib
-pip3 download gattlib
+sudo pip3 download gattlib
 tar xvzf ./gattlib-*.tar.gz
 cd gattlib-*/
 sed -ie 's/boost_python-py34/boost_python37/' setup.py
-pip install .
+sudo pip3 install .
 
 cd ..
 
@@ -35,11 +33,11 @@ cd ..
 git clone https://github.com/pybluez/pybluez.git
 cd pybluez
 git pull
-pip install -e .[ble]
+sudo pip3 install -e .[ble]
 
 cd ../../
 
 # clean up
 sudo rm -r temp
 
-python3 -m pip install -e .
+sudo pip3 install -e .

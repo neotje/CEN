@@ -4,6 +4,7 @@ this file is responsible for connecting and discovering bluetooth devices.
 standard dbus interfaces
 https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces
 """
+import asyncio
 import re
 from typing import List
 from cen_uiu.modules.dbus import get_proxy_object
@@ -26,30 +27,31 @@ def formatAddress(a: str) -> str:
     return a.replace(':', '_')
 
 
-def get_adapter(name: str) -> BluezAdapter1:
+async def get_adapter(name: str) -> BluezAdapter1:
     """
     https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/adapter-api.txt
     """
-    device_proxy_object = get_proxy_object(f"/org/bluez/{name}")
+    device_proxy_object = await get_proxy_object(f"/org/bluez/{name}")
     return BluezAdapter1(device_proxy_object)
 
 
-def get_device(adapter: str, device: str) -> BluezDevice1:
+async def get_device(adapter: str, device: str) -> BluezDevice1:
     """
     https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/device-api.txt
     """
     device = formatAddress(device)
-    device_proxy_object = get_proxy_object(
+    device_proxy_object = await get_proxy_object(
         f"/org/bluez/{adapter}/dev_{device}")
     return BluezDevice1(device_proxy_object)
 
 
-def list_devices() -> List[BluezDevice1]:
-    proxy = get_proxy_object("/")
+async def list_devices() -> List[BluezDevice1]:
+    loop = asyncio.get_running_loop()
+    proxy = await get_proxy_object("/")
     manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
 
     # TODO: ObjectManager interface
-    objects = manager.GetManagedObjects()
+    objects = await loop.run_in_executor(None, manager.GetManagedObjects)
 
     reg_dev = re.compile("\/org\/bluez\/hci\d*\/dev\_(.*)")
     # e.g., match a string like this:
@@ -63,13 +65,13 @@ def list_devices() -> List[BluezDevice1]:
         if m is not None:
             dev_str = m.group(1)
 
-            devices.append(get_device("hci0", dev_str))
+            devices.append(await get_device("hci0", dev_str))
 
     return devices
 
 
-def list_connected_devices() -> List[BluezDevice1]:
-    devices = list_devices()
+async def list_connected_devices() -> List[BluezDevice1]:
+    devices = await list_devices()
     result: List[BluezDevice1] = []
 
     for device in devices:
@@ -80,11 +82,11 @@ def list_connected_devices() -> List[BluezDevice1]:
     return result
 
 
-def discover_and_connect(adapter_str: str):
+async def discover_and_connect(adapter_str: str):
     _LOGGER.debug("Bl discovery: scanning...")
 
     # loop trough list of devices
-    for device in list_devices():
+    for device in await list_devices():
         paired: bool = device.Paired
         connected: bool = device.Connected
         uuids: List[str] = device.UUIDs
@@ -94,7 +96,7 @@ def discover_and_connect(adapter_str: str):
         if paired and not connected and uuids.count(AUDIO_SRC) > 0:
             _LOGGER.debug(f"Bl discovery: connecting to {device.object_path}")
 
-            if device.ConnectProfile(AUDIO_SRC):
+            if await device.ConnectProfile(AUDIO_SRC):
                 # wait for the device to be connected,
                 # so that the dbus doesn't get overloaded.
                 while not device.Connected:

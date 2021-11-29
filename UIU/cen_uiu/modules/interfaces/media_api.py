@@ -26,34 +26,34 @@ class BluezMediaTransport1(BusObject):
 class BluezMediaPlayer1(BusObject):
     INTERFACE = "org.bluez.MediaPlayer1"
 
-    def Play(self):
-        return self._interface.Play()
+    async def Play(self):
+        return await self.run_in_executor(self._interface.Play)
 
-    def Pause(self):
-        return self._interface.Pause()
+    async def Pause(self):
+        return await self.run_in_executor(self._interface.Pause)
 
-    def Stop(self):
-        return self._interface.Stop()
+    async def Stop(self):
+        return await self.run_in_executor(self._interface.Stop)
 
-    def Next(self):
-        return self._interface.Next()
+    async def Next(self):
+        return await self.run_in_executor(self._interface.Next)
 
-    def Previous(self):
-        return self._interface.Previous()
+    async def Previous(self):
+        return await self.run_in_executor(self._interface.Previous)
 
-    def FastForward(self):
-        return self._interface.FastForward()
+    async def FastForward(self):
+        return await self.run_in_executor(self._interface.FastForward)
 
-    def Rewind(self):
-        return self._interface.Rewind()
-
-    @property
-    def Status(self) -> dbus.String:
-        return self._get_prop("Status")
+    async def Rewind(self):
+        return await self.run_in_executor(self._interface.Rewind)
 
     @property
-    def Position(self) -> dbus.UInt32:
-        p = self._get_prop("Position")
+    async def Status(self) -> dbus.String:
+        return await self._get_prop("Status")
+
+    @property
+    async def Position(self) -> dbus.UInt32:
+        p = await self._get_prop("Position")
         
         if p is None:
             return 0
@@ -61,8 +61,8 @@ class BluezMediaPlayer1(BusObject):
         return p
 
     @property
-    def Track(self) -> dbus.Dictionary:
-        return self._get_prop("Track")
+    async def Track(self) -> dbus.Dictionary:
+        return await self._get_prop("Track")
 
     @property
     def Name(self) -> dbus.String:
@@ -73,6 +73,13 @@ class BluezMediaPlayer1(BusObject):
         return self._get_prop("Device")
 
 
+async def getBluezMediaPlayer(path) -> BluezMediaPlayer1:
+    if path is None:
+        return None
+
+    prox = await get_proxy_object(path)
+    return BluezMediaPlayer1(prox)
+
 class BluezMediaControl1(BusObject):
     INTERFACE = "org.bluez.MediaControl1"
 
@@ -81,12 +88,8 @@ class BluezMediaControl1(BusObject):
         return self._get_prop("Connected")
 
     @property
-    def Player(self) -> BluezMediaPlayer1 or None:
-        path = self._get_prop("Player")
+    async def Player(self) -> BluezMediaPlayer1 or None:
+        path = await self._get_prop("Player")
 
-        if path is not None:
-            prox = get_proxy_object(path)
-            return BluezMediaPlayer1(prox)
-
-        return None
+        return await getBluezMediaPlayer(path)
 

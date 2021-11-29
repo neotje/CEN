@@ -13,13 +13,14 @@ def isBuiltinFunc(funcName: str) -> bool:
 
 
 class ApiSocket:
-    def __init__(self, js_api) -> None:
+    def __init__(self, js_api, port=2888) -> None:
+        self.port = port
         self._js_api = js_api
 
     async def serve(self):
-        self._server = websockets.serve(self._handler, "127.0.0.1", 2888)
+        self._server = websockets.serve(self._handler, "127.0.0.1", self.port)
 
-        await self._js_api.setup()
+        await self._js_api._setup()
         
         async with self._server:
             await asyncio.Future()
@@ -28,6 +29,7 @@ class ApiSocket:
         self._server.close()
 
     async def _handler(self, websocket, path):
+        Logger.info("Someone is connected...")
         # get all function of the js_api object.
         method_list = inspect.getmembers(
             self._js_api, predicate=inspect.ismethod)
@@ -88,6 +90,6 @@ class ApiSocket:
 
         except Exception:
             pass
-        websocket.close()
+        await websocket.close()
         """ websocket.close()
         await websocket.wait_closed() """

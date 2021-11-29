@@ -3,6 +3,7 @@ org.bluez.Device1 interface
 
 https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/device-api.txt
 """
+import asyncio
 from typing import List
 
 from cen_uiu.helpers import bus
@@ -18,73 +19,73 @@ import re
 class BluezDevice1(bus.BusObject):
     INTERFACE = "org.bluez.Device1"
 
-    def to_object(self) -> dict:
+    async def to_object(self) -> dict:
         return {
-            "Address": self.Address,
-            "Name": self.Name,
-            "Icon": self.Icon,
-            "Class": self.Class,
-            "Paired": bool(self.Paired),
-            "UUIDs": self.UUIDs,
-            "Connected": bool(self.Connected)
+            "Address": await self.Address,
+            "Name": await self.Name,
+            "Icon": await self.Icon,
+            "Class": await self.Class,
+            "Paired": bool(await self.Paired),
+            "UUIDs": await self.UUIDs,
+            "Connected": bool(await self.Connected)
         }
 
-    def Connect(self):
-        return self._interface.Connect()
+    async def Connect(self):
+        return await self.run_in_executor(self._interface.Connect)
 
-    def Disconnect(self):
-        return self._interface.Disconnect()
+    async def Disconnect(self):
+        return await self.run_in_executor(self._interface.Disconnect)
 
-    def ConnectProfile(self, uuid: dbus.String):
+    async def ConnectProfile(self, uuid: dbus.String):
         try:
-            self._interface.ConnectProfile(uuid)
+            await self.run_in_executor(self._interface.ConnectProfile, uuid)
             return True
         except DBusException:
             return False
 
-    def DisconnectProfile(self, uuid: dbus.String):
-        return self._interface.DisconnectProfile(uuid)
+    async def DisconnectProfile(self, uuid: dbus.String):
+        return await self.run_in_executor(self._interface.DisconnectProfile, uuid)
 
-    def Pair(self):
-        return self._interface.Pair()
+    async def Pair(self):
+        return await self.run_in_executor(self._interface.Pair)
 
-    def CancelPairing(self):
-        return self._interface.CancelPairing()
-
-    @property
-    def Address(self) -> dbus.String:
-        return self._get_prop("Address")
+    async def CancelPairing(self):
+        return await self.run_in_executor(self._interface.CancelPairing)
 
     @property
-    def Name(self) -> dbus.String:
-        return self._get_prop("Name")
+    async def Address(self) -> dbus.String:
+        return await self._get_prop("Address")
+
+    @property
+    async def Name(self) -> dbus.String:
+        return await self._get_prop("Name")
 
     @property
     def Icon(self) -> dbus.String:
         return self._get_prop("Icon")
 
     @property
-    def Class(self) -> dbus.Int32:
-        return self._get_prop("Class")
+    async def Class(self) -> dbus.Int32:
+        return await self._get_prop("Class")
 
     @property
-    def UUIDs(self) -> List[str]:
-        return self._get_prop("UUIDs")
+    async def UUIDs(self) -> List[str]:
+        return await self._get_prop("UUIDs")
 
     @property
-    def Paired(self) -> dbus.Boolean:
-        return self._get_prop("Paired")
+    async def Paired(self) -> dbus.Boolean:
+        return await self._get_prop("Paired")
 
     @property
-    def Connected(self) -> dbus.Boolean:
-        return self._get_prop("Connected")
+    async def Connected(self) -> dbus.Boolean:
+        return await self._get_prop("Connected")
 
     @property
-    def ServicesResolved(self) -> dbus.Boolean:
-        return self._get_prop("ServicesResolved")
+    async def ServicesResolved(self) -> dbus.Boolean:
+        return await self._get_prop("ServicesResolved")
 
     @property
-    def MediaControl(self) -> BluezMediaControl1 or None:
+    async def MediaControl(self) -> BluezMediaControl1:
         try:
             interface = dbus.Interface(
                 self._interface, BluezMediaControl1.INTERFACE)
@@ -93,14 +94,14 @@ class BluezDevice1(bus.BusObject):
             return None
 
     @property
-    def MediaTransport(self) -> BluezMediaTransport1 or None:
+    async def MediaTransport(self) -> BluezMediaTransport1:
         # FIXME: detection for fd1, fd2, etc
 
-        proxy = get_proxy_object("/")
+        proxy = await get_proxy_object("/")
         manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
-        objects = manager.GetManagedObjects()
+        objects = self.run_in_executor(manager.GetManagedObjects)
 
-        addr = self.Address.replace(":", "_")
+        addr = (await self.Address).replace(":", "_")
         reg_dev = re.compile(f"\/org\/bluez\/hci\d*\/dev_{addr}\/fd(\d*)")
         try:
             for key, value in objects.items():
@@ -108,30 +109,32 @@ class BluezDevice1(bus.BusObject):
 
                 if m is not None:
 
-                    interface = dbus.Interface(get_proxy_object(
-                        key), BluezMediaTransport1.INTERFACE)
+                    interface = dbus.Interface(
+                        await get_proxy_object(key),
+                        BluezMediaTransport1.INTERFACE
+                    )
                     return BluezMediaTransport1(interface)
             return None
         except DBusException:
             return None
 
-    def GATTCharacteristic(self, uuid) -> GattCharacteristic1 or None:
-        proxy = get_proxy_object("/")
+    async def GATTCharacteristic(self, uuid) -> GattCharacteristic1 or None:
+        proxy = await get_proxy_object("/")
         manager = dbus.Interface(proxy, "org.freedesktop.DBus.ObjectManager")
-        objects = manager.GetManagedObjects()
-        addr = self.Address.replace(":", "_")
-        reg_dev = re.compile(f"\/org\/bluez\/hci\d*\/dev_{addr}\/service(\d*)\/char(\d*)")
+        objects = self.run_in_executor(manager.GetManagedObjects)
+        addr = (await self.Address).replace(":", "_")
+        reg_dev = re.compile(
+            f"\/org\/bluez\/hci\d*\/dev_{addr}\/service(\d*)\/char(\d*)")
 
         try:
             for key, value in objects.items():
                 m = reg_dev.match(key)
 
                 if m is not None:
-                    interface = dbus.Interface(get_proxy_object(key), GattCharacteristic1.INTERFACE)
+                    interface = dbus.Interface(await get_proxy_object(key), GattCharacteristic1.INTERFACE)
                     char = GattCharacteristic1(interface)
 
                     if char.UUID == uuid:
                         return char
         except DBusException:
             pass
-
