@@ -1,11 +1,12 @@
 import logging
+from cen_uiu.http_server import create_app, run_app
+from cen_uiu.modules.bluetooth import discover_and_connect
 import webview
 from cen_uiu.modules.api_socket import ApiSocket
 from cen_uiu import api, assets
 import asyncio
 import sys
 import argparse
-from aiohttp import web
 
 Logger = logging.getLogger(__name__)
 
@@ -32,11 +33,26 @@ def webviewStart():
 
 
 def backend():
+    try:
+        asyncio.run(run_backend())
+    except KeyboardInterrupt:
+        pass
+
+
+async def run_backend():
     parser = argparse.ArgumentParser(prog="uiu-backend")
     parser.add_argument('-p', "--port", type=int,
                         help="socket server port", default=2888, required=False)
     parser.add_argument('-d', "--debug", help="enable debug level logging and inspector", required=False, action='store_true')
+    parser.add_argument('--nohttp', help="disable http server for hosting the frontend files", required=False, action='store_true')
+    parser.add_argument("--http_port", type=int, help="http server port", default=4123, required=False)
+    parser.add_argument("--http_host", type=str, help="http server port", default="localhost", required=False)
     args = parser.parse_args()
+
+    apiObj = api.UIUapi()
+    apiSocket = ApiSocket(apiObj, args.port)
+    
+    frontendApp = create_app()
 
     logging.basicConfig(
         stream=sys.stdout,
@@ -45,26 +61,17 @@ def backend():
     )
     Logger.debug("Debug logging.")
 
-    apiObj = api.UIUapi()
-    apiSocket = ApiSocket(apiObj, args.port)
+    routines = [
+        apiSocket.serve(),
+        discover_and_connect("hci0")
+    ]
 
-    try:
-        #asyncio.run(apiSocket.serve())
-        asyncio.run(run_backend(apiSocket))
-    except KeyboardInterrupt:
-        pass
+    if not args.nohttp:
+        routines.append(run_app(frontendApp, args.http_host, args.http_port))
 
-async def run_backend(socket: ApiSocket):
-    app = web.Application(logger=Logger)
-    app.router.add_static("/", path=assets.__path__[0], name='root')
-    runner = web.AppRunner(app)
-    await runner.setup()
-
-    site = web.TCPSite(runner, 'localhost', 4123)
-    await site.start()
-
-    await socket.serve()
-    await runner.cleanup()
+    await asyncio.gather(
+        *routines
+    )
 
 
 def frontend():
