@@ -1,7 +1,10 @@
+from typing import Dict
 import can
 import os
 import asyncio
 import logging
+
+from cen_uiu.helpers.event import Event
 Logger = logging.getLogger(__name__)
 
 
@@ -11,10 +14,10 @@ class CanBus:
     _bus: can.Bus
     _notfier: can.Notifier
 
-    def __init__(self, channel="can0", restart=0) -> None:
+    def __init__(self, channel) -> None:
         self._channel = channel
 
-    def begin(self, bitrate, restart=None):
+    def begin(self, bitrate, restart):
         self.setUp(False)
 
         os.system(
@@ -74,7 +77,8 @@ class AsyncCanBus(CanBus):
         )
 
     async def getAsyncReader(self) -> can.AsyncBufferedReader:
-        reader = can.AsyncBufferedReader()
+        loop = asyncio.get_running_loop()
+        reader = can.AsyncBufferedReader(loop)
         self._notfier.add_listener(reader)
         return reader
 
@@ -97,3 +101,53 @@ class AsyncCanBus(CanBus):
             Logger.debug("Recieve timout reached!")
             return None
     
+
+class CanManager:
+    _bus: AsyncCanBus
+    _handlerTask: asyncio.Task
+    _onMessage: Event
+    _idEvents: Dict[int, Event]
+    
+    def __init__(self) -> None:
+        self._onMessage = Event("onCanMessage")
+        self._idEvents = {}
+        pass
+
+    @property
+    def onMessage(self) -> Event:
+        return self._onMessage
+
+    @property
+    def bus(self) -> AsyncCanBus:
+        return self._bus
+
+    async def openBus(self, bitrate, restart=0, channel="can0"):
+        self._bus = AsyncCanBus(channel)
+        await self._bus.begin(bitrate, restart)
+        
+        self._handlerTask = asyncio.create_task(self._handler())
+        await self._handlerTask
+
+    async def listenToId(self, id, listener):
+        e = self._idEvents.setdefault(id, Event(f"{id}"))
+        await e.listen(listener)
+
+    async def removeListenerToId(self, id, listener):
+        e = self._idEvents.setdefault(id, Event(f"{id}"))
+        await e.remove(listener)
+
+    async def _handler(self):
+        reader = await self._bus.getAsyncReader()
+        frame: can.Message
+
+        async for frame in reader:
+            dispatchers = [self._onMessage.dispatch(self, frame)]
+
+            for id, event in self._idEvents.items():
+                if frame.arbitration_id == id:
+                    dispatchers.append(
+                        event.dispatch(self, frame)
+                    )
+
+            await asyncio.gather(*dispatchers)
+

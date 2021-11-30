@@ -4,6 +4,7 @@ from typing import Any
 from cen_uiu.helpers.api_base import ApiBase
 from cen_uiu.modules.can_bus import AsyncCanBus, CanBus
 from cen_uiu.modules.frontled import FrontLedCan
+from cen_uiu.modules.interfaces.adapter_api import BluezAdapter1
 import webview
 
 from cen_uiu.modules.audio import BluetoothInput
@@ -18,14 +19,15 @@ ADAPTER = "hci0"
 class UIUapi(ApiBase):
     frontLedCan: FrontLedCan
     canbus: CanBus
+    adapter: BluezAdapter1
 
     def __init__(self):
-        self.adapter = asyncio.run(get_adapter(ADAPTER))
         self.bl_audio = BluetoothInput()
         self.bl_device = None
 
     async def _setup(self):
-        self.canbus = AsyncCanBus()
+        self.adapter = await get_adapter(ADAPTER)
+        self.canbus = AsyncCanBus("can0")
         await self.canbus.begin(250_000, 1)
 
         self.frontLedCan = FrontLedCan(self.canbus)

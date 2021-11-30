@@ -87,9 +87,9 @@ async def discover_and_connect(adapter_str: str):
 
     # loop trough list of devices
     for device in await list_devices():
-        paired: bool = device.Paired
-        connected: bool = device.Connected
-        uuids: List[str] = device.UUIDs
+        paired: bool = await device.Paired
+        connected: bool = await device.Connected
+        uuids: List[str] = await device.UUIDs
 
         # Connect to the device with the audio source profile,
         # if the device is paired and not connected.
@@ -99,7 +99,7 @@ async def discover_and_connect(adapter_str: str):
             if await device.ConnectProfile(AUDIO_SRC):
                 # wait for the device to be connected,
                 # so that the dbus doesn't get overloaded.
-                while not device.Connected:
+                while not await device.Connected:
                     pass
 
 

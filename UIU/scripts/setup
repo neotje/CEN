@@ -9,6 +9,7 @@ sudo apt update
 # install linux packages
 sudo apt install -y python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-webkit2-4.0 libgirepository1.0-dev libcairo2-dev
 sudo apt install -y pkg-config libboost-python-dev libboost-thread-dev libbluetooth-dev libglib2.0-dev python-dev libboost-dev sed
+sudo apt install -y chromium
 
 # build react frontend
 scripts/build-react
@@ -19,15 +20,6 @@ sudo pip3 install wheel
 # temporary folder for build files
 mkdir temp
 cd temp
-
-# build/install gattlib
-sudo pip3 download gattlib
-tar xvzf ./gattlib-*.tar.gz
-cd gattlib-*/
-sed -ie 's/boost_python-py34/boost_python37/' setup.py
-sudo pip3 install .
-
-cd ..
 
 # build/install pybluez with ble
 git clone https://github.com/pybluez/pybluez.git

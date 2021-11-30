@@ -8,15 +8,12 @@ PROJECT_GITHUB_USERNAME = "neotje"
 PACKAGES = find_packages()
 
 REQUIRED = [
-    # "kivy[full]>=2.0.0",
-    # "pyqt5>=5.15",
-    # "pyqtwebengine>=5.15",
     "pywebview[gtk]>=3.4"
     "pyserial>=3.5",
     "dbus-python>=1.2.16",
     "screeninfo>=0.6.7",
     "websockets>=10.1",
-    # "pybluez[ble]>=0.23"
+    "aiohttp>=3.8.1"
 ]
 
 setup(
@@ -24,7 +21,6 @@ setup(
     packages=PACKAGES,
     install_requires=REQUIRED,
     entry_points={"console_scripts": [
-        "cen-uiu = cen_uiu.__main__:main",
         "uiu-backend = cen_uiu.__main__:backend",
         "uiu-frontend = cen_uiu.__main__:frontend"
     ]
