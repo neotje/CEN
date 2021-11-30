@@ -6,7 +6,11 @@ import Brightness7Icon from '@material-ui/icons/Brightness7';
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        position: "relative"
+        position: "relative",
+        backgroundColor: theme.palette.background.default
+    },
+    nav: {
+        backgroundColor: theme.palette.background.default
     },
     themeToggle: {
         position: "absolute",
@@ -17,27 +21,15 @@ const useStyles = makeStyles((theme) => ({
 
 export function NavigationBar(props) {
     const onNavigation = props.onNavigation ? props.onNavigation : (val) => { }
-    const onTheme = props.onTheme ? props.onTheme : () => {}
-    const theme = props.theme ? props.theme : "light"
 
     const { children, value } = props
-
     const classes = useStyles(props)
-
-    const icon = theme === "light" ? <Brightness4Icon /> : <Brightness7Icon />
-
-    const handleToggleTheme = () => {
-        onTheme()
-    }
 
     return (
         <Container className={classes.root}>
-            <BottomNavigation value={value} onChange={(e, i) => onNavigation(i)}>
+            <BottomNavigation className={classes.nav} value={value} onChange={(e, i) => onNavigation(i)}>
                 {children}
             </BottomNavigation>
-            <IconButton className={classes.themeToggle} onClick={e => handleToggleTheme()}>
-                {icon}
-            </IconButton>
         </Container>
     )
 }

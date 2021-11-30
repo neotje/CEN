@@ -217,6 +217,8 @@ export function ApiSocketProvider(props) {
     const address = props.address ? props.address : DEFAULT_ADDRESS
     const socket = new ApiSocket(address)
 
+    window.api = socket
+
     const contextValue = {
         api: socket
     }
