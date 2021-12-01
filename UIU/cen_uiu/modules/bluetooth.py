@@ -96,11 +96,14 @@ async def discover_and_connect(adapter_str: str):
         if paired and not connected and uuids.count(AUDIO_SRC) > 0:
             _LOGGER.debug(f"Bl discovery: connecting to {device.object_path}")
 
-            if await device.ConnectProfile(AUDIO_SRC):
+            try:
+                await device.ConnectProfile(AUDIO_SRC)
                 # wait for the device to be connected,
                 # so that the dbus doesn't get overloaded.
                 while not await device.Connected:
                     pass
+            except DBusException:
+                pass
 
 
 class BluetoothError(Exception):

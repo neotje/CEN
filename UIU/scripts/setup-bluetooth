@@ -7,7 +7,7 @@ apt install -y --no-install-recommends alsa-base alsa-utils bluealsa bluez-tools
 
 cat <<'EOF' > /etc/bluetooth/main.conf
 [General]
-Class = 0x20041C
+Class = 0x22043C
 DiscoverableTimeout = 0
 [Policy]
 AutoEnable=true

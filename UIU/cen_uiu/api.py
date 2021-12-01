@@ -5,6 +5,7 @@ from cen_uiu.helpers.api_base import ApiBase
 from cen_uiu.modules.can_bus import AsyncCanBus, CanBus
 from cen_uiu.modules.frontled import FrontLedCan
 from cen_uiu.modules.interfaces.adapter_api import BluezAdapter1
+from dbus.exceptions import DBusException
 import webview
 
 from cen_uiu.modules.audio import BluetoothInput
@@ -78,11 +79,35 @@ class UIUapi(ApiBase):
             return {"device": await dev.to_object()}
 
         # connect using to audo source profile.
-        if await dev.ConnectProfile(AUDIO_SRC):
+        try:
+            await dev.ConnectProfile(AUDIO_SRC)
             while not await dev.Connected:
                 pass
             return {"device": await dev.to_object()}
+        except DBusException:
+            pass
         return {"device": None}
+
+    async def bl_connectUUID(self, addr: str, uuid: str):
+        Logger.debug("bl_connectUUID")
+
+        dev = await get_device(ADAPTER, addr)
+
+        # if device is already connect just return the device object.
+        """ if bool(await dev.Connected):
+            return {"device": await dev.to_object()} """
+
+        # connect using to audo source profile.
+        await dev.ConnectProfile(AUDIO_SRC)
+        return {"device": await dev.to_object()}
+
+    async def bl_disconnectUUID(self, addr: str, uuid: str):
+        Logger.debug("bl_disconnectUUID")
+
+        dev = await get_device(ADAPTER, addr)
+
+        await dev.DisconnectProfile(uuid)
+        return {}
 
     async def bl_current(self):
         Logger.debug("bl_current")
@@ -120,7 +145,6 @@ class UIUapi(ApiBase):
         self.bl_audio.enable(addr)
 
         self.bl_device = await get_device(ADAPTER, addr)
-
         control = await self.bl_device.MediaControl
         player = await control.Player
         if player is not None:
@@ -138,6 +162,7 @@ class UIUapi(ApiBase):
                 return
 
             await player.Stop()
+            await self.bl_device.DisconnectProfile(AUDIO_SRC)
             self.bl_device = None
 
     async def bl_play(self):
