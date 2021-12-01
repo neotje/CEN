@@ -2,6 +2,7 @@ import { Container } from "@material-ui/core";
 import React from "react";
 import { PageManagerProvider } from "../navigation/pageManagerProvider";
 import { LightingPage } from "./lightingPage";
+import { NetworkPage } from "./networkPage";
 import { ScreenPage } from "./screenPage";
 import { SettingsHome } from "./settingsHome";
 import { SystemPage } from "./systemPage";
@@ -23,6 +24,10 @@ export function SettingsPage() {
         lighting: {
             title: "Verlichting",
             elem: <LightingPage />
+        },
+        network: {
+            title: "Netwerk",
+            elem: <NetworkPage />
         }
     }
 

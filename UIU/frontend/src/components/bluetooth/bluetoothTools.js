@@ -4,6 +4,7 @@ import ComputerIcon from '@material-ui/icons/Computer';
 
 export const AUDIO_SRC_UUID = "0000110a-0000-1000-8000-00805f9b34fb"
 export const LED_STRIP_SERVICE = "dff41a39-471b-4ca1-a837-c76895946d78"
+export const NETWORK_SERVICE = "00001116-0000-1000-8000-00805f9b34fb"
 
 export function getDeviceIcon(device) {
     switch (device.Icon) {

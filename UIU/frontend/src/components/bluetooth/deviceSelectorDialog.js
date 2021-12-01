@@ -40,7 +40,7 @@ export function DeviceSelectorDialog(props) {
         })
     }
 
-    api.bl_adapter_discovery(open)
+    api.bl_adapter_discovery(open).then(() => {})
 
     if (open && discoveryInterval == undefined) {
         setDiscoveryInterval(setInterval(retreiveDevices, 500))

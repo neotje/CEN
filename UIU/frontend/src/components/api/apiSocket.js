@@ -5,11 +5,102 @@ const ON_API_READY = "onApiReady"
 const ON_API_RETURN = "onApiReturn"
 const DEFAULT_ADDRESS = "ws://127.0.0.1:2888"
 
+class Tethering {
+    /** @type {ApiSocket} */
+    _api
+
+    _enabled = false
+    _device = null
+
+    get NETWORK_SERVICE() {
+        //return "00001116-0000-1000-8000-00805f9b34fb"
+        return "00001115-0000-1000-8000-00805f9b34fb"
+    }
+
+    /**
+     * 
+     * @param {ApiSocket} api 
+     */
+    constructor(api) {
+        this._api = api
+    }
+
+    setup() {
+        console.log("tethering setup...")
+        return this.load()
+            .then(() => {
+                if (this.enabled && this.device != null) {
+                    return this.connect()
+                }
+            })
+    }
+
+    load() {
+        return this._api.settings_get('tethering').then(result => {
+            if (result.value) {
+                this._enabled = result.value.enabled
+                this._device = result.value.device
+                return result.value
+            }
+        })
+    }
+
+    save() {
+        return this._api.settings_set('tethering', {
+            enabled: this._enabled,
+            device: this._device
+        })
+    }
+
+    disconnect() {
+        return this._api.bl_disconnectUUID(this._device, this.NETWORK_SERVICE)
+    }
+
+    connect() {
+        return this._api.bl_connectUUID(this._device, this.NETWORK_SERVICE)
+    }
+
+    get enabled() {
+        return this._enabled
+    }
+
+    set enabled(value) {
+        this._enabled = value
+
+        this.save().then(() => { })
+
+        if (value && this.device != null) {
+            this.connect().then(console.log)
+        } else {
+            this.disconnect().then(() => { })
+        }
+    }
+
+    get device() {
+        return this._device
+    }
+
+    set device(value) {
+        if (this.device != null) {
+            this.disconnect().then(() => { })
+        }
+
+        this._device = value
+        this.save().then(() => { })
+
+        if (this.enabled) {
+            this.connect().then(() => { })
+        }
+    }
+}
+
 export class ApiSocket {
     /** @type {WebSocket} */
     _socket = undefined
     /** @type {string} */
     _address = undefined
+
+    tethering = new Tethering(this)
 
     /**
      * @param {boolean} detail 
@@ -56,7 +147,7 @@ export class ApiSocket {
     }
 
     connect() {
-        if (this.ready) {return}
+        if (this.ready) { return }
         console.log("Api socket trying to connect to:", this._address)
         this._socket = new WebSocket(this._address)
 
@@ -86,6 +177,12 @@ export class ApiSocket {
      */
     onReady(listener) {
         window.addEventListener(ON_API_READY, listener, false)
+    }
+
+    setup() {
+        return Promise.all([
+            this.tethering.setup()
+        ])
     }
 
     /**
@@ -144,7 +241,7 @@ export class ApiSocket {
                     console.error(error);
 
                     window.removeEventListener(ON_API_RETURN, this)
-                    resolve(error);
+                    resolve();
                 } else {
                     resolve(detail.content);
                 }
@@ -176,7 +273,9 @@ export class ApiSocket {
             case "ready":
                 console.log("Api socket is ready")
                 this._ready = true
-                window.dispatchEvent(this._readyEvent(this._ready))
+                this.setup().then(() => {
+                    window.dispatchEvent(this._readyEvent(this._ready))
+                })
                 break
 
             default:
@@ -205,6 +304,88 @@ export class ApiSocket {
         console.error('Api socket encountered error: ', e.message, 'Closing socket');
         this._socket.close()
     }
+
+
+    /** PLACEHOLDERS */
+
+    /**
+     * @returns {Promise}
+     */
+    bl_devices() { return new Promise() }
+
+    /**
+     * @returns {Promise}
+     */
+    bl_current() { return new Promise() }
+
+    /**
+     * @param {boolean} state
+     * @returns {Promise}
+     */
+    bl_adapter_discoverable(state) { return new Promise() }
+
+    /**
+    * @param {boolean} state
+    * @returns {Promise}
+    */
+    bl_adapter_discovery(state) { return new Promise() }
+
+    /**
+     * @returns {Promise}
+     */
+    bl_is_discovering() { return new Promise() }
+
+    /**
+     * @param {string} addr
+     * @returns {Promise}
+     */
+    bl_pair(addr) { return new Promise() }
+
+    /**
+     * @param {string} addr
+     * @returns {Promise}
+     */
+    bl_remove_device(addr) { return new Promise() }
+
+    /**
+     * @param {string} addr
+     * @returns {Promise}
+     */
+    bl_connect(addr) { return new Promise() }
+
+    /**
+     * @param {string} addr
+     * @param {string} uuid
+     * @returns {Promise}
+     */
+    bl_connectUUID(addr, uuid) { return new Promise() }
+
+    /**
+    * @param {string} addr
+    * @param {string} uuid
+    * @returns {Promise}
+    */
+    bl_disconnectUUID(addr, uuid) { return new Promise() }
+
+    /**
+     * @param {string} addr
+     * @param {string} uuid
+     * @returns {Promise}
+     */
+    bl_remove_device(addr, uuid) { return new Promise() }
+
+    /**
+     * @param {string} key 
+     * @param {*} val 
+     * @returns 
+     */
+    settings_set(key, val) { return new Promise() }
+
+    /**
+     * @param {string} key 
+     * @returns 
+     */
+    settings_get(key) { return new Promise() }
 }
 
 export const ApiSocketContext = React.createContext({
