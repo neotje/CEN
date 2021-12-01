@@ -37,11 +37,7 @@ class BluezDevice1(bus.BusObject):
         return await self.run_in_executor(self._interface.Disconnect)
 
     async def ConnectProfile(self, uuid: dbus.String):
-        try:
-            await self.run_in_executor(self._interface.ConnectProfile, uuid)
-            return True
-        except DBusException:
-            return False
+        await self.run_in_executor(self._interface.ConnectProfile, uuid)
 
     async def DisconnectProfile(self, uuid: dbus.String):
         return await self.run_in_executor(self._interface.DisconnectProfile, uuid)
