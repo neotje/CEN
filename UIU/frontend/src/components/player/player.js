@@ -30,7 +30,8 @@ const useStyles = makeStyles((theme) => ({
     controlsContainer: {
         display: "flex",
         justifyContent: "center",
-        alignContent: "center"
+        alignContent: "center",
+        position: "relative"
     },
 }))
 

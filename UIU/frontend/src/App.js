@@ -20,9 +20,11 @@ import { ApiSocketContext } from './components/api/apiSocket';
 import { Clock } from './components/clock';
 import { Pulldown } from './components/pulldownMenu/pulldown';
 import { Paper } from '@material-ui/core';
+import LocalParkingIcon from '@material-ui/icons/LocalParking';
+import { Camera } from './components/camera';
 
 function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, p, ...other } = props;
 
   return (
     <div
@@ -31,9 +33,12 @@ function TabPanel(props) {
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
       {...other}
+      style={{
+        height: "100%"
+      }}
     >
       {value === index && (
-        <Box p={3}>
+        <Box p={p} height="100%">
           {children}
         </Box>
       )}
@@ -50,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   },
   views: {
     flexGrow: 1,
-    padding: theme.spacing(0, 4)
+    height: "100%"
   },
   topbar: {
     backgroundColor: theme.palette.background.paper
@@ -143,19 +148,29 @@ function App(props) {
         onChangeIndex={handleNavigation}
         disableLazyLoading={true}
         resistance={true}
-        disabled={navValue === 2}
+        disabled={navValue === 3}
+        slideStyle={{
+          height: "100%"
+        }}
+        containerStyle={{
+          height: "100%"
+        }}
       >
 
-        <TabPanel value={navValue} index={0}>
-          <Player></Player>
+        <TabPanel value={navValue} index={0} p={3}>
+          <Player />
         </TabPanel>
 
-        <TabPanel value={navValue} index={1}>
-          <BluetoothPage></BluetoothPage>
+        <TabPanel value={navValue} index={1} p={3}>
+          <BluetoothPage />
         </TabPanel>
 
         <TabPanel value={navValue} index={2}>
-          <SettingsPage></SettingsPage>
+          <Camera />
+        </TabPanel>
+
+        <TabPanel value={navValue} index={3} p={3}>
+          <SettingsPage />
         </TabPanel>
 
       </SwipeableViews>
@@ -163,7 +178,8 @@ function App(props) {
       <NavigationBar value={navValue} onNavigation={handleNavigation}>
         <BottomNavigationAction label="Muziek" value={0} icon={<MusicNote />} />
         <BottomNavigationAction label="Bluetooth" value={1} icon={<Bluetooth />} />
-        <BottomNavigationAction label="Instellingen" value={2} icon={<SettingsIcon />} />
+        <BottomNavigationAction label="Parkeren" value={2} icon={<LocalParkingIcon />} />
+        <BottomNavigationAction label="Instellingen" value={3} icon={<SettingsIcon />} />
       </NavigationBar>
 
       {/* </Fade> */}
