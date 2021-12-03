@@ -29,7 +29,7 @@ standby.switch_to_output(False)
 boost_enable = digitalio.DigitalInOut(board.BOOST_ENABLE)
 boost_enable.switch_to_output(True)    
 
-can = canio.CAN(rx=board.CAN_RX, tx=board.CAN_TX, baudrate=1_000_000, auto_restart=True)
+can = canio.CAN(rx=board.CAN_RX, tx=board.CAN_TX, baudrate=250_000, auto_restart=True)
 listener = can.listen()
 
 def fill(color):
