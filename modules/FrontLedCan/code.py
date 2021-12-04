@@ -13,12 +13,11 @@ FILL_ID = 3
 SET_ID = 4
 SHOW_ID = 5
 
-LED_COUNT = 38
-
-pixels = neopixel.NeoPixel(board.A1, LED_COUNT, brightness=1, auto_write=False, pixel_order="RGB")
-
 strips = [
-    pixels
+    neopixel.NeoPixel(board.A3, 19, brightness=1, auto_write=False, pixel_order="RGB"),
+    neopixel.NeoPixel(board.A2, 19, brightness=1, auto_write=False, pixel_order="RGB"),
+    #neopixel.NeoPixel(board.A3, LED_COUNT, brightness=1, auto_write=False, pixel_order="RGB"),
+    #neopixel.NeoPixel(board.A3, LED_COUNT, brightness=1, auto_write=False, pixel_order="RGB")
 ]
 
 # enable can
