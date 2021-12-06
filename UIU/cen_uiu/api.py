@@ -263,7 +263,10 @@ class UIUapi(ApiBase):
         system.softReboot()
         return {}
 
+    async def frontled_effect(self, effect: int):
+        self.frontLedCan.effect = 0
+        return {"status": "online"}
+
     async def frontLed_fill(self, side: str, color: tuple):
         self.frontLedCan.palette = [color]
-        self.frontLedCan.effect = 0
         return {"status": "online"}
