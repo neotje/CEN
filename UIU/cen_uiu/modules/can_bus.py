@@ -73,7 +73,7 @@ class AsyncCanBus(CanBus):
 
         return await asyncio.wait_for(
             loop.run_in_executor(None, super().send, id, data, retry, wait, extended_id),
-            1
+            3
         )
 
     async def getAsyncReader(self) -> can.AsyncBufferedReader:
@@ -121,12 +121,14 @@ class CanManager:
     def bus(self) -> AsyncCanBus:
         return self._bus
 
-    async def openBus(self, bitrate, restart=0, channel="can0"):
+    async def openBus(self, bitrate, restart=0, channel="can0", wait=False):
         self._bus = AsyncCanBus(channel)
         await self._bus.begin(bitrate, restart)
         
         self._handlerTask = asyncio.create_task(self._handler())
-        await self._handlerTask
+
+        if wait:
+            await self._handlerTask
 
     async def listenToId(self, id, listener):
         e = self._idEvents.setdefault(id, Event(f"{id}"))
