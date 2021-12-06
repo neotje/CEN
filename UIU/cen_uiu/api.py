@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import Any
 from cen_uiu.helpers.api_base import ApiBase
-from cen_uiu.modules.can_bus import AsyncCanBus, CanBus
+from cen_uiu.modules.can_bus import AsyncCanBus, CanBus, CanManager
 from cen_uiu.modules.frontled import FrontLedCan
 from cen_uiu.modules.interfaces.adapter_api import BluezAdapter1
 from dbus.exceptions import DBusException
@@ -19,7 +19,7 @@ ADAPTER = "hci0"
 
 class UIUapi(ApiBase):
     frontLedCan: FrontLedCan
-    canbus: CanBus
+    canManager: CanManager
     adapter: BluezAdapter1
 
     def __init__(self):
@@ -28,10 +28,11 @@ class UIUapi(ApiBase):
 
     async def _setup(self):
         self.adapter = await get_adapter(ADAPTER)
-        self.canbus = AsyncCanBus("can0")
-        await self.canbus.begin(250_000, 1)
+        self.canManager = CanManager()
+        await self.canManager.openBus(250_000)
 
-        self.frontLedCan = FrontLedCan(self.canbus)
+        self.frontLedCan = FrontLedCan(self.canManager)
+        await self.frontLedCan.begin()
 
     async def bl_devices(self):
         Logger.debug("bl_devices")
@@ -262,10 +263,7 @@ class UIUapi(ApiBase):
         system.softReboot()
         return {}
 
-    async def frontLed_fill(self, side: str, color: list):
-        await self.frontLedCan.fill(color)
-        try:
-            await self.frontLedCan.show()
-        except asyncio.TimeoutError:
-            return {"status": "offline"}
+    async def frontLed_fill(self, side: str, color: tuple):
+        self.frontLedCan.palette = [color]
+        self.frontLedCan.effect = 0
         return {"status": "online"}
