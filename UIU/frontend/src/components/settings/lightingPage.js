@@ -20,8 +20,10 @@ export function LightingPage() {
     }
 
     const changeFillColor = (color) => {
+        console.log(color)
         setFillColor(color)
         frontLed.fill(color, api)
+        api.settings_set("frontLedFillColor", color).then(result => { })
     }
 
     return (

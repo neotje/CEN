@@ -26,8 +26,8 @@ class FrontLED {
     }
 
     fill(color, api) {
+        console.log(hexToRgb(color))
         this.fillColor = color
-        api.settings_set("frontLedFillColor", color).then(result => { })
         return api.frontLed_fill("all", hexToRgb(color)).then(result => { })
     }
 }
