@@ -7,18 +7,15 @@ import digitalio
 
 import neopixel
 
-SYSTEM_ON_ID = 0
-LED_COUNT_ID = 2
-FILL_ID = 3
-SET_ID = 4
-SHOW_ID = 5
-
-LED_COUNT = 38
-
-pixels = neopixel.NeoPixel(board.A1, LED_COUNT, brightness=1, auto_write=False, pixel_order="RGB")
+READY_ID = 0
+PALETTE_ID = 1
+EFFECT_ID = 2
 
 strips = [
-    pixels
+    neopixel.NeoPixel(board.A3, 19, brightness=1, auto_write=False, pixel_order="RGB"),
+    neopixel.NeoPixel(board.A2, 19, brightness=1, auto_write=False, pixel_order="RGB"),
+    #neopixel.NeoPixel(board.A3, LED_COUNT, brightness=1, auto_write=False, pixel_order="RGB"),
+    #neopixel.NeoPixel(board.A3, LED_COUNT, brightness=1, auto_write=False, pixel_order="RGB")
 ]
 
 # enable can
@@ -29,14 +26,22 @@ standby.switch_to_output(False)
 boost_enable = digitalio.DigitalInOut(board.BOOST_ENABLE)
 boost_enable.switch_to_output(True)    
 
-can = canio.CAN(rx=board.CAN_RX, tx=board.CAN_TX, baudrate=1_000_000, auto_restart=True)
-listener = can.listen()
+led = digitalio.DigitalInOut(board.NEOPIXEL_POWER)
+led.switch_to_output(True)
+pixel = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.3)
 
-def fill(color):
+colors = [
+    (0, 0, 0),
+    (0, 0, 0),
+    (0, 0, 0)
+]
+effect = 0
+
+def fill(color: tuple):
     for strip in strips:
         strip.fill(color)
 
-def setPixel(i, color):
+def setPixel(i, color: tuple):
     for strip in strips:
         if i < strip.n:
             strip[i] = color
@@ -54,26 +59,33 @@ def getLedCount():
         count += strip.n
     return count
 
-showAck = canio.Message(SHOW_ID, b'')
-countMsg = canio.Message(LED_COUNT_ID, struct.pack("<H", getLedCount()))
+def handleMsg(msg: canio.Message):
+    global colors, effect
+
+    print(msg.id)
+
+    if msg.id == PALETTE_ID:
+        index, r, g, b = struct.unpack("<HBBB", msg.data)
+        colors[index] = (r, g, b)
+    elif msg.id == EFFECT_ID:
+        effect = struct.unpack("<H", msg.data)[0]
+
+can = canio.CAN(rx=board.CAN_RX, tx=board.CAN_TX, baudrate=250_000, auto_restart=True)
+listener = can.listen(timeout=0)
+
+readyMsg = canio.Message(READY_ID, b'')
 
 while True:
+    can.send(readyMsg)
     msg = listener.receive()
 
-    if msg is None:
-        continue
+    if msg is not None:
+        pixel.fill([255, 255, 0])
+        handleMsg(msg)
+        pixel.fill([0, 0, 0])
 
-    if msg.id == SYSTEM_ON_ID:
-        rpi_enable = struct.unpack("<?", msg.data)
-        print(rpi_enable)
-    if msg.id == LED_COUNT_ID:
-        can.send(countMsg)
-    elif msg.id == FILL_ID:
-        color = struct.unpack("<BBB", msg.data)
-        fill(color)
-    elif msg.id == SET_ID:
-        index, r, g, b = struct.unpack("<HBBB", msg.data)
-        setPixel(index, (r, g, b))
-    elif msg.id == SHOW_ID:
-        show()
-        can.send(showAck)
+    if effect == 0:
+        fill(colors[0])
+
+    show()
+    
