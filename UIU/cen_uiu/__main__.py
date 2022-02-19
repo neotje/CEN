@@ -1,6 +1,9 @@
 import logging
 from cen_uiu.http_server import create_app, run_app
+from cen_uiu.modules import settings
 from cen_uiu.modules.bluetooth import discover_and_connect
+from cen_uiu.modules.frontled import FrontLedArduino
+from cen_uiu.modules.serial import CONFIG_BAUDRATE, CONFIG_PORT, SerialProtocol
 import webview
 from cen_uiu.modules.api_socket import ApiSocket
 from cen_uiu import api, assets
@@ -49,9 +52,19 @@ async def run_backend():
     parser.add_argument("--http_host", type=str, help="http server port", default="localhost", required=False)
     args = parser.parse_args()
 
-    apiObj = api.UIUapi()
+    # serial
+    serial_protocol = SerialProtocol()
+    serial_port = await settings.get(CONFIG_PORT)
+    serial_rate = await settings.get(CONFIG_BAUDRATE)
+
+    # ledstrips
+    ledstrips = FrontLedArduino(serial_protocol)
+
+    # api socket
+    apiObj = api.UIUapi(ledstrips)
     apiSocket = ApiSocket(apiObj, args.port)
     
+    # fronted server
     frontendApp = create_app()
 
     logging.basicConfig(
@@ -63,7 +76,8 @@ async def run_backend():
 
     routines = [
         apiSocket.serve(),
-        discover_and_connect("hci0")
+        discover_and_connect("hci0"),
+        serial_protocol.begin(serial_port, serial_rate)
     ]
 
     if not args.nohttp:

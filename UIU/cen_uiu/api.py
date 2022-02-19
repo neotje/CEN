@@ -3,7 +3,7 @@ import logging
 from typing import Any
 from cen_uiu.helpers.api_base import ApiBase
 from cen_uiu.modules.can_bus import AsyncCanBus, CanBus, CanManager
-from cen_uiu.modules.frontled import FrontLedCan
+from cen_uiu.modules.frontled import FrontLedArduino, FrontLedCan
 from cen_uiu.modules.interfaces.adapter_api import BluezAdapter1
 from dbus.exceptions import DBusException
 import webview
@@ -18,21 +18,19 @@ ADAPTER = "hci0"
 
 
 class UIUapi(ApiBase):
-    frontLedCan: FrontLedCan
+    frontLed: FrontLedArduino
     canManager: CanManager
     adapter: BluezAdapter1
 
-    def __init__(self):
+    def __init__(self, frontLed: FrontLedArduino):
         self.bl_audio = BluetoothInput()
         self.bl_device = None
+        self.frontLed = frontLed
 
     async def _setup(self):
         self.adapter = await get_adapter(ADAPTER)
         self.canManager = CanManager()
         await self.canManager.openBus(250_000)
-
-        self.frontLedCan = FrontLedCan(self.canManager)
-        await self.frontLedCan.begin()
 
     async def bl_devices(self):
         Logger.debug("bl_devices")
@@ -268,5 +266,5 @@ class UIUapi(ApiBase):
         return {"status": "online"}
 
     async def frontLed_fill(self, side: str, color: tuple):
-        self.frontLedCan.palette = [color]
+        self.frontLed.setTargetColor(color)
         return {"status": "online"}

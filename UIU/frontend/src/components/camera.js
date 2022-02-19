@@ -24,7 +24,7 @@ export function Camera() {
     }, [])
 
     return (
-        <video className={classes.video} ref={video} autoPlay>
+        <video controls className={classes.video} ref={video} autoPlay>
 
         </video>
     )

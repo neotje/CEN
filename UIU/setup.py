@@ -13,7 +13,8 @@ REQUIRED = [
     "dbus-python>=1.2.16",
     "screeninfo>=0.6.7",
     "websockets>=10.1",
-    "aiohttp>=3.8.1"
+    "aiohttp>=3.8.1",
+    "pyserial-asyncio>=0.6"
 ]
 
 setup(

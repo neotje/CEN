@@ -15,7 +15,7 @@ class Event:
         for l in self._listeners:
             self._tasks.append(asyncio.create_task(l(self._name, *args)))
 
-    async def listen(self, listener):
+    def listen(self, listener):
         self._listeners.append(listener)
 
     async def remove(self, listener):

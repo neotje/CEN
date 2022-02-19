@@ -132,7 +132,7 @@ class CanManager:
 
     async def listenToId(self, id, listener):
         e = self._idEvents.setdefault(id, Event(f"{id}"))
-        await e.listen(listener)
+        e.listen(listener)
 
     async def removeListenerToId(self, id, listener):
         e = self._idEvents.setdefault(id, Event(f"{id}"))
