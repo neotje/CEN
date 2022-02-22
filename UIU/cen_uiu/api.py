@@ -265,6 +265,6 @@ class UIUapi(ApiBase):
         self.frontLedCan.effect = 0
         return {"status": "online"}
 
-    async def frontLed_fill(self, side: str, color: tuple):
-        self.frontLed.setTargetColor(color)
+    async def frontLed_fill(self, color: tuple):
+        await self.frontLed.setTargetColor(color)
         return {"status": "online"}

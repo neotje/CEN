@@ -194,7 +194,7 @@ class SerialProtocol:
 
                     if frame.verify():
                         self._memory[frame.address] = frame
-                        self._onFrame.dispatch(frame, self)
+                        await self._onFrame.dispatch(frame, self)
                         Logger.debug("Recieved: " + str(frame))
                     else:
                         Logger.warn("Invalid frame!")
